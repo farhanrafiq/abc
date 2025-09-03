@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, current_app, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import or_, func, desc, asc
-from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format, Banner, FeaturedCategory, BannerType
+from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format, Banner, FeaturedCategory, BannerType, HomeSection, SectionType, MediaAsset, NewsletterSubscriber
 from forms import SearchForm, ReviewForm
 from utils.helpers import format_currency, get_cart_count, paginate_query
 from app import db
@@ -11,54 +11,90 @@ web_bp = Blueprint('web', __name__)
 
 @web_bp.route('/')
 def index():
-    """Homepage with featured products and categories"""
-    # Get hero banners
-    hero_banners = Banner.query\
-        .filter(Banner.banner_type == BannerType.HERO, Banner.is_active == True)\
-        .order_by(Banner.sort_order, Banner.created_at.desc())\
-        .all()
+    """Dynamic homepage with configurable sections"""
+    # Get active homepage sections
+    sections = HomeSection.get_scheduled_active_sections()
     
-    # Get featured categories (from admin panel)
-    featured_categories_query = db.session.query(Category)\
-        .join(FeaturedCategory, Category.id == FeaturedCategory.category_id)\
-        .filter(FeaturedCategory.is_active == True)\
-        .order_by(FeaturedCategory.sort_order)
+    # Render each section with its data
+    rendered_sections = []
+    for section in sections:
+        section_data = get_section_data(section)
+        rendered_sections.append({
+            'section': section,
+            'data': section_data
+        })
     
-    featured_categories = featured_categories_query.all()
+    return render_template('web/index_dynamic.html',
+                         sections=rendered_sections)
+
+def get_section_data(section):
+    """Get data needed to render a section"""
+    data = {}
     
-    # Fallback to top categories if no featured categories set
-    if not featured_categories:
-        featured_categories = Category.query.filter_by(parent_id=None).limit(6).all()
+    if section.type == SectionType.HERO_SLIDER:
+        # Get hero banners for slider
+        data['hero_banners'] = Banner.query\
+            .filter(Banner.banner_type == BannerType.HERO, Banner.is_active == True)\
+            .order_by(Banner.sort_order, Banner.created_at.desc())\
+            .all()
     
-    # Get featured products (latest active products)
-    featured_products = db.session.query(Product).join(Price).join(Inventory)\
-        .filter(Product.status == ProductStatus.ACTIVE)\
-        .filter(Inventory.stock_on_hand > 0)\
-        .order_by(desc(Product.created_at))\
-        .limit(8).all()
+    elif section.type in [SectionType.FEATURED_COLLECTION, SectionType.NEW_ARRIVALS, SectionType.BESTSELLERS]:
+        data_source = section.get_config_value('data_source', 'query')
+        limit = section.get_config_value('limit', 8)
+        
+        if data_source == 'manual':
+            product_ids = section.get_config_value('manual_product_ids', [])
+            products = Product.query.filter(Product.id.in_(product_ids)).limit(limit).all()
+        else:
+            query_config = section.get_config_value('query', {})
+            category_slug = query_config.get('category_slug')
+            sort_by = query_config.get('sort', 'newest')
+            
+            query = Product.query.join(Price).join(Inventory)\
+                .filter(Product.status == ProductStatus.ACTIVE)\
+                .filter(Inventory.stock_on_hand > 0)
+            
+            if category_slug:
+                query = query.join(Product.categories).filter(Category.slug == category_slug)
+            
+            if sort_by == 'newest':
+                query = query.order_by(desc(Product.created_at))
+            elif sort_by == 'price_low':
+                query = query.order_by(asc(Price.sale_inr))
+            elif sort_by == 'price_high':
+                query = query.order_by(desc(Price.sale_inr))
+            elif section.type == SectionType.BESTSELLERS:
+                query = query.outerjoin(Review)\
+                    .group_by(Product.id, Price.id, Inventory.product_id)\
+                    .order_by(desc(func.count(Review.id)))
+            
+            products = query.limit(limit).all()
+        
+        data['products'] = products
     
-    # Get bestsellers (products with most reviews for now)
-    bestsellers = db.session.query(Product).join(Price).join(Inventory)\
-        .outerjoin(Review)\
-        .filter(Product.status == ProductStatus.ACTIVE)\
-        .filter(Inventory.stock_on_hand > 0)\
-        .group_by(Product.id, Price.id, Inventory.product_id)\
-        .order_by(desc(func.count(Review.id)))\
-        .limit(6).all()
+    elif section.type == SectionType.AUTHOR_SPOTLIGHT:
+        author_id = section.get_config_value('author_id')
+        if author_id:
+            data['author'] = Author.query.get(author_id)
     
-    # Get new arrivals
-    new_arrivals = db.session.query(Product).join(Price).join(Inventory)\
-        .filter(Product.status == ProductStatus.ACTIVE)\
-        .filter(Inventory.stock_on_hand > 0)\
-        .order_by(desc(Product.created_at))\
-        .limit(6).all()
+    elif section.type == SectionType.PUBLISHER_SPOTLIGHT:
+        publisher_id = section.get_config_value('publisher_id')
+        if publisher_id:
+            data['publisher'] = Publisher.query.get(publisher_id)
     
-    return render_template('web/index_ios.html',
-                         hero_banners=hero_banners,
-                         featured_categories=featured_categories,
-                         featured_products=featured_products,
-                         bestsellers=bestsellers,
-                         new_arrivals=new_arrivals)
+    elif section.type == SectionType.STAFF_PICKS:
+        items = section.get_config_value('items', [])
+        staff_picks = []
+        for item in items:
+            product = Product.query.get(item.get('product_id'))
+            if product:
+                staff_picks.append({
+                    'product': product,
+                    'editor_note': item.get('editor_note', '')
+                })
+        data['staff_picks'] = staff_picks
+    
+    return data
 
 @web_bp.route('/catalog')
 @web_bp.route('/catalog/<category_slug>')

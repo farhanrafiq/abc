@@ -1,0 +1,279 @@
+<!-- Staff Picks Section -->
+<section class="homepage-section light">
+    <div class="section-container">
+        {% if section.title %}
+            <div class="section-header">
+                <h2 class="section-title">{{ section.title }}</h2>
+                {% if section.subtitle %}
+                    <p class="section-subtitle">{{ section.subtitle }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        {% if staff_picks %}
+            <div class="staff-picks-grid">
+                {% for pick in staff_picks %}
+                    <article class="staff-pick-card">
+                        <div class="staff-pick-content">
+                            <!-- Product Image -->
+                            <div class="staff-pick-image">
+                                {% if pick.product.cover_image %}
+                                    <img src="{{ url_for('static', filename='uploads/products/' + pick.product.cover_image) }}" 
+                                         alt="{{ pick.product.title }}" loading="lazy">
+                                {% else %}
+                                    <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
+                                         alt="{{ pick.product.title }}" loading="lazy">
+                                {% endif %}
+                                <div class="staff-pick-badge">
+                                    <i class="fas fa-star"></i>
+                                    Staff Pick
+                                </div>
+                            </div>
+                            
+                            <!-- Product Info -->
+                            <div class="staff-pick-info">
+                                {% if pick.product.categories %}
+                                    <div class="staff-pick-category">{{ pick.product.categories[0].name }}</div>
+                                {% endif %}
+                                
+                                <h3 class="staff-pick-title">
+                                    <a href="{{ url_for('web.product_detail', slug=pick.product.slug) }}">
+                                        {{ pick.product.title }}
+                                    </a>
+                                </h3>
+                                
+                                {% if pick.product.authors %}
+                                    <p class="staff-pick-author">by {{ pick.product.authors[0].name }}</p>
+                                {% endif %}
+                                
+                                {% if pick.editor_note %}
+                                    <blockquote class="editor-note">
+                                        <i class="fas fa-quote-left"></i>
+                                        {{ pick.editor_note }}
+                                        <cite>— Staff Recommendation</cite>
+                                    </blockquote>
+                                {% endif %}
+                                
+                                <!-- Price and Action -->
+                                {% if pick.product.price %}
+                                    <div class="staff-pick-footer">
+                                        <div class="staff-pick-price">
+                                            <span class="price-current">₹{{ "%.0f"|format(pick.product.price.sale_inr / 100) }}</span>
+                                            {% if pick.product.price.mrp_inr > pick.product.price.sale_inr %}
+                                                <span class="price-original">₹{{ "%.0f"|format(pick.product.price.mrp_inr / 100) }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <button class="add-to-cart-btn" data-product-id="{{ pick.product.id }}">
+                                            <i class="fas fa-cart-plus"></i>
+                                            Add to Cart
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-star"></i>
+                <h3>No staff picks configured</h3>
+                <p>Our team is selecting the best books for you.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Decorative border -->
+    <div class="kufic-border"></div>
+</section>
+
+<style>
+.staff-picks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.staff-pick-card {
+    background: white;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.staff-pick-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-medium);
+    border-color: var(--orange-600);
+}
+
+.staff-pick-content {
+    display: flex;
+    height: 100%;
+}
+
+.staff-pick-image {
+    position: relative;
+    flex-shrink: 0;
+    width: 140px;
+    height: 180px;
+    overflow: hidden;
+}
+
+.staff-pick-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.staff-pick-card:hover .staff-pick-image img {
+    transform: scale(1.05);
+}
+
+.staff-pick-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: linear-gradient(135deg, var(--orange-600), var(--brown-700));
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--border-radius);
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.staff-pick-info {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.staff-pick-category {
+    color: var(--orange-600);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.staff-pick-title {
+    margin-bottom: 0.5rem;
+}
+
+.staff-pick-title a {
+    color: var(--ink);
+    text-decoration: none;
+    font-family: 'Merriweather', serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    transition: var(--transition);
+}
+
+.staff-pick-title a:hover {
+    color: var(--orange-600);
+}
+
+.staff-pick-author {
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+.editor-note {
+    background: var(--cream-100);
+    border-left: 4px solid var(--orange-600);
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    font-style: italic;
+    line-height: 1.6;
+    position: relative;
+}
+
+.editor-note .fa-quote-left {
+    color: var(--orange-600);
+    margin-right: 0.5rem;
+    opacity: 0.7;
+}
+
+.editor-note cite {
+    display: block;
+    text-align: right;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.staff-pick-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid var(--system-gray5);
+}
+
+.staff-pick-price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.price-current {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--orange-600);
+}
+
+.price-original {
+    font-size: 1rem;
+    color: var(--muted);
+    text-decoration: line-through;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+    color: var(--orange-600);
+}
+
+@media (max-width: 768px) {
+    .staff-picks-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .staff-pick-content {
+        flex-direction: column;
+    }
+    
+    .staff-pick-image {
+        width: 100%;
+        height: 200px;
+    }
+    
+    .staff-pick-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+}
+</style>

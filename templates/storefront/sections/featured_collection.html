@@ -1,0 +1,50 @@
+<!-- Featured Collection Section -->
+<section class="homepage-section light">
+    <div class="section-container">
+        {% if section.title %}
+            <div class="section-header">
+                <h2 class="section-title">{{ section.title }}</h2>
+                {% if section.subtitle %}
+                    <p class="section-subtitle">{{ section.subtitle }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        {% set layout = section.get_config_value('layout', 'grid') %}
+        {% set show_price_badges = section.get_config_value('show_price_badges', true) %}
+        
+        {% if layout == 'carousel' %}
+            <div class="product-carousel" data-carousel="true" data-autoplay="false">
+                <div class="product-carousel-track">
+                    {% for product in products %}
+                        {% include 'storefront/partials/product_card.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="product-grid">
+                {% for product in products %}
+                    {% include 'storefront/partials/product_card.html' %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-book"></i>
+                        <h3>No products found</h3>
+                        <p>Check back soon for featured books.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% if products %}
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="{{ url_for('web.catalog') }}" class="hero-cta">
+                    <i class="fas fa-arrow-right"></i>
+                    View All Books
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Decorative flourish -->
+    <div class="decorative-flourish"></div>
+</section>

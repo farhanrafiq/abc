@@ -1,0 +1,305 @@
+<!-- Quick Order ISBN Section -->
+<section class="homepage-section light">
+    <div class="section-container">
+        <div class="quick-order" 
+             data-enable-scanner="{{ section.get_config_value('enable_scanner', false) | lower }}">
+            
+            <div class="section-header">
+                <h2 class="section-title">
+                    {{ section.title or 'Quick Order by ISBN' }}
+                </h2>
+                {% if section.subtitle %}
+                    <p class="section-subtitle">{{ section.subtitle }}</p>
+                {% endif %}
+                
+                {% set note_text = section.get_config_value('note_text', '') %}
+                {% if note_text %}
+                    <p class="quick-order-note">{{ note_text }}</p>
+                {% else %}
+                    <p class="quick-order-note">
+                        Enter the ISBN number of any book to quickly find and order it. 
+                        Supports both ISBN-10 and ISBN-13 formats.
+                    </p>
+                {% endif %}
+            </div>
+            
+            <div class="isbn-input-group">
+                <input type="text" 
+                       class="isbn-input" 
+                       id="isbn-input" 
+                       placeholder="Enter ISBN-10 or ISBN-13" 
+                       pattern="[0-9X-]{10,17}"
+                       aria-label="ISBN input"
+                       autocomplete="off">
+                
+                {% if section.get_config_value('enable_scanner', false) %}
+                    <button type="button" class="scanner-btn" id="scanner-btn" aria-label="Scan barcode">
+                        <i class="fas fa-camera"></i>
+                        <span class="btn-text">Scan</span>
+                    </button>
+                {% endif %}
+                
+                <button type="button" class="search-isbn-btn" id="search-isbn-btn" aria-label="Find book by ISBN">
+                    <i class="fas fa-search"></i>
+                    <span class="btn-text">Find Book</span>
+                </button>
+            </div>
+            
+            <div class="isbn-result" id="isbn-result" role="region" aria-live="polite">
+                <!-- Results will be inserted here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Geometric border decoration -->
+    <div class="geometric-border pattern-overlay pattern-light"></div>
+</section>
+
+<style>
+.quick-order {
+    background: linear-gradient(135deg, var(--cream-100), white);
+    padding: 3rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    position: relative;
+    box-shadow: var(--shadow-soft);
+}
+
+.quick-order-note {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 1rem auto 2rem;
+}
+
+.isbn-input-group {
+    display: flex;
+    max-width: 600px;
+    margin: 2rem auto;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+.isbn-input {
+    flex: 1;
+    padding: 1rem;
+    border: 2px solid var(--brown-400);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-family: 'Inter', monospace;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: var(--transition);
+}
+
+.isbn-input:focus {
+    outline: none;
+    border-color: var(--orange-600);
+    box-shadow: 0 0 0 3px rgba(232, 106, 23, 0.1);
+}
+
+.isbn-input:valid {
+    border-color: var(--success);
+}
+
+.scanner-btn,
+.search-isbn-btn {
+    background: var(--orange-600);
+    color: white;
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 120px;
+    justify-content: center;
+}
+
+.scanner-btn:hover,
+.search-isbn-btn:hover {
+    background: var(--brown-700);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.scanner-btn:disabled,
+.search-isbn-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.isbn-result {
+    margin-top: 2rem;
+    min-height: 50px;
+}
+
+.isbn-product-card {
+    background: white;
+    border: 2px solid var(--brown-400);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+    box-shadow: var(--shadow-soft);
+    animation: slideInUp 0.4s ease-out;
+}
+
+.isbn-product-card .product-image {
+    flex-shrink: 0;
+    width: 100px;
+    height: 120px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+}
+
+.isbn-product-card .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.isbn-product-card .product-info {
+    flex: 1;
+}
+
+.isbn-product-card .product-info h3 {
+    font-family: 'Merriweather', serif;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: var(--ink);
+    line-height: 1.3;
+}
+
+.isbn-product-card .author {
+    color: var(--muted);
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.isbn-product-card .price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--orange-600);
+    margin-bottom: 1rem;
+}
+
+.loading {
+    color: var(--muted);
+    font-style: italic;
+    padding: 1rem;
+}
+
+.error-message {
+    color: var(--danger);
+    background: rgba(176, 0, 32, 0.1);
+    border: 1px solid rgba(176, 0, 32, 0.3);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+/* Scanner Modal */
+.scanner-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.scanner-overlay {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+}
+
+.scanner-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.scanner-header h3 {
+    margin: 0;
+    color: var(--ink);
+}
+
+.close-scanner {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--muted);
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-scanner:hover {
+    color: var(--danger);
+}
+
+#scanner-video {
+    width: 100%;
+    max-width: 400px;
+    height: 300px;
+    border-radius: var(--border-radius);
+    background: #000;
+}
+
+.scanner-instructions {
+    margin-top: 1rem;
+    color: var(--muted);
+    font-style: italic;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .isbn-input-group {
+        flex-direction: column;
+    }
+    
+    .isbn-product-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .scanner-btn .btn-text,
+    .search-isbn-btn .btn-text {
+        display: none;
+    }
+}
+</style>

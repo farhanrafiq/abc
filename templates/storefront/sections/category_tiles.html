@@ -1,0 +1,81 @@
+<!-- Category Tiles Section -->
+<section class="homepage-section dark">
+    <div class="section-container">
+        {% if section.title %}
+            <div class="section-header">
+                <h2 class="section-title">{{ section.title }}</h2>
+                {% if section.subtitle %}
+                    <p class="section-subtitle">{{ section.subtitle }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        {% set tiles = section.get_config_value('tiles', []) %}
+        {% set cols_mobile = section.get_config_value('columns_mobile', 2) %}
+        {% set cols_desktop = section.get_config_value('columns_desktop', 4) %}
+        
+        <div class="category-tiles cols-{{ cols_desktop }}" 
+             style="--mobile-cols: {{ cols_mobile }}; --desktop-cols: {{ cols_desktop }};">
+            
+            {% for tile in tiles %}
+                <a href="{{ tile.href or url_for('web.catalog', category_slug=tile.slug) }}" 
+                   class="category-tile"
+                   aria-label="Browse {{ tile.title }} category">
+                    
+                    {% if tile.image_url %}
+                        <div class="category-tile-bg" 
+                             style="background-image: url('{{ tile.image_url }}');"></div>
+                    {% else %}
+                        <div class="category-tile-bg" 
+                             style="background: linear-gradient(135deg, {{ tile.accent_color or '#E86A17' }}, var(--brown-700));"></div>
+                    {% endif %}
+                    
+                    <div class="category-tile-overlay" 
+                         style="background: linear-gradient(45deg, rgba(59, 42, 34, 0.8), {{ tile.accent_color or '#E86A17' }}66);">
+                        <h3 class="category-tile-title">{{ tile.title }}</h3>
+                    </div>
+                </a>
+            {% else %}
+                <!-- Default category tiles if none configured -->
+                <a href="{{ url_for('web.catalog', category_slug='tafaseer-ul-quran') }}" class="category-tile">
+                    <div class="category-tile-bg" style="background: linear-gradient(135deg, #E86A17, var(--brown-700));"></div>
+                    <div class="category-tile-overlay">
+                        <h3 class="category-tile-title">Tafaseer-ul-Quran</h3>
+                    </div>
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='hadith-collections') }}" class="category-tile">
+                    <div class="category-tile-bg" style="background: linear-gradient(135deg, var(--brown-700), #8A6A5A);"></div>
+                    <div class="category-tile-overlay">
+                        <h3 class="category-tile-title">Hadith Collections</h3>
+                    </div>
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='seerat-biography') }}" class="category-tile">
+                    <div class="category-tile-bg" style="background: linear-gradient(135deg, #5A4034, #E86A17);"></div>
+                    <div class="category-tile-overlay">
+                        <h3 class="category-tile-title">Seerat & Biography</h3>
+                    </div>
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='fiqh-islamic-law') }}" class="category-tile">
+                    <div class="category-tile-bg" style="background: linear-gradient(135deg, #8A6A5A, var(--brown-700));"></div>
+                    <div class="category-tile-overlay">
+                        <h3 class="category-tile-title">Fiqh & Islamic Law</h3>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+@media (max-width: 768px) {
+    .category-tiles {
+        grid-template-columns: repeat(var(--mobile-cols), 1fr) !important;
+    }
+}
+
+@media (min-width: 769px) {
+    .category-tiles {
+        grid-template-columns: repeat(var(--desktop-cols), 1fr) !important;
+    }
+}
+</style>

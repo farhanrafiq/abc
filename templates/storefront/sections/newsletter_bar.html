@@ -1,0 +1,228 @@
+<!-- Newsletter Subscription Section -->
+<section class="homepage-section accent newsletter-bar-section">
+    <div class="section-container">
+        <div class="newsletter-bar">
+            <div class="newsletter-content">
+                <h2 class="newsletter-title">
+                    {{ section.get_config_value('title', 'Stay Updated') }}
+                </h2>
+                <p class="newsletter-subtitle">
+                    {{ section.get_config_value('subtitle', 'Subscribe to our newsletter for the latest Islamic books and exclusive offers') }}
+                </p>
+            </div>
+            
+            <form class="newsletter-form" onsubmit="return handleNewsletterSubmit(event)">
+                <div class="newsletter-input-group">
+                    <input type="email" 
+                           name="email" 
+                           class="newsletter-input" 
+                           placeholder="{{ section.get_config_value('placeholder_text', 'Enter your email address') }}"
+                           required
+                           aria-label="Email address for newsletter subscription">
+                    
+                    <button type="submit" class="newsletter-submit">
+                        <i class="fas fa-paper-plane"></i>
+                        {{ section.get_config_value('submit_label', 'Subscribe') }}
+                    </button>
+                </div>
+                
+                <div class="newsletter-privacy">
+                    <small>
+                        <i class="fas fa-lock"></i>
+                        We respect your privacy. Unsubscribe at any time.
+                    </small>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Background pattern -->
+    <div class="arabesque-pattern pattern-overlay pattern-light"></div>
+</section>
+
+<style>
+.newsletter-bar-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.newsletter-bar {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.newsletter-title {
+    font-family: 'Merriweather', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.newsletter-subtitle {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+}
+
+.newsletter-form {
+    margin-top: 2rem;
+}
+
+.newsletter-input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.newsletter-input {
+    flex: 1;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--ink);
+}
+
+.newsletter-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+    background: white;
+}
+
+.newsletter-submit {
+    background: white;
+    color: var(--orange-600);
+    border: none;
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.newsletter-submit:hover {
+    background: var(--cream-100);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.newsletter-privacy {
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 1rem;
+}
+
+.newsletter-privacy i {
+    margin-right: 0.5rem;
+    color: var(--success);
+}
+
+.newsletter-message {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: 500;
+}
+
+.newsletter-message.success {
+    background: rgba(47, 125, 50, 0.2);
+    color: white;
+    border: 1px solid rgba(47, 125, 50, 0.5);
+}
+
+.newsletter-message.error {
+    background: rgba(176, 0, 32, 0.2);
+    color: white;
+    border: 1px solid rgba(176, 0, 32, 0.5);
+}
+
+@media (max-width: 768px) {
+    .newsletter-title {
+        font-size: 2rem;
+    }
+    
+    .newsletter-input-group {
+        flex-direction: column;
+    }
+    
+    .newsletter-submit {
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+async function handleNewsletterSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const email = formData.get('email');
+    const submitBtn = form.querySelector('.newsletter-submit');
+    
+    // Show loading state
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subscribing...';
+    submitBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/newsletter/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: email })
+        });
+        
+        const data = await response.json();
+        
+        // Remove existing messages
+        const existingMsg = form.querySelector('.newsletter-message');
+        if (existingMsg) existingMsg.remove();
+        
+        // Create new message
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `newsletter-message ${data.success ? 'success' : 'error'}`;
+        messageDiv.innerHTML = `
+            <i class="fas fa-${data.success ? 'check' : 'exclamation-triangle'}"></i>
+            ${data.message || (data.success ? 'Thank you for subscribing!' : 'Subscription failed')}
+        `;
+        
+        form.appendChild(messageDiv);
+        
+        if (data.success) {
+            form.reset();
+        }
+        
+        // Auto-remove message after 5 seconds
+        setTimeout(() => messageDiv.remove(), 5000);
+        
+    } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'newsletter-message error';
+        messageDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Network error. Please try again.';
+        form.appendChild(messageDiv);
+        
+        setTimeout(() => messageDiv.remove(), 5000);
+    } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+    
+    return false;
+}
+</script>

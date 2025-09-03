@@ -1,0 +1,54 @@
+<!-- Hero Slider Section -->
+<section class="homepage-section hero-slider" data-carousel="true" 
+         data-autoplay="{{ section.get_config_value('autoplay_enabled', true) | lower }}"
+         data-interval="{{ section.get_config_value('autoplay_interval_ms', 5000) }}"
+         data-transition="{{ section.get_config_value('transition', 'fade') }}"
+         data-show-arrows="{{ section.get_config_value('show_arrows', true) | lower }}"
+         data-show-dots="{{ section.get_config_value('show_dots', true) | lower }}">
+    
+    {% if hero_banners %}
+        {% for banner in hero_banners %}
+        <div class="hero-slide{% if loop.first %} active{% endif %}"
+             {% if banner.image_url %}
+             style="background-image: linear-gradient(rgba(59, 42, 34, 0.4), rgba(232, 106, 23, 0.3)), url('{{ banner.image_url }}');"
+             {% endif %}>
+            <div class="section-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">{{ banner.title }}</h1>
+                    {% if banner.subtitle %}
+                        <p class="hero-subtitle">{{ banner.subtitle }}</p>
+                    {% endif %}
+                    {% if banner.description %}
+                        <p class="hero-description">{{ banner.description }}</p>
+                    {% endif %}
+                    
+                    {% if banner.link_url %}
+                        <div class="hero-actions">
+                            <a href="{{ banner.link_url }}" class="hero-cta">
+                                <i class="fas fa-arrow-right"></i>
+                                {{ banner.link_text or 'Learn More' }}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- Default slide if no banners configured -->
+        <div class="hero-slide active" style="background-image: linear-gradient(rgba(59, 42, 34, 0.6), rgba(232, 106, 23, 0.4)), url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+            <div class="section-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Discover Authentic Islamic Literature</h1>
+                    <p class="hero-subtitle">From classical texts to contemporary works - explore our curated collection of books that inspire, educate, and enlighten.</p>
+                    <div class="hero-actions">
+                        <a href="/catalog" class="hero-cta">
+                            <i class="fas fa-book-open"></i>
+                            Explore Collection
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</section>

@@ -1,0 +1,396 @@
+/* Islamic Geometric Patterns and Motifs */
+
+/* Islamic Geometric Dividers */
+.section-divider {
+  position: relative;
+  text-align: center;
+  margin: 4rem 0;
+}
+
+.section-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brown-400), transparent);
+  transform: translateY(-50%);
+}
+
+.section-divider-icon {
+  background: var(--cream-50);
+  padding: 0 2rem;
+  color: var(--orange-600);
+  font-size: 1.5rem;
+}
+
+/* Islamic Star Pattern */
+.islamic-star {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  display: inline-block;
+}
+
+.islamic-star::before,
+.islamic-star::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: currentColor;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.islamic-star::after {
+  transform: rotate(45deg);
+  opacity: 0.6;
+}
+
+/* Geometric Border Patterns */
+.geometric-border {
+  position: relative;
+  padding: 2rem;
+}
+
+.geometric-border::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 2px solid var(--brown-400);
+  border-image: url("data:image/svg+xml,%3csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3cpattern id='geometric' patternUnits='userSpaceOnUse' width='20' height='20'%3e%3cpath d='M10,0 L20,10 L10,20 L0,10 Z' fill='none' stroke='%23A86442' stroke-width='1'/%3e%3c/pattern%3e%3c/defs%3e%3crect width='100' height='100' fill='url(%23geometric)'/%3e%3c/svg%3e") 20;
+  pointer-events: none;
+}
+
+/* Islamic Arch Pattern */
+.islamic-arch {
+  position: relative;
+  overflow: hidden;
+}
+
+.islamic-arch::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -10%;
+  width: 120%;
+  height: 100%;
+  background: radial-gradient(ellipse at center bottom, transparent 30%, var(--brown-400) 31%, var(--brown-400) 32%, transparent 33%);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+/* Calligraphy Frame */
+.calligraphy-frame {
+  position: relative;
+  padding: 3rem;
+  margin: 2rem 0;
+}
+
+.calligraphy-frame::before {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  border: 3px solid var(--orange-600);
+  border-image: repeating-linear-gradient(
+    45deg,
+    var(--orange-600),
+    var(--orange-600) 10px,
+    var(--brown-400) 10px,
+    var(--brown-400) 20px
+  ) 3;
+}
+
+.calligraphy-frame::after {
+  content: '';
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  border: 1px solid var(--brown-400);
+  opacity: 0.5;
+}
+
+/* Corner Ornaments */
+.corner-ornament {
+  position: relative;
+}
+
+.corner-ornament::before,
+.corner-ornament::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: var(--orange-600);
+  clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
+
+.corner-ornament::before {
+  top: 0;
+  left: 0;
+}
+
+.corner-ornament::after {
+  bottom: 0;
+  right: 0;
+  transform: rotate(180deg);
+}
+
+/* Mandala Pattern Background */
+.mandala-bg {
+  position: relative;
+}
+
+.mandala-bg::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  transform: translate(-50%, -50%);
+  background: url("data:image/svg+xml,%3csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3cg id='mandala'%3e%3ccircle cx='100' cy='100' r='80' fill='none' stroke='%23E86A17' stroke-width='1' opacity='0.3'/%3e%3ccircle cx='100' cy='100' r='60' fill='none' stroke='%235A4034' stroke-width='1' opacity='0.2'/%3e%3ccircle cx='100' cy='100' r='40' fill='none' stroke='%23E86A17' stroke-width='1' opacity='0.1'/%3e%3ccircle cx='100' cy='100' r='20' fill='none' stroke='%235A4034' stroke-width='1' opacity='0.1'/%3e%3c/g%3e%3c/defs%3e%3cuse href='%23mandala'/%3e%3c/svg%3e") no-repeat center;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Geometric Grid Pattern */
+.geometric-grid {
+  background-image: 
+    linear-gradient(var(--brown-400) 1px, transparent 1px),
+    linear-gradient(90deg, var(--brown-400) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: -1px -1px;
+  opacity: 0.1;
+}
+
+/* Arabesque Pattern */
+.arabesque-pattern {
+  position: relative;
+  overflow: hidden;
+}
+
+.arabesque-pattern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3cpattern id='arabesque' patternUnits='userSpaceOnUse' width='60' height='60'%3e%3cpath d='M30 0 Q45 15 30 30 Q15 15 30 0' fill='none' stroke='%235A4034' stroke-width='0.5' opacity='0.2'/%3e%3cpath d='M0 30 Q15 45 30 30 Q15 15 0 30' fill='none' stroke='%23E86A17' stroke-width='0.5' opacity='0.1'/%3e%3cpath d='M60 30 Q45 15 30 30 Q45 45 60 30' fill='none' stroke='%235A4034' stroke-width='0.5' opacity='0.2'/%3e%3cpath d='M30 60 Q15 45 30 30 Q45 45 30 60' fill='none' stroke='%23E86A17' stroke-width='0.5' opacity='0.1'/%3e%3c/pattern%3e%3c/defs%3e%3crect width='60' height='60' fill='url(%23arabesque)'/%3e%3c/svg%3e") repeat;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Mihrab (Prayer Niche) Arch */
+.mihrab-arch {
+  position: relative;
+  padding-top: 2rem;
+}
+
+.mihrab-arch::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 50px;
+  border: 3px solid var(--orange-600);
+  border-bottom: none;
+  border-radius: 50px 50px 0 0;
+  background: linear-gradient(to bottom, transparent 0%, var(--cream-50) 100%);
+}
+
+/* Muqarnas (Honeycomb) Pattern */
+.muqarnas-pattern {
+  background: 
+    radial-gradient(circle at 25% 25%, var(--brown-400) 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, var(--orange-600) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  opacity: 0.1;
+}
+
+/* Kufic Script Inspired Border */
+.kufic-border {
+  position: relative;
+  border-top: 2px solid var(--brown-400);
+  border-bottom: 2px solid var(--brown-400);
+  padding: 2rem 0;
+}
+
+.kufic-border::before,
+.kufic-border::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--orange-600) 0px,
+    var(--orange-600) 8px,
+    transparent 8px,
+    transparent 16px,
+    var(--brown-400) 16px,
+    var(--brown-400) 24px,
+    transparent 24px,
+    transparent 32px
+  );
+}
+
+.kufic-border::before {
+  top: -3px;
+}
+
+.kufic-border::after {
+  bottom: -3px;
+}
+
+/* Tessellation Pattern */
+.tessellation {
+  background: url("data:image/svg+xml,%3csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3cpolygon id='hex' points='40,5 70,25 70,55 40,75 10,55 10,25' fill='none' stroke='%235A4034' stroke-width='0.5' opacity='0.3'/%3e%3c/defs%3e%3cuse href='%23hex'/%3e%3cuse href='%23hex' transform='translate(60,40)'/%3e%3cuse href='%23hex' transform='translate(-60,40)'/%3e%3c/svg%3e") repeat;
+  background-size: 80px 80px;
+}
+
+/* Decorative Flourish */
+.decorative-flourish {
+  position: relative;
+  text-align: center;
+  margin: 3rem 0;
+}
+
+.decorative-flourish::before {
+  content: '❦';
+  font-size: 2rem;
+  color: var(--orange-600);
+  background: var(--cream-50);
+  padding: 0 1rem;
+}
+
+.decorative-flourish::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--brown-400), transparent);
+  z-index: -1;
+}
+
+/* Medallion Pattern */
+.medallion {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  margin: 1rem;
+}
+
+.medallion::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--orange-600);
+  border-radius: 50%;
+  opacity: 0.2;
+}
+
+.medallion::after {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  border: 2px solid var(--brown-700);
+  border-radius: 50%;
+  background: url("data:image/svg+xml,%3csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M20 5 L25 15 L35 15 L27 23 L30 33 L20 28 L10 33 L13 23 L5 15 L15 15 Z' fill='%23E86A17' opacity='0.6'/%3e%3c/svg%3e") no-repeat center;
+}
+
+/* Utility Classes */
+.pattern-light {
+  opacity: 0.1;
+}
+
+.pattern-medium {
+  opacity: 0.3;
+}
+
+.pattern-dark {
+  opacity: 0.6;
+}
+
+.pattern-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* RTL Support */
+[dir="rtl"] .corner-ornament::before {
+  left: auto;
+  right: 0;
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .corner-ornament::after {
+  right: auto;
+  left: 0;
+  transform: rotate(180deg) scaleX(-1);
+}
+
+/* Responsive Patterns */
+@media (max-width: 768px) {
+  .geometric-border::before {
+    border-width: 1px;
+  }
+  
+  .calligraphy-frame {
+    padding: 1.5rem;
+  }
+  
+  .medallion {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .section-divider {
+    margin: 2rem 0;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .geometric-border::before,
+  .kufic-border,
+  .section-divider::before {
+    border-color: var(--ink);
+    opacity: 1;
+  }
+  
+  .arabesque-pattern::before,
+  .mandala-bg::before {
+    opacity: 0.8;
+  }
+}

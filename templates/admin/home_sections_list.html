@@ -1,0 +1,486 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Homepage Builder - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+.home-builder {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    height: calc(100vh - 200px);
+}
+
+.sections-panel {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+    overflow-y: auto;
+}
+
+.preview-panel {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+    position: relative;
+}
+
+.section-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.section-item {
+    background: var(--cream-50);
+    border: 2px solid var(--brown-400);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: move;
+    transition: var(--transition);
+    position: relative;
+}
+
+.section-item:hover {
+    border-color: var(--orange-600);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.section-item.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+}
+
+.section-item.drag-over {
+    border-color: var(--success);
+    background: rgba(47, 125, 50, 0.1);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.section-title {
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+}
+
+.section-type {
+    background: var(--orange-600);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.section-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.section-position {
+    background: var(--brown-700);
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0.25rem;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.toggle-btn.active {
+    color: var(--success);
+}
+
+.toggle-btn.inactive {
+    color: var(--muted);
+}
+
+.toggle-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.section-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--muted);
+}
+
+.schedule-badge {
+    background: var(--warning);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+}
+
+.schedule-badge.active {
+    background: var(--success);
+}
+
+.drag-handle {
+    color: var(--muted);
+    cursor: move;
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+.add-section-btn {
+    background: var(--orange-600);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.add-section-btn:hover {
+    background: var(--brown-700);
+    transform: translateY(-2px);
+}
+
+.preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: var(--border-radius);
+}
+
+.preview-header {
+    background: var(--brown-900);
+    color: white;
+    padding: 1rem;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: between;
+}
+
+.preview-title {
+    font-weight: 600;
+    margin: 0;
+}
+
+.toast {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    background: var(--success);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-medium);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast.error {
+    background: var(--danger);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--muted);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>Homepage Builder</h1>
+    <p>Drag and drop sections to reorder. Click the eye icon to toggle visibility.</p>
+</div>
+
+<div class="home-builder">
+    <!-- Sections Panel -->
+    <div class="sections-panel">
+        <button class="add-section-btn" onclick="window.location.href='{{ url_for('admin_home.new_section') }}'">
+            <i class="fas fa-plus"></i> Add New Section
+        </button>
+        
+        {% if sections %}
+        <ul class="section-list" id="sections-list">
+            {% for section in sections %}
+            <li class="section-item" data-section-id="{{ section.id }}" data-position="{{ section.position }}">
+                <div class="section-header">
+                    <div style="display: flex; align-items: center;">
+                        <i class="fas fa-grip-vertical drag-handle"></i>
+                        <div>
+                            <h3 class="section-title">{{ section.title or section.type.value.replace('_', ' ').title() }}</h3>
+                            <span class="section-type">{{ section.type.value.replace('_', ' ') }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="section-controls">
+                        <span class="section-position">{{ section.position }}</span>
+                        <button class="toggle-btn {{ 'active' if section.is_active else 'inactive' }}" 
+                                onclick="toggleSection({{ section.id }})"
+                                title="{{ 'Deactivate' if section.is_active else 'Activate' }} section">
+                            <i class="fas fa-eye{{ '' if section.is_active else '-slash' }}"></i>
+                        </button>
+                        <a href="{{ url_for('admin_home.edit_section', section_id=section.id) }}" 
+                           class="btn btn-sm btn-outline">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSection({{ section.id }})" 
+                                title="Delete section">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="section-meta">
+                    {% if section.subtitle %}
+                        <span>{{ section.subtitle[:50] }}...</span>
+                    {% endif %}
+                    
+                    {% if section.start_at or section.end_at %}
+                        <span class="schedule-badge {{ 'active' if section.is_scheduled_active else '' }}">
+                            {% if section.start_at and section.end_at %}
+                                Scheduled: {{ section.start_at.strftime('%m/%d') }} - {{ section.end_at.strftime('%m/%d') }}
+                            {% elif section.start_at %}
+                                Starts: {{ section.start_at.strftime('%m/%d %H:%M') }}
+                            {% elif section.end_at %}
+                                Ends: {{ section.end_at.strftime('%m/%d %H:%M') }}
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-puzzle-piece"></i>
+            <h3>No sections yet</h3>
+            <p>Create your first homepage section to get started.</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Preview Panel -->
+    <div class="preview-panel">
+        <div class="preview-header">
+            <h3 class="preview-title">Live Preview</h3>
+            <div>
+                <button class="btn btn-sm btn-outline" onclick="refreshPreview()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+                <a href="{{ url_for('web.index') }}" target="_blank" class="btn btn-sm btn-primary">
+                    <i class="fas fa-external-link-alt"></i> View Live
+                </a>
+            </div>
+        </div>
+        <iframe src="{{ url_for('web.index') }}" class="preview-iframe" id="preview-iframe"></iframe>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize drag and drop
+    const sectionsList = document.getElementById('sections-list');
+    if (sectionsList) {
+        new Sortable(sectionsList, {
+            handle: '.drag-handle',
+            animation: 150,
+            onEnd: function(evt) {
+                updateSectionOrder();
+            }
+        });
+    }
+});
+
+function updateSectionOrder() {
+    const sections = document.querySelectorAll('.section-item');
+    const sectionData = Array.from(sections).map((section, index) => ({
+        id: parseInt(section.dataset.sectionId),
+        position: index + 1
+    }));
+    
+    fetch('{{ url_for("admin_home.reorder_sections") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sections: sectionData })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, 'success');
+            updatePositionNumbers();
+            refreshPreview();
+        } else {
+            showToast(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error updating section order', 'error');
+    });
+}
+
+function updatePositionNumbers() {
+    const sections = document.querySelectorAll('.section-item');
+    sections.forEach((section, index) => {
+        const positionElement = section.querySelector('.section-position');
+        positionElement.textContent = index + 1;
+        section.dataset.position = index + 1;
+    });
+}
+
+function toggleSection(sectionId) {
+    fetch(`/admin/home/${sectionId}/toggle`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, 'success');
+            
+            // Update toggle button
+            const toggleBtn = document.querySelector(`[onclick="toggleSection(${sectionId})"]`);
+            const icon = toggleBtn.querySelector('i');
+            
+            if (data.is_active) {
+                toggleBtn.className = 'toggle-btn active';
+                icon.className = 'fas fa-eye';
+                toggleBtn.title = 'Deactivate section';
+            } else {
+                toggleBtn.className = 'toggle-btn inactive';
+                icon.className = 'fas fa-eye-slash';
+                toggleBtn.title = 'Activate section';
+            }
+            
+            refreshPreview();
+        } else {
+            showToast(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error toggling section', 'error');
+    });
+}
+
+function deleteSection(sectionId) {
+    if (!confirm('Are you sure you want to delete this section?')) {
+        return;
+    }
+    
+    fetch(`/admin/home/${sectionId}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, 'success');
+            
+            // Remove section from DOM
+            const sectionElement = document.querySelector(`[data-section-id="${sectionId}"]`);
+            sectionElement.remove();
+            
+            updatePositionNumbers();
+            refreshPreview();
+        } else {
+            showToast(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error deleting section', 'error');
+    });
+}
+
+function refreshPreview() {
+    const iframe = document.getElementById('preview-iframe');
+    iframe.src = iframe.src;
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check' : 'exclamation-triangle'}"></i>
+        ${message}
+    `;
+    
+    document.getElementById('toast-container').appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Hide and remove toast
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+            case 'n':
+                e.preventDefault();
+                window.location.href = '{{ url_for("admin_home.new_section") }}';
+                break;
+            case 'r':
+                e.preventDefault();
+                refreshPreview();
+                break;
+        }
+    }
+});
+</script>
+{% endblock %}

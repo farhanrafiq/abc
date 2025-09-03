@@ -1,0 +1,667 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Edit' if section else 'New' }} Section - Homepage Builder{% endblock %}
+
+{% block extra_css %}
+<style>
+.section-form {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-soft);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--brown-400);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--orange-600);
+    box-shadow: 0 0 0 3px rgba(232, 106, 23, 0.1);
+}
+
+.form-control.error {
+    border-color: var(--danger);
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+}
+
+.form-error {
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.config-section {
+    background: var(--cream-50);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+    border: 2px dashed var(--brown-400);
+}
+
+.config-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--brown-700);
+}
+
+.dynamic-list {
+    border: 1px solid var(--brown-400);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+.dynamic-item {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    border: 1px solid var(--system-gray4);
+    position: relative;
+}
+
+.dynamic-item:last-child {
+    margin-bottom: 0;
+}
+
+.remove-item-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--danger);
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.add-item-btn {
+    background: var(--orange-600);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+.add-item-btn:hover {
+    background: var(--brown-700);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkbox-input {
+    width: auto;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-row.three-col {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.section-type-select {
+    padding: 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.preview-section {
+    background: var(--cream-100);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    margin-top: 2rem;
+    border: 2px solid var(--brown-400);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--brown-400);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--orange-600);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--brown-700);
+    color: white;
+}
+
+.btn-secondary {
+    background: var(--brown-400);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: var(--brown-700);
+    color: white;
+}
+
+.hidden {
+    display: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>{{ 'Edit' if section else 'Create' }} Homepage Section</h1>
+    <a href="{{ url_for('admin_home.home_sections_list') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Builder
+    </a>
+</div>
+
+<form method="POST" class="section-form" id="section-form">
+    <!-- Basic Information -->
+    <div class="form-group">
+        <label class="form-label" for="type">Section Type</label>
+        <select class="form-control section-type-select" name="type" id="type" 
+                {{ 'disabled' if section else '' }} onchange="updateConfigFields()">
+            {% for section_type in section_types %}
+            <option value="{{ section_type.value }}" 
+                    {{ 'selected' if section and section.type == section_type else '' }}>
+                {{ section_type.value.replace('_', ' ').title() }}
+            </option>
+            {% endfor %}
+        </select>
+        <div class="form-text">Select the type of content this section will display</div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label" for="title">Title</label>
+            <input type="text" class="form-control" name="title" id="title" 
+                   value="{{ section.title if section else form_data.get('title', '') if form_data else '' }}">
+            <div class="form-text">Optional display title for the section</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="subtitle">Subtitle</label>
+            <input type="text" class="form-control" name="subtitle" id="subtitle"
+                   value="{{ section.subtitle if section else form_data.get('subtitle', '') if form_data else '' }}">
+            <div class="form-text">Optional subtitle or description</div>
+        </div>
+    </div>
+
+    <!-- Section Configuration -->
+    <div class="config-section" id="config-section">
+        <h3 class="config-title">Section Configuration</h3>
+        <div id="config-fields">
+            <!-- Dynamic config fields will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Scheduling -->
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label" for="start_at">Start Date/Time</label>
+            <input type="datetime-local" class="form-control" name="start_at" id="start_at"
+                   value="{{ section.start_at.strftime('%Y-%m-%dT%H:%M') if section and section.start_at else '' }}">
+            <div class="form-text">Optional: When this section should become active</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="end_at">End Date/Time</label>
+            <input type="datetime-local" class="form-control" name="end_at" id="end_at"
+                   value="{{ section.end_at.strftime('%Y-%m-%dT%H:%M') if section and section.end_at else '' }}">
+            <div class="form-text">Optional: When this section should become inactive</div>
+        </div>
+    </div>
+
+    <!-- Active Status -->
+    <div class="form-group">
+        <div class="checkbox-group">
+            <input type="checkbox" class="checkbox-input" name="is_active" id="is_active"
+                   {{ 'checked' if (section and section.is_active) or (not section) else '' }}>
+            <label class="form-label" for="is_active">Active</label>
+        </div>
+        <div class="form-text">Whether this section is currently active and visible</div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+        <a href="{{ url_for('admin_home.home_sections_list') }}" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            {{ 'Update' if section else 'Create' }} Section
+        </button>
+    </div>
+</form>
+
+<!-- Config Templates (Hidden) -->
+<div id="config-templates" class="hidden">
+    <!-- Hero Slider Config -->
+    <div data-type="hero_slider">
+        <div class="form-row">
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="show_arrows" id="show_arrows" checked>
+                    <label for="show_arrows">Show Navigation Arrows</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="show_dots" id="show_dots" checked>
+                    <label for="show_dots">Show Dot Indicators</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="autoplay_enabled" id="autoplay_enabled" checked>
+                    <label for="autoplay_enabled">Enable Autoplay</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="autoplay_interval_ms">Autoplay Interval (ms)</label>
+                <input type="number" name="autoplay_interval_ms" id="autoplay_interval_ms" value="5000" min="1000" max="30000">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="transition">Transition Type</label>
+                <select name="transition" id="transition">
+                    <option value="fade">Fade</option>
+                    <option value="slide">Slide</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="transition_ms">Transition Duration (ms)</label>
+                <input type="number" name="transition_ms" id="transition_ms" value="600" min="200" max="2000">
+            </div>
+        </div>
+    </div>
+
+    <!-- Trust Badges Config -->
+    <div data-type="trust_badges">
+        <div class="dynamic-list" id="trust-badges-list">
+            <div class="dynamic-item">
+                <button type="button" class="remove-item-btn" onclick="removeItem(this)">×</button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Icon Name (FontAwesome)</label>
+                        <input type="text" name="item_0_icon_name" placeholder="fa-shield-alt" value="fa-shield-alt">
+                    </div>
+                    <div class="form-group">
+                        <label>Label</label>
+                        <input type="text" name="item_0_label" placeholder="Secure Payments" value="Secure Payments">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Sublabel</label>
+                    <input type="text" name="item_0_sublabel" placeholder="256-bit SSL encryption" value="256-bit SSL encryption">
+                </div>
+            </div>
+        </div>
+        <button type="button" class="add-item-btn" onclick="addTrustBadgeItem()">Add Badge</button>
+        <input type="hidden" name="item_count" id="trust-badge-count" value="1">
+    </div>
+
+    <!-- Category Tiles Config -->
+    <div data-type="category_tiles">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="columns_mobile">Mobile Columns</label>
+                <select name="columns_mobile" id="columns_mobile">
+                    <option value="1">1 Column</option>
+                    <option value="2" selected>2 Columns</option>
+                    <option value="3">3 Columns</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="columns_desktop">Desktop Columns</label>
+                <select name="columns_desktop" id="columns_desktop">
+                    <option value="2">2 Columns</option>
+                    <option value="3">3 Columns</option>
+                    <option value="4" selected>4 Columns</option>
+                    <option value="6">6 Columns</option>
+                </select>
+            </div>
+        </div>
+        <div class="dynamic-list" id="category-tiles-list">
+            <div class="dynamic-item">
+                <button type="button" class="remove-item-btn" onclick="removeItem(this)">×</button>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="tile_0_title" placeholder="Category Name" value="Tafaseer">
+                    </div>
+                    <div class="form-group">
+                        <label>Category Slug</label>
+                        <input type="text" name="tile_0_slug" placeholder="category-slug" value="tafaseer-ul-quran">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Image URL</label>
+                        <input type="url" name="tile_0_image_url" placeholder="https://example.com/image.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>Accent Color</label>
+                        <input type="color" name="tile_0_accent_color" value="#E86A17">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="add-item-btn" onclick="addCategoryTileItem()">Add Tile</button>
+        <input type="hidden" name="tile_count" id="category-tile-count" value="1">
+    </div>
+
+    <!-- Product Collection Config -->
+    <div data-type="featured_collection" data-for="new_arrivals,bestsellers">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="data_source">Data Source</label>
+                <select name="data_source" id="data_source" onchange="toggleDataSource()">
+                    <option value="query" selected>Automatic Query</option>
+                    <option value="manual">Manual Selection</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="limit">Number of Products</label>
+                <input type="number" name="limit" id="limit" value="8" min="1" max="20">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="layout">Layout</label>
+                <select name="layout" id="layout">
+                    <option value="grid" selected>Grid</option>
+                    <option value="carousel">Carousel</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" name="show_price_badges" id="show_price_badges" checked>
+                    <label for="show_price_badges">Show Price Badges</label>
+                </div>
+            </div>
+        </div>
+        <div id="query-config">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="category_slug">Category (Optional)</label>
+                    <input type="text" name="category_slug" id="category_slug" placeholder="Leave empty for all categories">
+                </div>
+                <div class="form-group">
+                    <label for="sort">Sort Order</label>
+                    <select name="sort" id="sort">
+                        <option value="newest" selected>Newest First</option>
+                        <option value="price_low">Price: Low to High</option>
+                        <option value="price_high">Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div id="manual-config" class="hidden">
+            <div class="form-group">
+                <label for="manual_product_ids">Product IDs</label>
+                <input type="text" name="manual_product_ids" id="manual_product_ids" 
+                       placeholder="1,2,3,4 (comma-separated list of product IDs)">
+                <div class="form-text">Enter product IDs separated by commas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Newsletter Bar Config -->
+    <div data-type="newsletter_bar">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="newsletter_title">Title</label>
+                <input type="text" name="newsletter_title" id="newsletter_title" value="Stay Updated" placeholder="Newsletter title">
+            </div>
+            <div class="form-group">
+                <label for="newsletter_subtitle">Subtitle</label>
+                <input type="text" name="newsletter_subtitle" id="newsletter_subtitle" value="Subscribe to our newsletter" placeholder="Newsletter subtitle">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="placeholder_text">Placeholder Text</label>
+                <input type="text" name="placeholder_text" id="placeholder_text" value="Enter your email" placeholder="Input placeholder">
+            </div>
+            <div class="form-group">
+                <label for="submit_label">Submit Button Text</label>
+                <input type="text" name="submit_label" id="submit_label" value="Subscribe" placeholder="Button text">
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Order ISBN Config -->
+    <div data-type="quick_order_isbn">
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" name="enable_scanner" id="enable_scanner">
+                <label for="enable_scanner">Enable Barcode Scanner</label>
+            </div>
+            <div class="form-text">Allow users to scan ISBN barcodes with their camera</div>
+        </div>
+        <div class="form-group">
+            <label for="note_text">Help Text</label>
+            <textarea name="note_text" id="note_text" rows="3" placeholder="Enter ISBN or scan barcode to quickly find books"></textarea>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let itemCounters = {
+    trustBadge: 1,
+    categoryTile: 1,
+    staffPick: 1,
+    deal: 1
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateConfigFields();
+});
+
+function updateConfigFields() {
+    const sectionType = document.getElementById('type').value;
+    const configFields = document.getElementById('config-fields');
+    const templates = document.getElementById('config-templates');
+    
+    // Clear current config fields
+    configFields.innerHTML = '';
+    
+    // Find matching template
+    let template = templates.querySelector(`[data-type="${sectionType}"]`);
+    
+    // Check for multi-type templates
+    if (!template) {
+        template = templates.querySelector(`[data-for*="${sectionType}"]`);
+    }
+    
+    if (template) {
+        configFields.innerHTML = template.innerHTML;
+        
+        // Populate with existing data if editing
+        {% if section %}
+        populateConfigFields({{ section.config | tojson }});
+        {% elif form_data %}
+        populateConfigFields({{ form_data | tojson }});
+        {% endif %}
+    }
+}
+
+function populateConfigFields(config) {
+    for (const [key, value] of Object.entries(config)) {
+        const field = document.querySelector(`[name="${key}"]`);
+        if (field) {
+            if (field.type === 'checkbox') {
+                field.checked = value;
+            } else {
+                field.value = value;
+            }
+        }
+    }
+}
+
+function toggleDataSource() {
+    const dataSource = document.getElementById('data_source').value;
+    const queryConfig = document.getElementById('query-config');
+    const manualConfig = document.getElementById('manual-config');
+    
+    if (dataSource === 'query') {
+        queryConfig.classList.remove('hidden');
+        manualConfig.classList.add('hidden');
+    } else {
+        queryConfig.classList.add('hidden');
+        manualConfig.classList.remove('hidden');
+    }
+}
+
+function removeItem(button) {
+    button.parentElement.remove();
+}
+
+function addTrustBadgeItem() {
+    const count = itemCounters.trustBadge++;
+    const list = document.getElementById('trust-badges-list');
+    const countInput = document.getElementById('trust-badge-count');
+    
+    const item = document.createElement('div');
+    item.className = 'dynamic-item';
+    item.innerHTML = `
+        <button type="button" class="remove-item-btn" onclick="removeItem(this)">×</button>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Icon Name (FontAwesome)</label>
+                <input type="text" name="item_${count}_icon_name" placeholder="fa-shield-alt">
+            </div>
+            <div class="form-group">
+                <label>Label</label>
+                <input type="text" name="item_${count}_label" placeholder="Secure Payments">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Sublabel</label>
+            <input type="text" name="item_${count}_sublabel" placeholder="256-bit SSL encryption">
+        </div>
+    `;
+    
+    list.appendChild(item);
+    countInput.value = count + 1;
+}
+
+function addCategoryTileItem() {
+    const count = itemCounters.categoryTile++;
+    const list = document.getElementById('category-tiles-list');
+    const countInput = document.getElementById('category-tile-count');
+    
+    const item = document.createElement('div');
+    item.className = 'dynamic-item';
+    item.innerHTML = `
+        <button type="button" class="remove-item-btn" onclick="removeItem(this)">×</button>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="tile_${count}_title" placeholder="Category Name">
+            </div>
+            <div class="form-group">
+                <label>Category Slug</label>
+                <input type="text" name="tile_${count}_slug" placeholder="category-slug">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Image URL</label>
+                <input type="url" name="tile_${count}_image_url" placeholder="https://example.com/image.jpg">
+            </div>
+            <div class="form-group">
+                <label>Accent Color</label>
+                <input type="color" name="tile_${count}_accent_color" value="#E86A17">
+            </div>
+        </div>
+    `;
+    
+    list.appendChild(item);
+    countInput.value = count + 1;
+}
+
+// Form validation
+document.getElementById('section-form').addEventListener('submit', function(e) {
+    const sectionType = document.getElementById('type').value;
+    
+    // Validate based on section type
+    if (sectionType === 'category_tiles') {
+        const tiles = document.querySelectorAll('[name^="tile_"][name$="_title"]');
+        if (tiles.length === 0 || !tiles[0].value.trim()) {
+            e.preventDefault();
+            alert('Please add at least one category tile.');
+            return;
+        }
+    }
+    
+    if (sectionType === 'trust_badges') {
+        const badges = document.querySelectorAll('[name^="item_"][name$="_label"]');
+        if (badges.length === 0 || !badges[0].value.trim()) {
+            e.preventDefault();
+            alert('Please add at least one trust badge.');
+            return;
+        }
+    }
+});
+</script>
+{% endblock %}

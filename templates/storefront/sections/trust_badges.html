@@ -1,0 +1,70 @@
+<!-- Trust Badges Section -->
+<section class="homepage-section light">
+    <div class="section-container">
+        {% if section.title %}
+            <div class="section-header">
+                <h2 class="section-title">{{ section.title }}</h2>
+                {% if section.subtitle %}
+                    <p class="section-subtitle">{{ section.subtitle }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        <div class="trust-badges">
+            {% for item in section.get_config_value('items', []) %}
+                <div class="trust-badge">
+                    <div class="trust-badge-icon">
+                        {% if item.icon_name %}
+                            <i class="fas {{ item.icon_name }}"></i>
+                        {% elif item.icon_path %}
+                            <img src="{{ item.icon_path }}" alt="{{ item.label }}" loading="lazy">
+                        {% else %}
+                            <i class="fas fa-shield-alt"></i>
+                        {% endif %}
+                    </div>
+                    <div class="trust-badge-label">{{ item.label }}</div>
+                    {% if item.sublabel %}
+                        <div class="trust-badge-sublabel">{{ item.sublabel }}</div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <!-- Default trust badges if none configured -->
+                <div class="trust-badge">
+                    <div class="trust-badge-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="trust-badge-label">Secure Payments</div>
+                    <div class="trust-badge-sublabel">256-bit SSL encryption</div>
+                </div>
+                <div class="trust-badge">
+                    <div class="trust-badge-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="trust-badge-label">Fast Delivery</div>
+                    <div class="trust-badge-sublabel">Free shipping over ₹999</div>
+                </div>
+                <div class="trust-badge">
+                    <div class="trust-badge-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="trust-badge-label">Customer Support</div>
+                    <div class="trust-badge-sublabel">24/7 assistance</div>
+                </div>
+                <div class="trust-badge">
+                    <div class="trust-badge-icon">
+                        <i class="fas fa-undo"></i>
+                    </div>
+                    <div class="trust-badge-label">Easy Returns</div>
+                    <div class="trust-badge-sublabel">30-day return policy</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Islamic pattern divider -->
+    <div class="section-divider">
+        <div class="section-divider-icon">
+            <div class="islamic-star"></div>
+        </div>
+    </div>
+</section>

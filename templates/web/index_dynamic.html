@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}ABC Publishing Kashmir - Authentic Islamic Literature{% endblock %}
+
+{% block extra_css %}
+<link href="{{ url_for('static', filename='css/homepage.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/motifs.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- Dynamic Homepage Sections -->
+{% for section_data in sections %}
+    {% set section = section_data.section %}
+    {% set data = section_data.data %}
+    
+    <!-- Render section based on type -->
+    {% if section.type.value == 'hero_slider' %}
+        {% with hero_banners = data.hero_banners %}
+            {% include 'storefront/sections/hero_slider.html' %}
+        {% endwith %}
+        
+    {% elif section.type.value == 'trust_badges' %}
+        {% include 'storefront/sections/trust_badges.html' %}
+        
+    {% elif section.type.value == 'category_tiles' %}
+        {% include 'storefront/sections/category_tiles.html' %}
+        
+    {% elif section.type.value in ['featured_collection', 'new_arrivals', 'bestsellers'] %}
+        {% with products = data.products %}
+            {% include 'storefront/sections/featured_collection.html' %}
+        {% endwith %}
+        
+    {% elif section.type.value == 'newsletter_bar' %}
+        {% include 'storefront/sections/newsletter_bar.html' %}
+        
+    {% elif section.type.value == 'quick_order_isbn' %}
+        {% include 'storefront/sections/quick_order_isbn.html' %}
+        
+    {% elif section.type.value == 'staff_picks' %}
+        {% with staff_picks = data.staff_picks %}
+            {% include 'storefront/sections/staff_picks.html' %}
+        {% endwith %}
+        
+    {% elif section.type.value == 'author_spotlight' %}
+        {% with author = data.author %}
+            {% include 'storefront/sections/author_spotlight.html' %}
+        {% endwith %}
+        
+    {% elif section.type.value == 'publisher_spotlight' %}
+        {% with publisher = data.publisher %}
+            {% include 'storefront/sections/publisher_spotlight.html' %}
+        {% endwith %}
+        
+    {% elif section.type.value == 'trending_searches' %}
+        {% include 'storefront/sections/trending_searches.html' %}
+        
+    {% elif section.type.value == 'testimonials' %}
+        {% include 'storefront/sections/testimonials.html' %}
+        
+    {% elif section.type.value == 'blog_snippets' %}
+        {% include 'storefront/sections/blog_snippets.html' %}
+        
+    {% elif section.type.value == 'deals_of_day' %}
+        {% include 'storefront/sections/deals_of_day.html' %}
+        
+    {% elif section.type.value == 'language_shelf' %}
+        {% include 'storefront/sections/language_shelf.html' %}
+        
+    {% elif section.type.value == 'kids_corner' %}
+        {% include 'storefront/sections/kids_corner.html' %}
+        
+    {% elif section.type.value == 'info_strip' %}
+        {% include 'storefront/sections/info_strip.html' %}
+        
+    {% endif %}
+{% else %}
+    <!-- Default content if no sections configured -->
+    <section class="homepage-section hero-slider">
+        <div class="hero-slide active" style="background-image: linear-gradient(rgba(59, 42, 34, 0.6), rgba(232, 106, 23, 0.4)), url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');">
+            <div class="section-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">Welcome to ABC Publishing Kashmir</h1>
+                    <p class="hero-subtitle">Discover authentic Islamic literature and build your digital library with our curated collection.</p>
+                    <div class="hero-actions">
+                        <a href="{{ url_for('web.catalog') }}" class="hero-cta">
+                            <i class="fas fa-book-open"></i>
+                            Browse Books
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Quick setup message for admins -->
+    {% if current_user.is_authenticated and current_user.role.value in ['admin', 'staff'] %}
+    <section class="homepage-section light">
+        <div class="section-container">
+            <div class="text-center" style="padding: 3rem;">
+                <h2>Setup Your Homepage</h2>
+                <p>No homepage sections configured yet. Use the Homepage Builder to create dynamic sections.</p>
+                <a href="{{ url_for('admin_home.home_sections_list') }}" class="hero-cta">
+                    <i class="fas fa-cog"></i>
+                    Open Homepage Builder
+                </a>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+{% endfor %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/homepage.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize homepage features
+    if (typeof window.HomepageJS !== 'undefined') {
+        window.HomepageJS.initHome();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+Act as a senior Flask + vanilla JS engineer and UI designer. Extend the Islamic bookstore project to include a professional, advanced homepage with multiple premium sections, all controlled from an Admin “Homepage Builder.” No copying third-party content. All assets are original placeholders. Brand: ABC Publishing Kashmir.
+
+Stack and constraints
+- Python 3, Flask, Jinja2, SQLAlchemy, Flask-Login, WTForms.
+- Vanilla JS only. No Tailwind, Bootstrap, or external UI libs.
+- Pillow for image optimization. SQLite in dev.
+- Timezone Asia/Kolkata. Locale en-IN, RTL toggle ready.
+
+Theme
+- Warm bookish palette with CSS variables in :root:
+  --brown-900:#3B2A22; --brown-700:#5A4034; --brown-400:#8A6A5A;
+  --orange-600:#E86A17; --cream-50:#FAF6EF; --cream-100:#F2E9E4;
+  --ink:#1C1B1A; --muted:#6B625C; --success:#2F7D32; --warning:#B25E0B; --danger:#B00020;
+- Fonts via Google: Merriweather (headings), Inter (body), Noto Naskh Arabic (RTL).
+- Subtle Islamic geometric borders and section dividers in motifs.css.
+- Motion with prefers-reduced-motion respected. Hover micro-interactions, soft shadows.
+
+Project additions
+- /models/home.py with:
+  HomeSection(
+    id, type enum [
+      HERO_SLIDER, TRUST_BADGES, CATEGORY_TILES, FEATURED_COLLECTION,
+      NEW_ARRIVALS, BESTSELLERS, STAFF_PICKS, DEALS_OF_DAY,
+      AUTHOR_SPOTLIGHT, PUBLISHER_SPOTLIGHT, LANGUAGE_SHELF,
+      KIDS_CORNER, QUICK_ORDER_ISBN, TRENDING_SEARCHES,
+      BLOG_SNIPPETS, TESTIMONIALS, NEWSLETTER_BAR, INFO_STRIP
+    ],
+    title, subtitle,
+    config JSON,   -- per type settings
+    position int, is_active bool,
+    start_at nullable, end_at nullable,
+    created_at, updated_at
+  )
+  MediaAsset(id, kind['image','icon'], path, alt_text, width, height, created_at)
+- /blueprints/admin/home_sections.py for CRUD + reorder + live preview.
+- /templates/storefront/sections/*.html Jinja partials per section type.
+- /static/js/homepage.js to hydrate carousels, countdowns, quick order, lazy images.
+- /static/css/homepage.css for layout and sections. Update base.css and motifs.css.
+
+Admin: Homepage Builder
+- Route /admin/home with:
+  - List of sections with drag handle, eye toggle, schedule badge.
+  - Reorder with HTML5 drag-and-drop. POST to /admin/home/reorder with array of {id, position}.
+  - Add section: choose type, set title/subtitle, fill config via dynamic form (fields vary by type).
+  - Inline preview panel renders the chosen section using the same Jinja partial.
+- Section config schemas (validate on save; store in JSON):
+  - HERO_SLIDER: uses existing Slider rows. Fields: show_arrows, show_dots, autoplay_enabled, autoplay_interval_ms, transition['fade','slide'], transition_ms.
+  - TRUST_BADGES: items[] of {icon_path or icon_name, label, sublabel}. Provide sample icons like “UPI,” “Razorpay,” “COD,” “PAN India Shipping,” “Kashmir Pickup.”
+  - CATEGORY_TILES: tiles[] of {title, slug, image_asset, accent_color, href}. Grid options: columns_mobile, columns_desktop.
+  - FEATURED_COLLECTION: data_source ['manual','query'], manual_product_ids[], or query {category_slug, limit, sort['newest','price_low','price_high']}. Layout ['carousel','grid'].
+  - NEW_ARRIVALS: limit, layout, show_price_badges bool.
+  - BESTSELLERS: same as new arrivals. For now, fake by order_count desc in stub.
+  - STAFF_PICKS: editable list of product_ids with editor_note per item.
+  - DEALS_OF_DAY: items[] of {product_id, deal_price, ends_at}. Show countdown timers.
+  - AUTHOR_SPOTLIGHT: author_id, portrait_asset, blurb, “View all” link.
+  - PUBLISHER_SPOTLIGHT: publisher_id, logo_asset, blurb, “View all” link.
+  - LANGUAGE_SHELF: languages[], limit, layout. Chips to switch shelves.
+  - KIDS_CORNER: limit, layout, banner_asset optional.
+  - QUICK_ORDER_ISBN: enable_scanner bool, note text. If scanner enabled, use getUserMedia to read EAN-13 via simple canvas based barcode detection module you implement or fallback to manual ISBN input.
+  - TRENDING_SEARCHES: terms[] and optional “view all” link. Click injects into search.
+  - BLOG_SNIPPETS: posts[] {title, excerpt, href, image_asset, read_time}. Static for now.
+  - TESTIMONIALS: items[] {name, text, rating 1-5, location}. Carousel layout.
+  - NEWSLETTER_BAR: title, subtitle, placeholder_text, submit_label. Save emails in a simple table NewsletterSubscriber(email, created_at).
+  - INFO_STRIP: compact pill row with bullets like “Free delivery in Srinagar over ₹999,” “WhatsApp support +91 8899424992,” “GST Invoice,” “Easy Returns.” Supports icons.
+
+Storefront home page
+- Controller loads all active HomeSection rows where within schedule window, sorted by position. Render each via section template dispatch.
+- Each section partial must be fully responsive, accessible:
+  - Carousels: keyboard support, aria roles, dots and arrows, autoplay pause on hover, swipe for touch.
+  - Lazy-load images with intersection observer. Provide webp with jpg fallback.
+  - Skeleton loaders while JS hydrates.
+- Global enhancements:
+  - Sticky header with category mega menu.
+  - Search bar with category filter and instant suggestions from stubbed endpoint.
+  - Floating mini-cart badge with quantity.
+  - Recently viewed strip persists in localStorage.
+
+Templates to implement
+- sections/hero_slider.html
+- sections/trust_badges.html
+- sections/category_tiles.html
+- sections/featured_collection.html
+- sections/new_arrivals.html
+- sections/bestsellers.html
+- sections/staff_picks.html
+- sections/deals_of_day.html
+- sections/author_spotlight.html
+- sections/publisher_spotlight.html
+- sections/language_shelf.html
+- sections/kids_corner.html
+- sections/quick_order_isbn.html
+- sections/trending_searches.html
+- sections/blog_snippets.html
+- sections/testimonials.html
+- sections/newsletter_bar.html
+- sections/info_strip.html
+
+JS details
+- homepage.js exports initHome():
+  - Finds any [data-carousel] and wires controls. Options from data-attrs or embedded JSON script tag.
+  - Countdown timers for deals with accessible live region updates every second.
+  - Quick Order: if camera allowed and scanner enabled, open scanner overlay; else focus ISBN input; validate ISBN-10/13; on success, show product card and Add to Cart.
+  - Trending searches inject query param and submit.
+  - Language shelf chips toggle shelf content without page reload.
+- Provide tiny pub-sub for section widgets to avoid global collisions.
+- Respect dir="rtl" flipping arrow icons and swipe direction.
+
+Admin UX
+- Clean, two-column layout: left list of sections, right config + live preview in iframe styled same as storefront.
+- Drag to reorder. Show position numbers.
+- Toasts on save with aria-live.
+- Server-side validation errors show under fields.
+
+Data and stubs
+- Use existing Product, Author, Publisher stubs or create minimal models if missing.
+- Provide seeders for 6 categories, 16 sample products, 8 authors, 6 publishers, 3 testimonials, and some blog snippets.
+- Provide sample media in /static/img/placeholders and /static/img/patterns.
+
+Accessibility and performance
+- All interactive controls keyboard reachable. Visible focus rings.
+- Images have alt text. Contrasts checked.
+- Minified CSS/JS for production build step. Cache headers for static.
+- Defer non-critical JS. Use loading="lazy" on images.
+
+Routes
+- GET / for home with dynamic sections.
+- Admin:
+  - GET /admin/home
+  - POST /admin/home/new
+  - POST /admin/home/<id>/edit
+  - POST /admin/home/reorder
+  - PATCH /admin/home/<id>/toggle
+- Public JSON for slider settings already exists; add GET /api/home-preview/<id> to render a single section in isolation for preview.
+
+Files to create or update
+- models/home.py
+- blueprints/admin/home_sections.py
+- templates/admin/home_sections_list.html
+- templates/admin/home_section_form.html
+- templates/storefront/sections/*.html (all listed)
+- static/js/homepage.js
+- static/css/homepage.css
+- static/css/motifs.css (extend with dividers and borders)
+- Update base.html and home.html to loop over sections and include partials.
+
+README updates
+- Document each section type, its config keys, and how to enable, schedule, and reorder.
+- Add screenshots of Admin Homepage Builder and storefront.
+
+Deliver the complete, runnable source with seeds and an admin user:
+- admin@local / Admin123!
