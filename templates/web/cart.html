@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart - ABC Publishing Kashmir{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-brand">
+            <li class="breadcrumb-item"><a href="{{ url_for('web.index') }}">Home</a></li>
+            <li class="breadcrumb-item active">Shopping Cart</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="font-serif text-brand-brown">Shopping Cart</h1>
+                {% if cart_items %}
+                <button type="button" class="btn btn-outline-danger" id="clear-cart-btn">
+                    <i class="fas fa-trash me-2"></i>Clear Cart
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if cart_items %}
+    <div class="row">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            <div class="cart-items-container">
+                {% for item in cart_items %}
+                <div class="cart-item" data-item-id="{{ item.id }}">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-2">
+                            <img src="{{ url_for('static', filename=item.product.cover_image) if item.product.cover_image else url_for('static', filename='images/no-cover.jpg') }}" 
+                                 alt="{{ item.product.title }}" 
+                                 class="img-fluid rounded"
+                                 style="width: 100%; height: 120px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="product-title mb-1">
+                                <a href="{{ url_for('web.product_detail', slug=item.product.slug) }}" 
+                                   class="text-decoration-none text-brand-brown">
+                                    {{ item.product.title }}
+                                </a>
+                            </h5>
+                            <p class="text-muted small mb-1">
+                                {% if item.product.authors %}
+                                    by {% for author in item.product.authors %}{{ author.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+                                {% endif %}
+                            </p>
+                            <div class="product-details small text-muted">
+                                <span class="me-3">{{ item.product.language.value }}</span>
+                                <span>{{ item.product.format.value }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            {% if item.product.price %}
+                            <div class="item-price">
+                                <span class="fw-bold text-brand-orange">
+                                    {{ format_currency(item.product.price.sale_inr or item.product.price.mrp_inr) }}
+                                </span>
+                                {% if item.product.price.sale_inr and item.product.price.sale_inr < item.product.price.mrp_inr %}
+                                <br><small class="text-muted text-decoration-line-through">
+                                    {{ format_currency(item.product.price.mrp_inr) }}
+                                </small>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <form method="post" action="{{ url_for('cart.update_cart_item', item_id=item.id) }}" class="quantity-form">
+                                <div class="quantity-controls d-flex align-items-center justify-content-center">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary quantity-decrease">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" name="quantity" 
+                                           class="form-control cart-quantity-input text-center mx-2" 
+                                           value="{{ item.quantity }}" 
+                                           min="1" 
+                                           max="{{ item.product.inventory.stock_on_hand if item.product.inventory else 99 }}"
+                                           data-item-id="{{ item.id }}"
+                                           data-original-quantity="{{ item.quantity }}"
+                                           style="width: 70px;">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary quantity-increase">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                                <div class="loading-spinner d-none mt-1">
+                                    <div class="spinner-border spinner-border-sm text-brand-orange" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            {% if item.product.price %}
+                            <div class="line-total fw-bold text-brand-orange">
+                                {{ format_currency((item.product.price.sale_inr or item.product.price.mrp_inr) * item.quantity) }}
+                            </div>
+                            {% endif %}
+                            <button type="button" class="btn btn-sm btn-outline-danger mt-2 remove-cart-item" 
+                                    data-item-id="{{ item.id }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Cart Summary -->
+        <div class="col-lg-4">
+            <div class="cart-summary">
+                <h4 class="font-serif text-brand-brown mb-3">Order Summary</h4>
+                
+                <!-- Coupon Code -->
+                <div class="coupon-section mb-4">
+                    <form id="coupon-form" method="post" action="#">
+                        <div class="input-group">
+                            <input type="text" id="coupon-code" name="coupon_code" 
+                                   class="form-control" placeholder="Coupon Code" autocomplete="off">
+                            <button class="btn btn-outline-brand" type="submit" id="apply-coupon-btn">
+                                Apply
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Order Totals -->
+                <div class="cart-totals">
+                    <div class="subtotal-row d-flex justify-content-between py-2 border-bottom">
+                        <span>Subtotal:</span>
+                        <span id="cart-subtotal">{{ format_currency(subtotal) }}</span>
+                    </div>
+                    
+                    <div class="shipping-row d-flex justify-content-between py-2 border-bottom">
+                        <span>Shipping:</span>
+                        <span id="cart-shipping">
+                            {% set shipping_cost = 5000 if subtotal < 150000 else 0 %}
+                            {{ format_currency(shipping_cost) if shipping_cost > 0 else 'Free' }}
+                        </span>
+                    </div>
+                    
+                    <div class="total-row d-flex justify-content-between py-3 border-bottom border-2">
+                        <span class="h5 mb-0">Total:</span>
+                        <span class="h5 mb-0 text-brand-orange" id="cart-total">
+                            {% set shipping_cost = 5000 if subtotal < 150000 else 0 %}
+                            {{ format_currency(subtotal + shipping_cost) }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Shipping Info -->
+                <div class="shipping-info mt-3 p-3 bg-light rounded">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {% if subtotal < 150000 %}
+                        Add {{ format_currency(150000 - subtotal) }} more for free shipping!
+                        {% else %}
+                        Congratulations! You qualify for free shipping.
+                        {% endif %}
+                    </small>
+                </div>
+
+                <!-- Checkout Button -->
+                <div class="checkout-section mt-4">
+                    <a href="{{ url_for('cart.checkout') }}" class="btn btn-brand-primary btn-lg w-100">
+                        <i class="fas fa-lock me-2"></i>Proceed to Checkout
+                    </a>
+                </div>
+
+                <!-- Continue Shopping -->
+                <div class="continue-shopping mt-3 text-center">
+                    <a href="{{ url_for('web.catalog') }}" class="text-brand-orange text-decoration-none">
+                        <i class="fas fa-arrow-left me-1"></i>Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty Cart -->
+    <div class="empty-cart-message text-center py-5">
+        <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
+        <h3 class="text-muted mb-3">Your cart is empty</h3>
+        <p class="text-muted mb-4">
+            Looks like you haven't added any books to your cart yet. 
+            Browse our collection to find your next great read.
+        </p>
+        <a href="{{ url_for('web.catalog') }}" class="btn btn-brand-primary">
+            <i class="fas fa-book me-2"></i>Start Shopping
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add cart.js for functionality -->
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+{% endblock %}

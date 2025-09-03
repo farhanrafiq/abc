@@ -1,0 +1,417 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if selected_category %}{{ selected_category.name }} Books{% else %}Book Catalog{% endif %} - ABC Publishing Kashmir
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-brand">
+            <li class="breadcrumb-item"><a href="{{ url_for('web.index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('web.catalog') }}">Catalog</a></li>
+            {% if selected_category %}
+            <li class="breadcrumb-item active">{{ selected_category.name }}</li>
+            {% endif %}
+        </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h1 class="font-serif text-brand-brown mb-2">
+                        {% if selected_category %}
+                            {{ selected_category.name }} Books
+                        {% else %}
+                            Book Catalog
+                        {% endif %}
+                    </h1>
+                    <p class="text-muted">
+                        {% if products.total %}
+                            Showing {{ products.per_page * (products.page - 1) + 1 }} - 
+                            {{ products.per_page * products.page if products.per_page * products.page < products.total else products.total }} 
+                            of {{ products.total }} books
+                        {% else %}
+                            No books found
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-brand d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#filterSidebar">
+                        <i class="fas fa-filter me-2"></i>Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Filter Sidebar -->
+        <div class="col-lg-3">
+            <div class="collapse d-lg-block" id="filterSidebar">
+                <div class="filter-sidebar">
+                    <form method="GET" action="{{ url_for('web.catalog') }}" class="filter-form">
+                        <!-- Search -->
+                        <div class="filter-group">
+                            <label class="filter-title">Search</label>
+                            <input type="text" name="q" value="{{ form.q.data or '' }}" 
+                                   class="form-control" placeholder="Search books...">
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div class="filter-group">
+                            <label class="filter-title">Category</label>
+                            <select name="category" class="form-select">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" 
+                                        {% if form.category.data == category.id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Author Filter -->
+                        <div class="filter-group">
+                            <label class="filter-title">Author</label>
+                            <select name="author" class="form-select">
+                                <option value="">All Authors</option>
+                                {% for author in form.author.choices[1:] %}
+                                <option value="{{ author[0] }}" 
+                                        {% if form.author.data == author[0] %}selected{% endif %}>
+                                    {{ author[1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Publisher Filter -->
+                        <div class="filter-group">
+                            <label class="filter-title">Publisher</label>
+                            <select name="publisher" class="form-select">
+                                <option value="">All Publishers</option>
+                                {% for publisher in form.publisher.choices[1:] %}
+                                <option value="{{ publisher[0] }}" 
+                                        {% if form.publisher.data == publisher[0] %}selected{% endif %}>
+                                    {{ publisher[1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Language Filter -->
+                        <div class="filter-group">
+                            <label class="filter-title">Language</label>
+                            <select name="language" class="form-select">
+                                {% for language in form.language.choices %}
+                                <option value="{{ language[0] }}" 
+                                        {% if form.language.data == language[0] %}selected{% endif %}>
+                                    {{ language[1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Format Filter -->
+                        <div class="filter-group">
+                            <label class="filter-title">Format</label>
+                            <select name="format" class="form-select">
+                                {% for format in form.format.choices %}
+                                <option value="{{ format[0] }}" 
+                                        {% if form.format.data == format[0] %}selected{% endif %}>
+                                    {{ format[1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Price Range -->
+                        <div class="filter-group">
+                            <label class="filter-title">Price Range</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" name="min_price" value="{{ form.min_price.data or '' }}" 
+                                           class="form-control" placeholder="Min ₹" min="0" step="0.01">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" name="max_price" value="{{ form.max_price.data or '' }}" 
+                                           class="form-control" placeholder="Max ₹" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- In Stock Only -->
+                        <div class="filter-group">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="in_stock" 
+                                       {% if form.in_stock.data %}checked{% endif %}>
+                                <label class="form-check-label">In Stock Only</label>
+                            </div>
+                        </div>
+
+                        <!-- Sort Options -->
+                        <div class="filter-group">
+                            <label class="filter-title">Sort By</label>
+                            <select name="sort" class="form-select">
+                                {% for sort_option in form.sort.choices %}
+                                <option value="{{ sort_option[0] }}" 
+                                        {% if form.sort.data == sort_option[0] %}selected{% endif %}>
+                                    {{ sort_option[1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-brand-primary">
+                                <i class="fas fa-filter me-2"></i>Apply Filters
+                            </button>
+                            <a href="{{ url_for('web.catalog') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-2"></i>Clear Filters
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-9">
+            {% if products.items %}
+            <!-- View Toggle -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="view-toggle">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary active" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-view="list">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="results-info text-muted">
+                    Page {{ products.page }} of {{ products.pages }}
+                </div>
+            </div>
+
+            <!-- Products Grid View -->
+            <div id="products-grid" class="row g-4">
+                {% for product in products.items %}
+                <div class="col-md-6 col-xl-4">
+                    {% include 'components/product_card.html' %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Products List View (Hidden by default) -->
+            <div id="products-list" class="d-none">
+                {% for product in products.items %}
+                <div class="card card-brand mb-3">
+                    <div class="row g-0">
+                        <div class="col-md-3">
+                            <img src="{{ url_for('static', filename=product.cover_image) if product.cover_image else url_for('static', filename='images/no-cover.jpg') }}" 
+                                 class="img-fluid rounded-start h-100" 
+                                 style="object-fit: cover;"
+                                 alt="{{ product.title }}">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <h5 class="card-title">
+                                            <a href="{{ url_for('web.product_detail', slug=product.slug) }}" 
+                                               class="text-decoration-none text-brand-brown">
+                                                {{ product.title }}
+                                            </a>
+                                        </h5>
+                                        <p class="text-muted small mb-2">
+                                            {% if product.authors %}
+                                                by {% for author in product.authors %}{{ author.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+                                            {% endif %}
+                                        </p>
+                                        <p class="card-text">
+                                            {{ product.description[:200] if product.description else 'No description available.' }}...
+                                        </p>
+                                        <div class="book-details small text-muted">
+                                            <span class="me-3"><i class="fas fa-language me-1"></i>{{ product.language.value }}</span>
+                                            <span class="me-3"><i class="fas fa-book me-1"></i>{{ product.format.value }}</span>
+                                            {% if product.isbn %}<span><i class="fas fa-barcode me-1"></i>{{ product.isbn }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 text-lg-end">
+                                        <div class="price-section mb-3">
+                                            {% if product.price %}
+                                                <div class="price-display">
+                                                    <span class="price-sale">{{ format_currency(product.price.sale_inr or product.price.mrp_inr) }}</span>
+                                                    {% if product.price.sale_inr and product.price.sale_inr < product.price.mrp_inr %}
+                                                    <span class="price-original">{{ format_currency(product.price.mrp_inr) }}</span>
+                                                    <span class="price-discount">{{ ((product.price.mrp_inr - product.price.sale_inr) / product.price.mrp_inr * 100) | int }}% OFF</span>
+                                                    {% endif %}
+                                                </div>
+                                            {% else %}
+                                                <span class="text-muted">Price not available</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="stock-status mb-3">
+                                            {% if product.inventory and product.inventory.stock_on_hand > 0 %}
+                                                {% if product.inventory.stock_on_hand <= product.inventory.low_stock_threshold %}
+                                                <span class="stock-status low-stock">Only {{ product.inventory.stock_on_hand }} left</span>
+                                                {% else %}
+                                                <span class="stock-status in-stock">In Stock</span>
+                                                {% endif %}
+                                            {% else %}
+                                            <span class="stock-status out-of-stock">Out of Stock</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="product-actions">
+                                            {% if product.inventory and product.inventory.stock_on_hand > 0 %}
+                                            <button class="btn btn-brand-primary add-to-cart-btn" 
+                                                    data-product-id="{{ product.id }}">
+                                                <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-secondary" disabled>
+                                                <i class="fas fa-times me-2"></i>Out of Stock
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.pages > 1 %}
+            <nav aria-label="Page navigation" class="mt-5">
+                <ul class="pagination pagination-brand justify-content-center">
+                    {% if products.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('web.catalog', page=products.prev_num, **request.args) }}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in products.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != products.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('web.catalog', page=page_num, **request.args) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('web.catalog', page=products.next_num, **request.args) }}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                <h3 class="text-muted mb-3">No books found</h3>
+                <p class="text-muted mb-4">
+                    We couldn't find any books matching your criteria. Try adjusting your filters or search terms.
+                </p>
+                <a href="{{ url_for('web.catalog') }}" class="btn btn-brand-primary">
+                    <i class="fas fa-arrow-left me-2"></i>View All Books
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // View toggle functionality
+    const gridBtn = document.querySelector('[data-view="grid"]');
+    const listBtn = document.querySelector('[data-view="list"]');
+    const gridView = document.getElementById('products-grid');
+    const listView = document.getElementById('products-list');
+    
+    if (gridBtn && listBtn && gridView && listView) {
+        gridBtn.addEventListener('click', function() {
+            gridView.classList.remove('d-none');
+            listView.classList.add('d-none');
+            gridBtn.classList.add('active');
+            listBtn.classList.remove('active');
+        });
+        
+        listBtn.addEventListener('click', function() {
+            listView.classList.remove('d-none');
+            gridView.classList.add('d-none');
+            listBtn.classList.add('active');
+            gridBtn.classList.remove('active');
+        });
+    }
+    
+    // Auto-submit form on filter changes
+    const filterForm = document.querySelector('.filter-form');
+    if (filterForm) {
+        const selectElements = filterForm.querySelectorAll('select');
+        const checkboxElements = filterForm.querySelectorAll('input[type="checkbox"]');
+        
+        selectElements.forEach(select => {
+            select.addEventListener('change', function() {
+                filterForm.submit();
+            });
+        });
+        
+        checkboxElements.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                filterForm.submit();
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% block structured_data %}
+{% if selected_category %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "{{ selected_category.name }} Books",
+    "description": "Browse our collection of {{ selected_category.name.lower() }} books",
+    "url": "{{ request.url }}",
+    "isPartOf": {
+        "@type": "WebSite",
+        "name": "ABC Publishing Kashmir",
+        "url": "{{ request.host_url }}"
+    }
+}
+</script>
+{% endif %}
+{% endblock %}

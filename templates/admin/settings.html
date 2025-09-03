@@ -1,0 +1,505 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Settings - ABC Publishing Kashmir Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Store Settings</h1>
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-secondary" onclick="resetSettings()">
+            <i class="fas fa-undo me-1"></i>Reset to Defaults
+        </button>
+        <button type="submit" form="settingsForm" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i>Save Settings
+        </button>
+    </div>
+</div>
+
+<form method="post" action="{{ url_for('admin.update_settings') }}" id="settingsForm">
+    <div class="row">
+        <!-- Store Information -->
+        <div class="col-xl-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Store Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Store Name</label>
+                            <input type="text" name="setting_store_name" class="form-control" 
+                                   value="{{ settings.get('store_name', 'ABC Publishing Kashmir') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Store Tagline</label>
+                            <input type="text" name="setting_store_tagline" class="form-control" 
+                                   value="{{ settings.get('store_tagline', 'Your Trusted Islamic Bookstore') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Support Email</label>
+                            <input type="email" name="setting_support_email" class="form-control" 
+                                   value="{{ settings.get('support_email', 'info@abcpublishingkashmir.com') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Support Phone</label>
+                            <input type="tel" name="setting_support_phone" class="form-control" 
+                                   value="{{ settings.get('support_phone', '+91-194-XXXXXX') }}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Store Address</label>
+                            <textarea name="setting_store_address" class="form-control" rows="3">{{ settings.get('store_address', 'Srinagar, Jammu & Kashmir, India') }}</textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Currency</label>
+                            <select name="setting_currency" class="form-select">
+                                <option value="INR" {% if settings.get('currency', 'INR') == 'INR' %}selected{% endif %}>Indian Rupee (₹)</option>
+                                <option value="USD" {% if settings.get('currency', 'INR') == 'USD' %}selected{% endif %}>US Dollar ($)</option>
+                                <option value="EUR" {% if settings.get('currency', 'INR') == 'EUR' %}selected{% endif %}>Euro (€)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Timezone</label>
+                            <select name="setting_timezone" class="form-select">
+                                <option value="Asia/Kolkata" {% if settings.get('timezone', 'Asia/Kolkata') == 'Asia/Kolkata' %}selected{% endif %}>Asia/Kolkata (IST)</option>
+                                <option value="UTC" {% if settings.get('timezone', 'Asia/Kolkata') == 'UTC' %}selected{% endif %}>UTC</option>
+                                <option value="Asia/Dubai" {% if settings.get('timezone', 'Asia/Kolkata') == 'Asia/Dubai' %}selected{% endif %}>Asia/Dubai (GST)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Payment Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Razorpay Key ID</label>
+                            <input type="text" name="setting_razorpay_key_id" class="form-control" 
+                                   value="{{ settings.get('razorpay_key_id', '') }}" 
+                                   placeholder="rzp_test_xxxxxxxxxxxxx">
+                            <small class="form-text text-muted">Your Razorpay Key ID for online payments</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Razorpay Key Secret</label>
+                            <input type="password" name="setting_razorpay_key_secret" class="form-control" 
+                                   value="{{ settings.get('razorpay_key_secret', '') }}" 
+                                   placeholder="••••••••••••••••">
+                            <small class="form-text text-muted">Keep this secret and secure</small>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="setting_cod_enabled" 
+                                       {% if settings.get('cod_enabled', 'true') == 'true' %}checked{% endif %}>
+                                <label class="form-check-label">Enable Cash on Delivery (COD)</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">COD Maximum Amount (₹)</label>
+                            <input type="number" name="setting_cod_max_amount" class="form-control" 
+                                   value="{{ settings.get('cod_max_amount', '50000') }}" min="0" step="100">
+                            <small class="form-text text-muted">Maximum order value for COD</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">COD Charges (%)</label>
+                            <input type="number" name="setting_cod_charges" class="form-control" 
+                                   value="{{ settings.get('cod_charges', '2') }}" min="0" max="10" step="0.1">
+                            <small class="form-text text-muted">COD handling charges percentage</small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">UPI Instructions</label>
+                            <textarea name="setting_upi_instructions" class="form-control" rows="3" 
+                                      placeholder="Instructions for customers using UPI payments">{{ settings.get('upi_instructions', 'Scan QR code or use UPI ID to make payment') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Shipping Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Kashmir Shipping Rate (₹)</label>
+                            <input type="number" name="setting_kashmir_shipping" class="form-control" 
+                                   value="{{ settings.get('kashmir_shipping', '50') }}" min="0" step="1">
+                            <small class="form-text text-muted">Shipping cost within Kashmir</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">India Shipping Rate (₹)</label>
+                            <input type="number" name="setting_india_shipping" class="form-control" 
+                                   value="{{ settings.get('india_shipping', '100') }}" min="0" step="1">
+                            <small class="form-text text-muted">Shipping cost for rest of India</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Free Shipping Threshold (₹)</label>
+                            <input type="number" name="setting_free_shipping_threshold" class="form-control" 
+                                   value="{{ settings.get('free_shipping_threshold', '1500') }}" min="0" step="100">
+                            <small class="form-text text-muted">Minimum order for free shipping</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Handling Fee (₹)</label>
+                            <input type="number" name="setting_handling_fee" class="form-control" 
+                                   value="{{ settings.get('handling_fee', '0') }}" min="0" step="1">
+                            <small class="form-text text-muted">Additional handling charges</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Processing Time (days)</label>
+                            <input type="number" name="setting_processing_time" class="form-control" 
+                                   value="{{ settings.get('processing_time', '1') }}" min="0" max="10">
+                            <small class="form-text text-muted">Order processing time</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tax Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Tax Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Default Tax Rate (%)</label>
+                            <input type="number" name="setting_default_tax_rate" class="form-control" 
+                                   value="{{ settings.get('default_tax_rate', '0') }}" min="0" max="50" step="0.1">
+                            <small class="form-text text-muted">Default tax rate for products (0% for books in India)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">GST Number</label>
+                            <input type="text" name="setting_gst_number" class="form-control" 
+                                   value="{{ settings.get('gst_number', '') }}" 
+                                   placeholder="22AAAAA0000A1Z5">
+                            <small class="form-text text-muted">Your GST registration number</small>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="setting_tax_inclusive" 
+                                       {% if settings.get('tax_inclusive', 'false') == 'true' %}checked{% endif %}>
+                                <label class="form-check-label">Prices are tax-inclusive</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Email Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Email Provider</label>
+                            <select name="setting_email_provider" class="form-select">
+                                <option value="smtp" {% if settings.get('email_provider', 'smtp') == 'smtp' %}selected{% endif %}>SMTP</option>
+                                <option value="sendgrid" {% if settings.get('email_provider', 'smtp') == 'sendgrid' %}selected{% endif %}>SendGrid</option>
+                                <option value="resend" {% if settings.get('email_provider', 'smtp') == 'resend' %}selected{% endif %}>Resend</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">From Email</label>
+                            <input type="email" name="setting_from_email" class="form-control" 
+                                   value="{{ settings.get('from_email', 'noreply@abcpublishingkashmir.com') }}" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Admin BCC Email</label>
+                            <input type="email" name="setting_admin_bcc" class="form-control" 
+                                   value="{{ settings.get('admin_bcc', '') }}" 
+                                   placeholder="admin@abcpublishingkashmir.com">
+                            <small class="form-text text-muted">Receive copies of all customer emails</small>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="setting_email_notifications" 
+                                       {% if settings.get('email_notifications', 'true') == 'true' %}checked{% endif %}>
+                                <label class="form-check-label">Send email notifications to customers</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-xl-4">
+            <!-- Business Settings -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Business Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Legal Entity Name</label>
+                        <input type="text" name="setting_legal_name" class="form-control" 
+                               value="{{ settings.get('legal_name', 'ABC Publishing Kashmir') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">CIN Number</label>
+                        <input type="text" name="setting_cin_number" class="form-control" 
+                               value="{{ settings.get('cin_number', '') }}" 
+                               placeholder="U74999DL2020PTC123456">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">PAN Number</label>
+                        <input type="text" name="setting_pan_number" class="form-control" 
+                               value="{{ settings.get('pan_number', '') }}" 
+                               placeholder="AAAAA0000A">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Business Registration Address</label>
+                        <textarea name="setting_registered_address" class="form-control" rows="3">{{ settings.get('registered_address', '') }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WhatsApp Integration -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">WhatsApp Integration</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">WhatsApp Number</label>
+                        <input type="tel" name="setting_whatsapp_number" class="form-control" 
+                               value="{{ settings.get('whatsapp_number', '') }}" 
+                               placeholder="+91XXXXXXXXXX">
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="setting_whatsapp_enabled" 
+                                   {% if settings.get('whatsapp_enabled', 'false') == 'true' %}checked{% endif %}>
+                            <label class="form-check-label">Enable WhatsApp Support</label>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Default Message Template</label>
+                        <textarea name="setting_whatsapp_template" class="form-control" rows="3" 
+                                  placeholder="Hi, I need help with my order...">{{ settings.get('whatsapp_template', 'Hi, I need help with my order from ABC Publishing Kashmir.') }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Analytics & Tracking</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Google Analytics 4 ID</label>
+                        <input type="text" name="setting_ga4_id" class="form-control" 
+                               value="{{ settings.get('ga4_id', '') }}" 
+                               placeholder="G-XXXXXXXXXX">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Facebook Pixel ID</label>
+                        <input type="text" name="setting_fb_pixel" class="form-control" 
+                               value="{{ settings.get('fb_pixel', '') }}" 
+                               placeholder="123456789012345">
+                    </div>
+                    <div class="mb-0">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="setting_analytics_enabled" 
+                                   {% if settings.get('analytics_enabled', 'false') == 'true' %}checked{% endif %}>
+                            <label class="form-check-label">Enable Analytics Tracking</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance Mode -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Maintenance & Security</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="setting_maintenance_mode" 
+                                   {% if settings.get('maintenance_mode', 'false') == 'true' %}checked{% endif %}>
+                            <label class="form-check-label">Maintenance Mode</label>
+                        </div>
+                        <small class="form-text text-muted">Temporarily disable the store for maintenance</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Maintenance Message</label>
+                        <textarea name="setting_maintenance_message" class="form-control" rows="3">{{ settings.get('maintenance_message', 'We are currently updating our store. Please check back soon!') }}</textarea>
+                    </div>
+                    <div class="mb-0">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="setting_registration_enabled" 
+                                   {% if settings.get('registration_enabled', 'true') == 'true' %}checked{% endif %}>
+                            <label class="form-check-label">Allow New User Registration</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Store Hours -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Store Hours</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Opening Hours</label>
+                        <input type="text" name="setting_store_hours" class="form-control" 
+                               value="{{ settings.get('store_hours', 'Mon-Sat: 9:00 AM - 6:00 PM') }}">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">Holiday Schedule</label>
+                        <textarea name="setting_holiday_schedule" class="form-control" rows="2" 
+                                  placeholder="Closed on Fridays and public holidays">{{ settings.get('holiday_schedule', 'Closed on Fridays and public holidays') }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+function resetSettings() {
+    if (confirm('Are you sure you want to reset all settings to defaults? This action cannot be undone.')) {
+        // Here you would typically make an API call to reset settings
+        location.reload();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const settingsForm = document.getElementById('settingsForm');
+    
+    settingsForm.addEventListener('submit', function(e) {
+        // Basic validation
+        const requiredFields = this.querySelectorAll('input[required]');
+        let allValid = true;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add('is-invalid');
+                allValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        if (!allValid) {
+            e.preventDefault();
+            AdminManager.showToast('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+        
+        // Re-enable button after form submission
+        setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalText;
+        }, 3000);
+    });
+    
+    // Real-time validation for email fields
+    const emailFields = document.querySelectorAll('input[type="email"]');
+    emailFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (this.value && !emailRegex.test(this.value)) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+    
+    // Maintenance mode warning
+    const maintenanceMode = document.querySelector('input[name="setting_maintenance_mode"]');
+    if (maintenanceMode) {
+        maintenanceMode.addEventListener('change', function() {
+            if (this.checked) {
+                if (!confirm('Enabling maintenance mode will make your store inaccessible to customers. Continue?')) {
+                    this.checked = false;
+                }
+            }
+        });
+    }
+    
+    // Auto-save functionality (optional)
+    let autoSaveTimeout;
+    const autoSaveFields = document.querySelectorAll('input, textarea, select');
+    
+    autoSaveFields.forEach(field => {
+        field.addEventListener('change', function() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                // Show auto-save indicator
+                const indicator = document.createElement('small');
+                indicator.className = 'text-muted ms-2';
+                indicator.innerHTML = '<i class="fas fa-check text-success"></i> Auto-saved';
+                
+                // Remove existing indicators
+                const existing = this.parentNode.querySelector('.text-muted');
+                if (existing && existing !== indicator) {
+                    existing.remove();
+                }
+                
+                this.parentNode.appendChild(indicator);
+                
+                // Remove indicator after 3 seconds
+                setTimeout(() => {
+                    if (indicator.parentNode) {
+                        indicator.remove();
+                    }
+                }, 3000);
+            }, 2000);
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-control:focus,
+.form-select:focus {
+    border-color: #E86A17;
+    box-shadow: 0 0 0 0.2rem rgba(232, 106, 23, 0.25);
+}
+
+.btn-primary {
+    background-color: #E86A17;
+    border-color: #E86A17;
+}
+
+.btn-primary:hover {
+    background-color: #D4590C;
+    border-color: #D4590C;
+}
+
+.form-check-input:checked {
+    background-color: #E86A17;
+    border-color: #E86A17;
+}
+
+.card-header {
+    background-color: #F8F9FA;
+    border-bottom: 1px solid #DEE2E6;
+}
+
+.is-invalid {
+    border-color: #dc3545;
+}
+</style>
+{% endblock %}

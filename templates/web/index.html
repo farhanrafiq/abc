@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}ABC Publishing Kashmir - Authentic Islamic Books & Literature{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section islamic-pattern">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="hero-content">
+                    <h1 class="hero-title font-serif">
+                        <span class="text-brand-brown">Welcome to</span><br>
+                        <span class="text-brand-orange">ABC Publishing Kashmir</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Your trusted source for authentic Islamic books, academic literature, and spiritual guidance. 
+                        Serving the Kashmir valley and beyond with quality books that inspire and educate.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="{{ url_for('web.catalog') }}" class="btn btn-brand-primary btn-lg me-3">
+                            <i class="fas fa-book me-2"></i>Browse Books
+                        </a>
+                        <a href="#featured-categories" class="btn btn-outline-brand btn-lg">
+                            <i class="fas fa-arrow-down me-2"></i>Explore Categories
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image text-center">
+                    <img src="https://pixabay.com/get/g330e620477e05c4d79e0e0c545fe5adc7b30e13f9e711f389967a66717be2b1e237b81eabd937faa83a1de5647cb128430605208445d447129da830e4527ab2b_1280.jpg" 
+                         alt="Islamic Books Collection" 
+                         class="img-fluid rounded shadow-lg"
+                         style="max-height: 400px; object-fit: cover;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Categories -->
+<section id="featured-categories" class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="calligraphy-header">Featured Categories</h2>
+                <p class="lead text-muted">Discover our carefully curated collection of Islamic and academic literature</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for category in featured_categories %}
+            <div class="col-md-6 col-lg-4">
+                <div class="category-card {{ 'quran-category' if 'quran' in category.name.lower() else 'hadith-category' if 'hadith' in category.name.lower() else 'fiqh-category' if 'fiqh' in category.name.lower() else 'seerah-category' }}">
+                    <div class="category-icon">
+                        {% if 'quran' in category.name.lower() %}
+                            <i class="fas fa-book-open"></i>
+                        {% elif 'hadith' in category.name.lower() %}
+                            <i class="fas fa-scroll"></i>
+                        {% elif 'academic' in category.name.lower() %}
+                            <i class="fas fa-graduation-cap"></i>
+                        {% elif 'novel' in category.name.lower() %}
+                            <i class="fas fa-book"></i>
+                        {% else %}
+                            <i class="fas fa-bookmark"></i>
+                        {% endif %}
+                    </div>
+                    <h5 class="category-title">{{ category.name }}</h5>
+                    <p class="category-description">
+                        {% if category.description %}
+                            {{ category.description[:100] }}...
+                        {% else %}
+                            Explore our collection of {{ category.name.lower() }} books
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('web.catalog', category_slug=category.slug) }}" 
+                       class="btn btn-outline-brand btn-sm">
+                        View Books <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="font-serif text-brand-brown">New Arrivals</h2>
+                <p class="lead text-muted">Latest additions to our collection</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-md-6 col-lg-3">
+                {% include 'components/product_card.html' %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('web.catalog') }}" class="btn btn-brand-primary">
+                View All Products <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Bestsellers -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="font-serif text-brand-brown">Popular Books</h2>
+                <p class="lead text-muted">Most loved by our customers</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for product in bestsellers %}
+            <div class="col-md-6 col-lg-4">
+                {% include 'components/product_card.html' %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Islamic Divider -->
+<div class="islamic-divider">
+    <span>❖ ❖ ❖</span>
+</div>
+
+<!-- About Section -->
+<section class="py-5 bg-brand-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="about-image">
+                    <img src="https://pixabay.com/get/g81a11ee10fcac4ff1cf9307e721f2d6315187b2c39ec573fcc1484e29f650e81baff1dee39e8a1242660474a4368f5eaa8b1c311519e54a9207e339955b2aa3c_1280.jpg" 
+                         alt="Modern Bookstore Interior" 
+                         class="img-fluid rounded shadow">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-content">
+                    <h2 class="font-serif text-brand-brown mb-4">About ABC Publishing Kashmir</h2>
+                    <p class="lead mb-4">
+                        For years, we have been dedicated to bringing authentic Islamic literature 
+                        and academic books to the beautiful valley of Kashmir and beyond.
+                    </p>
+                    <div class="about-features">
+                        <div class="feature mb-3">
+                            <i class="fas fa-check-circle text-brand-orange me-3"></i>
+                            <span>Authentic and verified Islamic texts</span>
+                        </div>
+                        <div class="feature mb-3">
+                            <i class="fas fa-check-circle text-brand-orange me-3"></i>
+                            <span>Multi-language support (Arabic, Urdu, English)</span>
+                        </div>
+                        <div class="feature mb-3">
+                            <i class="fas fa-check-circle text-brand-orange me-3"></i>
+                            <span>Fast delivery across Kashmir and India</span>
+                        </div>
+                        <div class="feature mb-3">
+                            <i class="fas fa-check-circle text-brand-orange me-3"></i>
+                            <span>Expert curation and customer service</span>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('web.content_page', slug='about') }}" class="btn btn-brand-secondary">
+                        Learn More <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Signup -->
+<section class="py-5 bg-brand-brown text-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="font-serif mb-4">Stay Updated</h2>
+                <p class="lead mb-4">
+                    Subscribe to our newsletter for new arrivals, special offers, and Islamic book recommendations
+                </p>
+                <form class="newsletter-form" method="post" action="#" novalidate>
+                    <div class="input-group input-group-lg justify-content-center">
+                        <input type="email" name="email" class="form-control" 
+                               placeholder="Enter your email address" 
+                               style="max-width: 400px;" required>
+                        <button class="btn btn-brand-primary" type="submit">
+                            <i class="fas fa-paper-plane me-2"></i>Subscribe
+                        </button>
+                    </div>
+                    <small class="form-text text-light mt-2 d-block">
+                        We respect your privacy. Unsubscribe at any time.
+                    </small>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Services -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 text-center">
+                <div class="service-icon mb-3">
+                    <i class="fas fa-shipping-fast fa-3x text-brand-orange"></i>
+                </div>
+                <h5 class="font-serif">Fast Delivery</h5>
+                <p class="text-muted">Quick delivery across Kashmir and India</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="service-icon mb-3">
+                    <i class="fas fa-shield-alt fa-3x text-brand-orange"></i>
+                </div>
+                <h5 class="font-serif">Authentic Books</h5>
+                <p class="text-muted">Only genuine and verified Islamic texts</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="service-icon mb-3">
+                    <i class="fas fa-headset fa-3x text-brand-orange"></i>
+                </div>
+                <h5 class="font-serif">Expert Support</h5>
+                <p class="text-muted">Knowledgeable customer service team</p>
+            </div>
+            <div class="col-md-3 text-center">
+                <div class="service-icon mb-3">
+                    <i class="fas fa-money-bill-wave fa-3x text-brand-orange"></i>
+                </div>
+                <h5 class="font-serif">Secure Payment</h5>
+                <p class="text-muted">Multiple payment options available</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ABC Publishing Kashmir",
+    "url": "{{ request.host_url }}",
+    "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "{{ url_for('web.search', _external=True) }}?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+    }
+}
+</script>
+{% endblock %}

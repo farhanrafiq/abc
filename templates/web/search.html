@@ -1,0 +1,399 @@
+{% extends "base.html" %}
+
+{% block title %}
+Search Results{% if search_term %} for "{{ search_term }}"{% endif %} - ABC Publishing Kashmir
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-brand">
+            <li class="breadcrumb-item"><a href="{{ url_for('web.index') }}">Home</a></li>
+            <li class="breadcrumb-item active">Search Results</li>
+        </ol>
+    </nav>
+
+    <!-- Search Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="search-header">
+                <h1 class="font-serif text-brand-brown mb-2">
+                    {% if search_term %}
+                    Search Results for "{{ search_term }}"
+                    {% else %}
+                    Search Results
+                    {% endif %}
+                </h1>
+                <p class="text-muted">
+                    {% if products.total %}
+                        Found {{ products.total }} book{{ 's' if products.total != 1 else '' }}
+                        {% if search_term %}matching "{{ search_term }}"{% endif %}
+                    {% else %}
+                        No books found
+                        {% if search_term %}for "{{ search_term }}"{% endif %}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card card-brand">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('web.search') }}" class="search-form">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label for="{{ form.q.id }}" class="form-label">Search Keywords</label>
+                                {{ form.q(class="form-control", placeholder="Enter book title, author, or ISBN...") }}
+                            </div>
+                            <div class="col-md-2">
+                                <label for="{{ form.category.id }}" class="form-label">Category</label>
+                                {{ form.category(class="form-select") }}
+                            </div>
+                            <div class="col-md-2">
+                                <label for="{{ form.language.id }}" class="form-label">Language</label>
+                                {{ form.language(class="form-select") }}
+                            </div>
+                            <div class="col-md-2">
+                                <label for="{{ form.format.id }}" class="form-label">Format</label>
+                                {{ form.format(class="form-select") }}
+                            </div>
+                            <div class="col-md-2">
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-brand-primary">
+                                        <i class="fas fa-search me-2"></i>Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Options Toggle -->
+                        <div class="mt-3">
+                            <button type="button" class="btn btn-link text-brand-orange p-0" 
+                                    data-bs-toggle="collapse" data-bs-target="#advancedSearch">
+                                <i class="fas fa-sliders-h me-1"></i>Advanced Search Options
+                            </button>
+                        </div>
+                        
+                        <!-- Advanced Search Options -->
+                        <div class="collapse mt-3" id="advancedSearch">
+                            <div class="border-top pt-3">
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Price Range</label>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                {{ form.min_price(class="form-control", placeholder="Min ₹") }}
+                                            </div>
+                                            <div class="col-6">
+                                                {{ form.max_price(class="form-control", placeholder="Max ₹") }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="{{ form.sort.id }}" class="form-label">Sort By</label>
+                                        {{ form.sort(class="form-select") }}
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check mt-4">
+                                            {{ form.in_stock(class="form-check-input") }}
+                                            <label class="form-check-label" for="{{ form.in_stock.id }}">
+                                                In Stock Only
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="d-grid mt-4">
+                                            <a href="{{ url_for('web.search') }}" class="btn btn-outline-secondary">
+                                                <i class="fas fa-times me-1"></i>Clear All
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if products.items %}
+    <!-- Search Results -->
+    <div class="row">
+        <div class="col-12">
+            <!-- Results Header -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="results-info">
+                    <span class="text-muted">
+                        Showing {{ products.per_page * (products.page - 1) + 1 }} - 
+                        {{ products.per_page * products.page if products.per_page * products.page < products.total else products.total }} 
+                        of {{ products.total }} results
+                    </span>
+                </div>
+                <div class="view-options">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-secondary active" data-view="grid">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-view="list">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid View -->
+            <div id="results-grid" class="row g-4">
+                {% for product in products.items %}
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    {% include 'components/product_card.html' %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- List View -->
+            <div id="results-list" class="d-none">
+                {% for product in products.items %}
+                <div class="card card-brand mb-3">
+                    <div class="row g-0">
+                        <div class="col-md-2">
+                            <img src="{{ url_for('static', filename=product.cover_image) if product.cover_image else url_for('static', filename='images/no-cover.jpg') }}" 
+                                 class="img-fluid rounded-start h-100" 
+                                 style="object-fit: cover;"
+                                 alt="{{ product.title }}">
+                        </div>
+                        <div class="col-md-10">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <h5 class="card-title">
+                                            <a href="{{ url_for('web.product_detail', slug=product.slug) }}" 
+                                               class="text-decoration-none text-brand-brown">
+                                                {{ product.title }}
+                                            </a>
+                                        </h5>
+                                        <p class="text-muted small mb-2">
+                                            {% if product.authors %}
+                                                by {% for author in product.authors %}{{ author.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+                                            {% endif %}
+                                        </p>
+                                        <p class="card-text">
+                                            {{ product.description[:200] if product.description else 'No description available.' }}...
+                                        </p>
+                                        <div class="book-details small text-muted">
+                                            <span class="me-3"><i class="fas fa-language me-1"></i>{{ product.language.value }}</span>
+                                            <span class="me-3"><i class="fas fa-book me-1"></i>{{ product.format.value }}</span>
+                                            {% if product.isbn %}<span><i class="fas fa-barcode me-1"></i>{{ product.isbn }}</span>{% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 text-lg-end">
+                                        <div class="price-section mb-2">
+                                            {% if product.price %}
+                                            <div class="price-display">
+                                                <span class="price-sale h5 text-brand-orange">{{ format_currency(product.price.sale_inr or product.price.mrp_inr) }}</span>
+                                                {% if product.price.sale_inr and product.price.sale_inr < product.price.mrp_inr %}
+                                                <span class="price-original text-muted text-decoration-line-through d-block">{{ format_currency(product.price.mrp_inr) }}</span>
+                                                {% endif %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="stock-status mb-2">
+                                            {% if product.inventory and product.inventory.stock_on_hand > 0 %}
+                                            <span class="badge bg-success">In Stock</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">Out of Stock</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="product-actions">
+                                            {% if product.inventory and product.inventory.stock_on_hand > 0 %}
+                                            <button class="btn btn-brand-primary add-to-cart-btn" 
+                                                    data-product-id="{{ product.id }}">
+                                                <i class="fas fa-cart-plus"></i>
+                                            </button>
+                                            {% endif %}
+                                            <a href="{{ url_for('web.product_detail', slug=product.slug) }}" 
+                                               class="btn btn-outline-brand">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.pages > 1 %}
+            <nav aria-label="Search results pagination" class="mt-5">
+                <ul class="pagination pagination-brand justify-content-center">
+                    {% if products.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('web.search', page=products.prev_num, **request.args) }}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in products.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != products.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('web.search', page=page_num, **request.args) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('web.search', page=products.next_num, **request.args) }}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+
+    {% else %}
+    <!-- No Results -->
+    <div class="no-results text-center py-5">
+        <div class="card card-brand">
+            <div class="card-body py-5">
+                <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                <h3 class="text-muted mb-3">No books found</h3>
+                <p class="text-muted mb-4">
+                    {% if search_term %}
+                    We couldn't find any books matching "{{ search_term }}". 
+                    {% else %}
+                    We couldn't find any books matching your search criteria.
+                    {% endif %}
+                    Try adjusting your search terms or browse our categories.
+                </p>
+                
+                <!-- Search Suggestions -->
+                <div class="search-suggestions mb-4">
+                    <h5 class="font-serif text-brand-brown">Search Suggestions:</h5>
+                    <ul class="list-unstyled">
+                        <li>• Check your spelling</li>
+                        <li>• Try more general keywords</li>
+                        <li>• Browse by category instead</li>
+                        <li>• Try searching by author name</li>
+                    </ul>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="{{ url_for('web.catalog') }}" class="btn btn-brand-primary me-2">
+                        <i class="fas fa-book me-2"></i>Browse All Books
+                    </a>
+                    <a href="{{ url_for('web.index') }}" class="btn btn-outline-brand">
+                        <i class="fas fa-home me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Popular Searches -->
+    {% if not products.items %}
+    <div class="popular-searches mt-5">
+        <div class="card card-brand">
+            <div class="card-header">
+                <h4 class="font-serif text-brand-brown mb-0">Popular Searches</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('web.search', q='Quran') }}" class="btn btn-outline-brand btn-sm">Quran</a>
+                    <a href="{{ url_for('web.search', q='Hadith') }}" class="btn btn-outline-brand btn-sm">Hadith</a>
+                    <a href="{{ url_for('web.search', q='Islamic History') }}" class="btn btn-outline-brand btn-sm">Islamic History</a>
+                    <a href="{{ url_for('web.search', q='Seerah') }}" class="btn btn-outline-brand btn-sm">Seerah</a>
+                    <a href="{{ url_for('web.search', q='Fiqh') }}" class="btn btn-outline-brand btn-sm">Fiqh</a>
+                    <a href="{{ url_for('web.search', q='Arabic') }}" class="btn btn-outline-brand btn-sm">Arabic Books</a>
+                    <a href="{{ url_for('web.search', q='Urdu') }}" class="btn btn-outline-brand btn-sm">Urdu Literature</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // View toggle functionality
+    const gridBtn = document.querySelector('[data-view="grid"]');
+    const listBtn = document.querySelector('[data-view="list"]');
+    const gridView = document.getElementById('results-grid');
+    const listView = document.getElementById('results-list');
+    
+    if (gridBtn && listBtn && gridView && listView) {
+        gridBtn.addEventListener('click', function() {
+            gridView.classList.remove('d-none');
+            listView.classList.add('d-none');
+            gridBtn.classList.add('active');
+            listBtn.classList.remove('active');
+        });
+        
+        listBtn.addEventListener('click', function() {
+            listView.classList.remove('d-none');
+            gridView.classList.add('d-none');
+            listBtn.classList.add('active');
+            gridBtn.classList.remove('active');
+        });
+    }
+    
+    // Highlight search terms in results
+    const searchTerm = '{{ search_term }}';
+    if (searchTerm) {
+        highlightSearchTerms(searchTerm);
+    }
+});
+
+function highlightSearchTerms(term) {
+    const regex = new RegExp(`(${term})`, 'gi');
+    const elements = document.querySelectorAll('.card-title, .card-text');
+    
+    elements.forEach(element => {
+        element.innerHTML = element.innerHTML.replace(regex, '<mark>$1</mark>');
+    });
+}
+</script>
+
+<style>
+mark {
+    background-color: rgba(232, 106, 23, 0.3);
+    padding: 1px 2px;
+    border-radius: 2px;
+}
+
+.search-suggestions ul {
+    text-align: left;
+    display: inline-block;
+}
+
+.popular-searches .btn {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

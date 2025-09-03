@@ -1,0 +1,546 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.title }} - ABC Publishing Kashmir{% endblock %}
+
+{% block description %}
+{% if product.description %}{{ product.description[:160] }}{% else %}{{ product.title }} by {% for author in product.authors %}{{ author.name }}{% if not loop.last %}, {% endif %}{% endfor %} available at ABC Publishing Kashmir{% endif %}
+{% endblock %}
+
+{% block og_image %}
+{% if product.cover_image %}{{ url_for('static', filename=product.cover_image, _external=True) }}{% else %}{{ super() }}{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-brand">
+            <li class="breadcrumb-item"><a href="{{ url_for('web.index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('web.catalog') }}">Books</a></li>
+            {% if product.categories %}
+                {% for category in product.categories[:1] %}
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('web.catalog', category_slug=category.slug) }}">{{ category.name }}</a>
+                </li>
+                {% endfor %}
+            {% endif %}
+            <li class="breadcrumb-item active">{{ product.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Product Images -->
+        <div class="col-lg-5">
+            <div class="product-images">
+                <div class="main-image mb-3">
+                    <img id="main-product-image" 
+                         src="{{ url_for('static', filename=product.cover_image) if product.cover_image else url_for('static', filename='images/no-cover.jpg') }}" 
+                         alt="{{ product.title }}" 
+                         class="img-fluid rounded shadow"
+                         style="width: 100%; max-height: 600px; object-fit: cover;">
+                </div>
+                
+                {% if product.images and product.images|length > 1 %}
+                <div class="image-thumbnails">
+                    <div class="row g-2">
+                        <div class="col-3">
+                            <img src="{{ url_for('static', filename=product.cover_image) if product.cover_image else url_for('static', filename='images/no-cover.jpg') }}" 
+                                 class="img-fluid rounded thumbnail-image active" 
+                                 data-image="{{ url_for('static', filename=product.cover_image) if product.cover_image else url_for('static', filename='images/no-cover.jpg') }}"
+                                 alt="{{ product.title }}">
+                        </div>
+                        {% for image in product.images[:3] %}
+                        <div class="col-3">
+                            <img src="{{ url_for('static', filename=image) }}" 
+                                 class="img-fluid rounded thumbnail-image" 
+                                 data-image="{{ url_for('static', filename=image) }}"
+                                 alt="{{ product.title }}">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Information -->
+        <div class="col-lg-7">
+            <div class="product-info">
+                <h1 class="font-serif text-brand-brown mb-3">{{ product.title }}</h1>
+                
+                <!-- Authors -->
+                {% if product.authors %}
+                <div class="authors mb-3">
+                    <span class="text-muted">by </span>
+                    {% for author in product.authors %}
+                    <a href="{{ url_for('web.catalog', author=author.id) }}" 
+                       class="text-brand-orange text-decoration-none fw-medium">
+                        {{ author.name }}
+                    </a>{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Rating and Reviews -->
+                <div class="rating-section mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="stars me-2">
+                            {% set avg_rating = reviews|selectattr('is_approved', 'equalto', True)|list|length %}
+                            {% if avg_rating > 0 %}
+                                {% set rating = (reviews|selectattr('is_approved', 'equalto', True)|sum(attribute='rating') / avg_rating)|round %}
+                                {% for i in range(1, 6) %}
+                                    <i class="fas fa-star {{ 'text-brand-orange' if i <= rating else 'text-muted' }}"></i>
+                                {% endfor %}
+                                <span class="ms-2 text-muted">({{ avg_rating }} reviews)</span>
+                            {% else %}
+                                {% for i in range(1, 6) %}
+                                    <i class="fas fa-star text-muted"></i>
+                                {% endfor %}
+                                <span class="ms-2 text-muted">No reviews yet</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="price-section mb-4">
+                    {% if product.price %}
+                    <div class="price-display">
+                        <span class="price-sale h3 text-brand-orange fw-bold">
+                            {{ format_currency(product.price.sale_inr or product.price.mrp_inr) }}
+                        </span>
+                        {% if product.price.sale_inr and product.price.sale_inr < product.price.mrp_inr %}
+                        <span class="price-original h5 text-muted text-decoration-line-through ms-2">
+                            {{ format_currency(product.price.mrp_inr) }}
+                        </span>
+                        <span class="price-discount badge bg-brand-orange ms-2">
+                            {{ ((product.price.mrp_inr - product.price.sale_inr) / product.price.mrp_inr * 100) | int }}% OFF
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <span class="text-muted h5">Price not available</span>
+                    {% endif %}
+                </div>
+
+                <!-- Stock Status -->
+                <div class="stock-section mb-4">
+                    {% if product.inventory and product.inventory.stock_on_hand > 0 %}
+                        {% if product.inventory.stock_on_hand <= product.inventory.low_stock_threshold %}
+                        <div class="alert alert-warning py-2">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Only {{ product.inventory.stock_on_hand }} left in stock - order soon!
+                        </div>
+                        {% else %}
+                        <div class="alert alert-success py-2">
+                            <i class="fas fa-check-circle me-2"></i>In Stock
+                        </div>
+                        {% endif %}
+                    {% else %}
+                    <div class="alert alert-danger py-2">
+                        <i class="fas fa-times-circle me-2"></i>Currently out of stock
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Add to Cart -->
+                <div class="cart-section mb-4">
+                    {% if product.inventory and product.inventory.stock_on_hand > 0 %}
+                    <form class="add-to-cart-form" method="post" action="{{ url_for('cart.add_to_cart', product_id=product.id) }}">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-auto">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <div class="quantity-controls d-flex">
+                                    <button type="button" class="btn btn-outline-secondary quantity-decrease">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <input type="number" name="quantity" id="quantity" 
+                                           class="form-control quantity-input text-center mx-2" 
+                                           value="1" min="1" max="{{ product.inventory.stock_on_hand }}" 
+                                           style="width: 80px;">
+                                    <button type="button" class="btn btn-outline-secondary quantity-increase">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <button type="submit" class="btn btn-brand-primary btn-lg add-to-cart-btn" 
+                                        data-product-id="{{ product.id }}">
+                                    <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-secondary btn-lg" disabled>
+                        <i class="fas fa-times me-2"></i>Out of Stock
+                    </button>
+                    {% endif %}
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions mb-4">
+                    <button class="btn btn-outline-brand me-2" data-bs-toggle="modal" data-bs-target="#shareModal">
+                        <i class="fas fa-share me-2"></i>Share
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-heart me-2"></i>Add to Wishlist
+                    </button>
+                </div>
+
+                <!-- Book Details -->
+                <div class="book-details">
+                    <div class="row g-3">
+                        {% if product.isbn %}
+                        <div class="col-sm-6">
+                            <strong>ISBN:</strong><br>
+                            <span class="text-muted">{{ product.isbn }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="col-sm-6">
+                            <strong>Language:</strong><br>
+                            <span class="text-muted">{{ product.language.value }}</span>
+                        </div>
+                        
+                        <div class="col-sm-6">
+                            <strong>Format:</strong><br>
+                            <span class="text-muted">{{ product.format.value }}</span>
+                        </div>
+                        
+                        {% if product.publisher %}
+                        <div class="col-sm-6">
+                            <strong>Publisher:</strong><br>
+                            <span class="text-muted">{{ product.publisher.name }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if product.published_at %}
+                        <div class="col-sm-6">
+                            <strong>Published:</strong><br>
+                            <span class="text-muted">{{ product.published_at.strftime('%B %Y') }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if product.weight_grams %}
+                        <div class="col-sm-6">
+                            <strong>Weight:</strong><br>
+                            <span class="text-muted">{{ product.weight_grams }}g</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Tabs -->
+    <div class="product-tabs mt-5">
+        <ul class="nav nav-tabs" id="productTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" 
+                        data-bs-target="#description" type="button" role="tab">
+                    Description
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" 
+                        data-bs-target="#reviews" type="button" role="tab">
+                    Reviews ({{ reviews|selectattr('is_approved', 'equalto', True)|list|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" 
+                        data-bs-target="#shipping" type="button" role="tab">
+                    Shipping Info
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="productTabContent">
+            <!-- Description Tab -->
+            <div class="tab-pane fade show active" id="description" role="tabpanel">
+                <div class="py-4">
+                    {% if product.description %}
+                    <div class="description-content">
+                        {{ product.description|nl2br }}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No description available for this product.</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Reviews Tab -->
+            <div class="tab-pane fade" id="reviews" role="tabpanel">
+                <div class="py-4">
+                    <!-- Add Review Form -->
+                    {% if current_user.is_authenticated %}
+                    <div class="add-review mb-5">
+                        <h5 class="font-serif text-brand-brown mb-3">Write a Review</h5>
+                        <form method="post" action="{{ url_for('web.add_review', product_id=product.id) }}">
+                            {{ review_form.hidden_tag() }}
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="{{ review_form.rating.id }}" class="form-label">Rating</label>
+                                    {{ review_form.rating(class="form-select") }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ review_form.title.id }}" class="form-label">Review Title</label>
+                                    {{ review_form.title(class="form-control") }}
+                                </div>
+                                <div class="col-12">
+                                    <label for="{{ review_form.body.id }}" class="form-label">Your Review</label>
+                                    {{ review_form.body(class="form-control", rows="4") }}
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-brand-primary">
+                                        <i class="fas fa-paper-plane me-2"></i>Submit Review
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <a href="{{ url_for('auth.login') }}" class="alert-link">Login</a> to write a review.
+                    </div>
+                    {% endif %}
+
+                    <!-- Reviews List -->
+                    <div class="reviews-list">
+                        {% for review in reviews %}
+                            {% if review.is_approved %}
+                            <div class="review-card">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <div class="review-rating text-brand-orange mb-1">
+                                            {% for i in range(1, 6) %}
+                                                <i class="fas fa-star {{ 'text-brand-orange' if i <= review.rating else 'text-muted' }}"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <h6 class="review-title mb-1">{{ review.title }}</h6>
+                                        <small class="review-author text-muted">
+                                            by {{ review.user.name }} on {{ review.created_at.strftime('%B %d, %Y') }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <p class="review-body">{{ review.body }}</p>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                        <p class="text-muted">No reviews yet. Be the first to review this book!</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping Tab -->
+            <div class="tab-pane fade" id="shipping" role="tabpanel">
+                <div class="py-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 class="font-serif text-brand-brown mb-3">Shipping Information</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-truck text-brand-orange me-2"></i>
+                                    Free shipping on orders above ₹1,500
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-clock text-brand-orange me-2"></i>
+                                    Kashmir: 2-3 business days
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-clock text-brand-orange me-2"></i>
+                                    Rest of India: 5-7 business days
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-box text-brand-orange me-2"></i>
+                                    Secure packaging guaranteed
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="font-serif text-brand-brown mb-3">Return Policy</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-undo text-brand-orange me-2"></i>
+                                    7-day return policy
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-shield-alt text-brand-orange me-2"></i>
+                                    Books must be in original condition
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-money-bill-wave text-brand-orange me-2"></i>
+                                    Refund or exchange available
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-phone text-brand-orange me-2"></i>
+                                    Contact us for return requests
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <section class="related-products mt-5">
+        <div class="islamic-divider">
+            <span>Related Books</span>
+        </div>
+        
+        <div class="row g-4 mt-3">
+            {% for product in related_products %}
+            <div class="col-md-6 col-lg-3">
+                {% include 'components/product_card.html' %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share This Book</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Share URL</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" value="{{ request.url }}" readonly id="shareUrl">
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyToClipboard()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="d-flex gap-2">
+                            <a href="https://wa.me/?text={{ product.title }} - {{ request.url }}" 
+                               class="btn btn-success" target="_blank">
+                                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                            </a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" 
+                               class="btn btn-primary" target="_blank">
+                                <i class="fab fa-facebook me-1"></i>Facebook
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?text={{ product.title }}&url={{ request.url }}" 
+                               class="btn btn-info" target="_blank">
+                                <i class="fab fa-twitter me-1"></i>Twitter
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image gallery functionality
+    const thumbnails = document.querySelectorAll('.thumbnail-image');
+    const mainImage = document.getElementById('main-product-image');
+    
+    thumbnails.forEach(thumbnail => {
+        thumbnail.addEventListener('click', function() {
+            // Remove active class from all thumbnails
+            thumbnails.forEach(t => t.classList.remove('active'));
+            // Add active class to clicked thumbnail
+            this.classList.add('active');
+            // Change main image
+            mainImage.src = this.dataset.image;
+        });
+    });
+    
+    // Quantity controls
+    const decreaseBtn = document.querySelector('.quantity-decrease');
+    const increaseBtn = document.querySelector('.quantity-increase');
+    const quantityInput = document.querySelector('.quantity-input');
+    
+    if (decreaseBtn && increaseBtn && quantityInput) {
+        decreaseBtn.addEventListener('click', function() {
+            const currentValue = parseInt(quantityInput.value) || 1;
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+            }
+        });
+        
+        increaseBtn.addEventListener('click', function() {
+            const currentValue = parseInt(quantityInput.value) || 1;
+            const maxValue = parseInt(quantityInput.getAttribute('max')) || 999;
+            if (currentValue < maxValue) {
+                quantityInput.value = currentValue + 1;
+            }
+        });
+    }
+});
+
+function copyToClipboard() {
+    const shareUrl = document.getElementById('shareUrl');
+    shareUrl.select();
+    shareUrl.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(shareUrl.value).then(function() {
+        ABCPublishing.showToast('URL copied to clipboard!', 'success');
+    });
+}
+</script>
+{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "name": "{{ product.title }}",
+    "author": [
+        {% for author in product.authors %}
+        {
+            "@type": "Person",
+            "name": "{{ author.name }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ],
+    "isbn": "{{ product.isbn }}",
+    "bookFormat": "{{ product.format.value }}",
+    "inLanguage": "{{ product.language.value }}",
+    {% if product.publisher %}
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ product.publisher.name }}"
+    },
+    {% endif %}
+    {% if product.published_at %}
+    "datePublished": "{{ product.published_at.isoformat() }}",
+    {% endif %}
+    "description": "{{ product.description|replace('"', '\\"') if product.description else product.title }}",
+    "image": "{{ url_for('static', filename=product.cover_image, _external=True) if product.cover_image else url_for('static', filename='images/no-cover.jpg', _external=True) }}",
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ (product.price.sale_inr or product.price.mrp_inr) / 100 if product.price else 0 }}",
+        "priceCurrency": "INR",
+        "availability": "{{ 'https://schema.org/InStock' if product.inventory and product.inventory.stock_on_hand > 0 else 'https://schema.org/OutOfStock' }}",
+        "seller": {
+            "@type": "Organization",
+            "name": "ABC Publishing Kashmir"
+        }
+    },
+    "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "{{ (reviews|selectattr('is_approved', 'equalto', True)|sum(attribute='rating') / (reviews|selectattr('is_approved', 'equalto', True)|list|length))|round(1) if reviews|selectattr('is_approved', 'equalto', True)|list|length > 0 else 5 }}",
+        "reviewCount": "{{ reviews|selectattr('is_approved', 'equalto', True)|list|length }}"
+    }
+}
+</script>
+{% endblock %}

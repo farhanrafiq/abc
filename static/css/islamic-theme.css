@@ -1,0 +1,493 @@
+/* Islamic Theme Enhancements for ABC Publishing Kashmir */
+
+/* Islamic Geometric Patterns */
+.islamic-pattern {
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(59, 42, 34, 0.05) 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, rgba(232, 106, 23, 0.05) 2px, transparent 2px);
+    background-size: 40px 40px;
+    background-position: 0 0, 20px 20px;
+}
+
+.islamic-border {
+    position: relative;
+}
+
+.islamic-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        var(--brand-orange-600) 0%,
+        var(--brand-brown-700) 25%,
+        var(--brand-orange-600) 50%,
+        var(--brand-brown-700) 75%,
+        var(--brand-orange-600) 100%);
+    background-size: 40px 4px;
+}
+
+/* Arabic/Urdu Text Support */
+.rtl-text {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Amiri', 'Scheherazade New', serif;
+}
+
+.arabic-text {
+    font-family: 'Amiri', 'Scheherazade New', serif;
+    font-size: 1.1em;
+    line-height: 1.8;
+}
+
+.urdu-text {
+    font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
+    font-size: 1.1em;
+    line-height: 1.8;
+}
+
+/* Islamic Calligraphy Styles */
+.calligraphy-header {
+    font-family: 'Amiri', serif;
+    font-weight: 700;
+    color: var(--brand-brown-900);
+    text-align: center;
+    font-size: 2rem;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.calligraphy-header::before,
+.calligraphy-header::after {
+    content: '❖';
+    color: var(--brand-orange-600);
+    font-size: 1rem;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.calligraphy-header::before {
+    left: -2rem;
+}
+
+.calligraphy-header::after {
+    right: -2rem;
+}
+
+/* Islamic Color Palette */
+.text-islamic-gold {
+    color: #D4AF37;
+}
+
+.text-islamic-green {
+    color: #228B22;
+}
+
+.text-islamic-blue {
+    color: #191970;
+}
+
+.bg-islamic-gold {
+    background-color: #D4AF37;
+}
+
+.bg-islamic-green {
+    background-color: #228B22;
+}
+
+.bg-islamic-blue {
+    background-color: #191970;
+}
+
+/* Prayer Time Widget Styles */
+.prayer-times {
+    background: linear-gradient(135deg, var(--brand-brown-100), white);
+    border: 1px solid var(--brand-orange-600);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.prayer-time-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.prayer-time-item:last-child {
+    border-bottom: none;
+}
+
+.prayer-name {
+    font-weight: 600;
+    color: var(--brand-brown-900);
+}
+
+.prayer-time {
+    color: var(--brand-orange-600);
+    font-weight: 500;
+}
+
+/* Islamic Book Category Styles */
+.quran-category {
+    border-left: 4px solid #228B22;
+    background: linear-gradient(135deg, rgba(34, 139, 34, 0.1), transparent);
+}
+
+.hadith-category {
+    border-left: 4px solid #D4AF37;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), transparent);
+}
+
+.fiqh-category {
+    border-left: 4px solid #191970;
+    background: linear-gradient(135deg, rgba(25, 25, 112, 0.1), transparent);
+}
+
+.seerah-category {
+    border-left: 4px solid var(--brand-orange-600);
+    background: linear-gradient(135deg, rgba(232, 106, 23, 0.1), transparent);
+}
+
+/* Islamic Decorative Elements */
+.islamic-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.islamic-divider::before,
+.islamic-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--brand-orange-600), transparent);
+}
+
+.islamic-divider span {
+    padding: 0 1rem;
+    color: var(--brand-orange-600);
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+/* Minaret Inspired Design Elements */
+.minaret-accent {
+    position: relative;
+}
+
+.minaret-accent::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 10px solid var(--brand-orange-600);
+}
+
+/* Islamic Star Pattern */
+.star-pattern {
+    position: relative;
+    overflow: hidden;
+}
+
+.star-pattern::before {
+    content: '✦';
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: var(--brand-orange-600);
+    font-size: 1.5rem;
+    opacity: 0.3;
+}
+
+/* Crescent Moon Design */
+.crescent-accent {
+    position: relative;
+}
+
+.crescent-accent::after {
+    content: '☪';
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    color: var(--brand-orange-600);
+    font-size: 1.25rem;
+    opacity: 0.6;
+}
+
+/* Mosque Dome Inspired Headers */
+.dome-header {
+    background: linear-gradient(180deg, var(--brand-brown-100) 0%, white 100%);
+    border-radius: 50% 50% 0 0;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.dome-header::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background: var(--brand-orange-600);
+    border-radius: 50%;
+}
+
+/* Islamic Manuscript Style Cards */
+.manuscript-card {
+    background: linear-gradient(45deg, #FEFCF0 0%, #FBF8F1 100%);
+    border: 2px solid var(--brand-brown-700);
+    border-radius: 0;
+    position: relative;
+    padding: 2rem;
+    margin: 1rem 0;
+}
+
+.manuscript-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--brand-orange-600), var(--brand-brown-700));
+    z-index: -1;
+    border-radius: 0;
+}
+
+/* Mihrab (Prayer Niche) Inspired Design */
+.mihrab-card {
+    background: white;
+    border-radius: 0 0 50% 50%;
+    border: 2px solid var(--brand-orange-600);
+    padding: 2rem;
+    text-align: center;
+    margin: 1rem;
+    position: relative;
+}
+
+.mihrab-card::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: var(--brand-orange-600);
+    border-radius: 50%;
+}
+
+/* Arabic/Islamic Typography Enhancements */
+.bismillah-text {
+    font-family: 'Amiri', serif;
+    font-size: 1.5rem;
+    text-align: center;
+    color: var(--brand-brown-900);
+    margin: 2rem 0;
+    padding: 1rem;
+    border-top: 2px solid var(--brand-orange-600);
+    border-bottom: 2px solid var(--brand-orange-600);
+}
+
+/* Islamic Book Spine Design */
+.book-spine {
+    background: linear-gradient(180deg, var(--brand-brown-900) 0%, var(--brand-brown-700) 100%);
+    color: white;
+    padding: 1rem;
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    border-radius: 0.25rem;
+    box-shadow: 
+        inset -2px 0 4px rgba(0, 0, 0, 0.2),
+        2px 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tasbih (Prayer Beads) Inspired Navigation */
+.tasbih-nav {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 2rem 0;
+}
+
+.tasbih-bead {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--brand-brown-700);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.tasbih-bead.active {
+    background: var(--brand-orange-600);
+    transform: scale(1.3);
+}
+
+.tasbih-bead:hover {
+    background: var(--brand-orange-600);
+    transform: scale(1.2);
+}
+
+/* Islamic Architecture Inspired Columns */
+.islamic-column {
+    border-left: 4px solid var(--brand-orange-600);
+    border-right: 4px solid var(--brand-orange-600);
+    padding: 2rem 1rem;
+    background: linear-gradient(0deg, var(--brand-brown-100) 0%, white 100%);
+    position: relative;
+}
+
+.islamic-column::before,
+.islamic-column::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    right: -4px;
+    height: 8px;
+    background: var(--brand-orange-600);
+}
+
+.islamic-column::before {
+    top: -4px;
+}
+
+.islamic-column::after {
+    bottom: -4px;
+}
+
+/* Mashrabiya (Islamic Screen) Pattern */
+.mashrabiya-overlay {
+    position: relative;
+    overflow: hidden;
+}
+
+.mashrabiya-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(59, 42, 34, 0.05) 10px, rgba(59, 42, 34, 0.05) 20px),
+        repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(232, 106, 23, 0.05) 10px, rgba(232, 106, 23, 0.05) 20px);
+    pointer-events: none;
+}
+
+/* Qibla Direction Indicator */
+.qibla-indicator {
+    width: 2rem;
+    height: 2rem;
+    border: 2px solid var(--brand-orange-600);
+    border-radius: 50%;
+    position: relative;
+    display: inline-block;
+    margin: 0 0.5rem;
+}
+
+.qibla-indicator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 8px solid var(--brand-orange-600);
+}
+
+/* Islamic Calendar Widget */
+.islamic-calendar {
+    background: white;
+    border: 2px solid var(--brand-orange-600);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+.hijri-date {
+    font-family: 'Amiri', serif;
+    font-size: 1.125rem;
+    color: var(--brand-brown-900);
+    font-weight: 600;
+}
+
+.gregorian-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* Responsive Arabic Text */
+@media (max-width: 768px) {
+    .arabic-text,
+    .urdu-text {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .calligraphy-header {
+        font-size: 1.5rem;
+    }
+    
+    .calligraphy-header::before,
+    .calligraphy-header::after {
+        display: none;
+    }
+}
+
+/* High Contrast Mode for Accessibility */
+@media (prefers-contrast: high) {
+    .islamic-pattern {
+        background-image: none;
+    }
+    
+    .manuscript-card {
+        background: white;
+        border: 3px solid var(--brand-brown-900);
+    }
+    
+    .dome-header {
+        background: white;
+        border: 2px solid var(--brand-brown-900);
+    }
+}
+
+/* Print Styles for Islamic Content */
+@media print {
+    .islamic-pattern,
+    .mashrabiya-overlay::before {
+        background: none !important;
+    }
+    
+    .arabic-text,
+    .urdu-text {
+        color: black !important;
+        font-size: 12pt;
+        line-height: 1.8;
+    }
+    
+    .calligraphy-header {
+        color: black !important;
+        font-size: 18pt;
+    }
+}

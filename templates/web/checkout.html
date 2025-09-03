@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - ABC Publishing Kashmir{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-brand">
+            <li class="breadcrumb-item"><a href="{{ url_for('web.index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('cart.view_cart') }}">Cart</a></li>
+            <li class="breadcrumb-item active">Checkout</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-12">
+            <h1 class="font-serif text-brand-brown mb-4">Checkout</h1>
+        </div>
+    </div>
+
+    <form id="checkout-form" method="post" action="{{ url_for('cart.checkout') }}" data-validate>
+        {{ form.hidden_tag() }}
+        
+        <div class="row">
+            <!-- Checkout Form -->
+            <div class="col-lg-8">
+                <!-- Customer Information -->
+                <div class="checkout-section mb-4">
+                    <div class="card card-brand">
+                        <div class="card-header">
+                            <h4 class="font-serif text-brand-brown mb-0">
+                                <i class="fas fa-user me-2"></i>Customer Information
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            {% if current_user.is_authenticated %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Logged in as <strong>{{ current_user.name }}</strong> ({{ current_user.email }})
+                            </div>
+                            {% else %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="{{ form.guest_email.id }}" class="form-label">Email Address *</label>
+                                    {{ form.guest_email(class="form-control", required=True) }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ form.guest_phone.id }}" class="form-label">Phone Number *</label>
+                                    {{ form.guest_phone(class="form-control", required=True) }}
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    Have an account? <a href="{{ url_for('auth.login', next=request.url) }}">Sign in</a> 
+                                    for faster checkout.
+                                </p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div class="checkout-section mb-4">
+                    <div class="card card-brand">
+                        <div class="card-header">
+                            <h4 class="font-serif text-brand-brown mb-0">
+                                <i class="fas fa-truck me-2"></i>Shipping Address
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            {% if current_user.is_authenticated and current_user.addresses %}
+                            <div class="mb-3">
+                                <label for="{{ form.shipping_address_id.id }}" class="form-label">Select Address</label>
+                                {{ form.shipping_address_id(class="form-select") }}
+                            </div>
+                            <div id="shipping-address-preview" class="d-none"></div>
+                            <div class="mt-3">
+                                <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-brand btn-sm">
+                                    <i class="fas fa-plus me-1"></i>Add New Address
+                                </a>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Please add a shipping address in your account or 
+                                <a href="{{ url_for('auth.register') }}">create an account</a> for easier checkout.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Billing Address -->
+                <div class="checkout-section mb-4">
+                    <div class="card card-brand">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4 class="font-serif text-brand-brown mb-0">
+                                    <i class="fas fa-file-invoice me-2"></i>Billing Address
+                                </h4>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="same-as-shipping" checked>
+                                    <label class="form-check-label" for="same-as-shipping">
+                                        Same as shipping
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body" id="billing-address-section">
+                            {% if current_user.is_authenticated and current_user.addresses %}
+                            <div class="mb-3">
+                                <label for="{{ form.billing_address_id.id }}" class="form-label">Select Address</label>
+                                {{ form.billing_address_id(class="form-select") }}
+                            </div>
+                            <div id="billing-address-preview" class="d-none"></div>
+                            {% else %}
+                            <p class="text-muted">Billing address will be same as shipping address.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="checkout-section mb-4">
+                    <div class="card card-brand">
+                        <div class="card-header">
+                            <h4 class="font-serif text-brand-brown mb-0">
+                                <i class="fas fa-credit-card me-2"></i>Payment Method
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="payment-methods">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" 
+                                           id="razorpay" value="razorpay" checked>
+                                    <label class="form-check-label" for="razorpay">
+                                        <i class="fas fa-credit-card me-2 text-brand-orange"></i>
+                                        <strong>Credit/Debit Card, UPI, Net Banking</strong>
+                                        <small class="d-block text-muted">Secure payment via Razorpay</small>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_method" 
+                                           id="cod" value="cod">
+                                    <label class="form-check-label" for="cod">
+                                        <i class="fas fa-money-bill-wave me-2 text-brand-orange"></i>
+                                        <strong>Cash on Delivery (COD)</strong>
+                                        <small class="d-block text-muted">Pay when you receive your order</small>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Payment Sections -->
+                            <div id="razorpay-section" class="payment-section mt-3 p-3 bg-light rounded">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-shield-alt text-success me-2"></i>
+                                    <small class="text-muted">
+                                        Your payment information is secure and encrypted. 
+                                        We don't store your card details.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div id="cod-section" class="payment-section mt-3 p-3 bg-light rounded d-none">
+                                <div class="d-flex align-items-start">
+                                    <i class="fas fa-info-circle text-info me-2 mt-1"></i>
+                                    <div>
+                                        <small class="text-muted">
+                                            <strong>Cash on Delivery Terms:</strong><br>
+                                            • Payment must be made in cash to the delivery person<br>
+                                            • Please keep exact change ready<br>
+                                            • COD available for orders up to ₹50,000<br>
+                                            • Additional COD charges may apply
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Notes -->
+                <div class="checkout-section mb-4">
+                    <div class="card card-brand">
+                        <div class="card-header">
+                            <h4 class="font-serif text-brand-brown mb-0">
+                                <i class="fas fa-sticky-note me-2"></i>Order Notes (Optional)
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <label for="{{ form.notes.id }}" class="form-label">
+                                Special instructions for delivery
+                            </label>
+                            {{ form.notes(class="form-control", rows="3", placeholder="e.g., Leave at door, Call before delivery, etc.") }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="order-summary position-sticky" style="top: 2rem;">
+                    <div class="card card-brand">
+                        <div class="card-header">
+                            <h4 class="font-serif text-brand-brown mb-0">
+                                <i class="fas fa-receipt me-2"></i>Order Summary
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Cart Items -->
+                            <div class="order-items mb-4">
+                                {% for item in cart_items %}
+                                <div class="order-item d-flex align-items-center mb-3">
+                                    <img src="{{ url_for('static', filename=item.product.cover_image) if item.product.cover_image else url_for('static', filename='images/no-cover.jpg') }}" 
+                                         alt="{{ item.product.title }}" 
+                                         class="rounded me-3"
+                                         style="width: 50px; height: 60px; object-fit: cover;">
+                                    <div class="flex-grow-1">
+                                        <div class="fw-medium text-truncate">{{ item.product.title }}</div>
+                                        <small class="text-muted">Qty: {{ item.quantity }}</small>
+                                    </div>
+                                    <div class="text-brand-orange fw-bold">
+                                        {{ format_currency((item.product.price.sale_inr or item.product.price.mrp_inr) * item.quantity) }}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Totals -->
+                            <div class="order-totals">
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span>Subtotal:</span>
+                                    <span>{{ format_currency(subtotal) }}</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between py-2 border-bottom">
+                                    <span>Shipping:</span>
+                                    <span>{{ format_currency(shipping) if shipping > 0 else 'Free' }}</span>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between py-3 border-bottom border-2">
+                                    <span class="h5 mb-0">Total:</span>
+                                    <span class="h5 mb-0 text-brand-orange">
+                                        {{ format_currency(subtotal + shipping) }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Place Order Button -->
+                            <div class="place-order mt-4">
+                                <button type="submit" class="btn btn-brand-primary btn-lg w-100">
+                                    <i class="fas fa-lock me-2"></i>Place Order
+                                </button>
+                            </div>
+
+                            <!-- Security Notice -->
+                            <div class="security-notice mt-3 text-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt me-1"></i>
+                                    Your order is secured with SSL encryption
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Support -->
+                    <div class="card card-brand mt-3">
+                        <div class="card-body text-center">
+                            <h6 class="font-serif text-brand-brown">Need Help?</h6>
+                            <p class="small text-muted mb-2">Contact our customer support</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="tel:+91-194-XXXXXX" class="btn btn-outline-brand btn-sm">
+                                    <i class="fas fa-phone"></i>
+                                </a>
+                                <a href="mailto:info@abcpublishingkashmir.com" class="btn btn-outline-brand btn-sm">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Payment method toggle
+    const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+    const razorpaySection = document.getElementById('razorpay-section');
+    const codSection = document.getElementById('cod-section');
+    
+    paymentMethods.forEach(method => {
+        method.addEventListener('change', function() {
+            if (this.value === 'razorpay') {
+                razorpaySection.classList.remove('d-none');
+                codSection.classList.add('d-none');
+            } else {
+                razorpaySection.classList.add('d-none');
+                codSection.classList.remove('d-none');
+            }
+        });
+    });
+    
+    // Same as shipping checkbox
+    const sameAsShipping = document.getElementById('same-as-shipping');
+    const billingSection = document.getElementById('billing-address-section');
+    
+    if (sameAsShipping) {
+        sameAsShipping.addEventListener('change', function() {
+            if (this.checked) {
+                billingSection.style.display = 'none';
+            } else {
+                billingSection.style.display = 'block';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

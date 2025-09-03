@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}Login - ABC Publishing Kashmir{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+            <div class="card card-brand shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="islamic-border">
+                            <i class="fas fa-book fa-3x text-brand-orange mb-3"></i>
+                        </div>
+                        <h2 class="font-serif text-brand-brown">Welcome Back</h2>
+                        <p class="text-muted">Sign in to your account</p>
+                    </div>
+
+                    <form method="post" class="form-brand" data-validate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.email.id }}" class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope text-brand-orange"></i>
+                                </span>
+                                {{ form.email(class="form-control", required=True, autocomplete="email") }}
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">{{ form.email.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.password.id }}" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock text-brand-orange"></i>
+                                </span>
+                                {{ form.password(class="form-control", required=True, autocomplete="current-password") }}
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">{{ form.password.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    {{ form.remember_me(class="form-check-input") }}
+                                    <label class="form-check-label" for="{{ form.remember_me.id }}">
+                                        Remember me
+                                    </label>
+                                </div>
+                                <a href="{{ url_for('auth.password_reset_request') }}" 
+                                   class="text-brand-orange text-decoration-none">
+                                    Forgot password?
+                                </a>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-brand-primary btn-lg w-100 mb-3">
+                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                        </button>
+                        
+                        <div class="text-center">
+                            <span class="text-muted">Don't have an account?</span>
+                            <a href="{{ url_for('auth.register') }}" class="text-brand-orange text-decoration-none fw-medium">
+                                Create one here
+                            </a>
+                        </div>
+                    </form>
+
+                    <div class="islamic-divider mt-4">
+                        <span>or continue as guest</span>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('web.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="text-center mt-4">
+                <div class="row g-3">
+                    <div class="col-4">
+                        <div class="text-center">
+                            <i class="fas fa-shield-alt fa-2x text-brand-orange mb-2"></i>
+                            <small class="text-muted d-block">Secure</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center">
+                            <i class="fas fa-shipping-fast fa-2x text-brand-orange mb-2"></i>
+                            <small class="text-muted d-block">Fast Delivery</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-center">
+                            <i class="fas fa-star fa-2x text-brand-orange mb-2"></i>
+                            <small class="text-muted d-block">Quality Books</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Support -->
+            <div class="text-center mt-4">
+                <p class="text-muted small mb-2">Need help? Contact our support team</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="tel:+91-194-XXXXXX" class="text-brand-orange text-decoration-none">
+                        <i class="fas fa-phone me-1"></i>Call
+                    </a>
+                    <a href="mailto:info@abcpublishingkashmir.com" class="text-brand-orange text-decoration-none">
+                        <i class="fas fa-envelope me-1"></i>Email
+                    </a>
+                    <a href="#" class="text-brand-orange text-decoration-none">
+                        <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password visibility toggle
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    
+    if (togglePassword && passwordInput) {
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+    }
+    
+    // Auto-focus on first empty field
+    const emailInput = document.getElementById('email');
+    const passwordField = document.getElementById('password');
+    
+    if (emailInput && !emailInput.value) {
+        emailInput.focus();
+    } else if (passwordField && !passwordField.value) {
+        passwordField.focus();
+    }
+    
+    // Form validation
+    const loginForm = document.querySelector('form[data-validate]');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!email) {
+                e.preventDefault();
+                document.getElementById('email').classList.add('is-invalid');
+                ABCPublishing.showToast('Please enter your email address', 'error');
+                return;
+            }
+            
+            if (!password) {
+                e.preventDefault();
+                document.getElementById('password').classList.add('is-invalid');
+                ABCPublishing.showToast('Please enter your password', 'error');
+                return;
+            }
+            
+            // Email format validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                e.preventDefault();
+                document.getElementById('email').classList.add('is-invalid');
+                ABCPublishing.showToast('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing In...';
+        });
+    }
+    
+    // Clear validation errors on input
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('is-invalid');
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.card-brand {
+    border: none;
+    border-radius: 1rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand-orange-600);
+    box-shadow: 0 0 0 0.2rem rgba(232, 106, 23, 0.25);
+}
+
+.input-group-text {
+    background-color: var(--brand-brown-100);
+    border-color: var(--border-light);
+    color: var(--brand-brown-700);
+}
+
+.btn-brand-primary {
+    background: linear-gradient(135deg, var(--brand-orange-600) 0%, #D4590C 100%);
+    border: none;
+    box-shadow: 0 4px 15px rgba(232, 106, 23, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-brand-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(232, 106, 23, 0.4);
+}
+
+.btn-brand-primary:active {
+    transform: translateY(0);
+}
+
+.islamic-border::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-orange-600), var(--brand-brown-700));
+    border-radius: 2px;
+}
+
+.form-check-input:checked {
+    background-color: var(--brand-orange-600);
+    border-color: var(--brand-orange-600);
+}
+
+.islamic-divider {
+    position: relative;
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
+.islamic-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-light), transparent);
+}
+
+.islamic-divider span {
+    background: white;
+    padding: 0 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Loading animation */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.btn:disabled {
+    opacity: 0.8;
+}
+
+.btn:disabled i.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .card-body {
+        padding: 2rem 1.5rem !important;
+    }
+    
+    .hero-title {
+        font-size: 1.5rem;
+    }
+}
+</style>
+{% endblock %}

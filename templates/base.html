@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}ABC Publishing Kashmir - Your Trusted Islamic Bookstore{% endblock %}</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="{% block description %}Discover authentic Islamic books, academic texts, and literature at ABC Publishing Kashmir. Serving Kashmir and India with quality books and exceptional service.{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}Islamic books, Quran, Hadith, Islamic literature, Kashmir bookstore, Arabic books, Urdu books{% endblock %}">
+    <meta name="author" content="ABC Publishing Kashmir">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.description() }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename='images/og-default.jpg') }}{% endblock %}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request.url }}">
+    <meta property="twitter:title" content="{{ self.og_title() }}">
+    <meta property="twitter:description" content="{{ self.og_description() }}">
+    <meta property="twitter:image" content="{{ self.og_image() }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png') }}">
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/islamic-theme.css') }}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BookStore",
+        "name": "ABC Publishing Kashmir",
+        "description": "Authentic Islamic books and literature",
+        "url": "{{ request.host_url }}",
+        "telephone": "+91-194-XXXXXX",
+        "email": "info@abcpublishingkashmir.com",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Srinagar",
+            "addressLocality": "Srinagar",
+            "addressRegion": "Jammu & Kashmir",
+            "addressCountry": "IN"
+        },
+        "openingHours": "Mo-Sa 09:00-18:00",
+        "currenciesAccepted": "INR",
+        "paymentAccepted": ["Cash", "Credit Card", "UPI", "COD"]
+    }
+    </script>
+</head>
+
+<body class="d-flex flex-column h-100 bg-brand-cream">
+    <!-- Skip to content link for accessibility -->
+    <a class="visually-hidden-focusable" href="#main-content">Skip to main content</a>
+    
+    <!-- Navigation -->
+    {% include 'components/navbar.html' %}
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show m-0" role="alert">
+                        <div class="container">
+                            <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'info-circle' if category == 'info' else 'check-circle' if category == 'success' else 'exclamation-triangle' }} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Main Content -->
+    <main id="main-content" class="flex-shrink-0">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    {% include 'components/footer.html' %}
+    
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="btn btn-brand-primary position-fixed bottom-0 end-0 m-3 rounded-circle" style="display: none; z-index: 1000; width: 50px; height: 50px;" title="Back to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none" style="background: rgba(255, 255, 255, 0.8); z-index: 9999;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;"></div>
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+    
+    <!-- Google Analytics (placeholder) -->
+    {% if config.GOOGLE_ANALYTICS_ID %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.GOOGLE_ANALYTICS_ID }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ config.GOOGLE_ANALYTICS_ID }}');
+    </script>
+    {% endif %}
+    
+    <!-- Schema.org structured data for products -->
+    {% block structured_data %}{% endblock %}
+</body>
+</html>

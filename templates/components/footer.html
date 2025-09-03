@@ -1,0 +1,145 @@
+<footer class="footer mt-auto py-5 bg-brand-brown text-white">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Company Info -->
+            <div class="col-lg-4">
+                <h5 class="font-serif mb-3">ABC Publishing Kashmir</h5>
+                <p class="mb-3">
+                    Your trusted source for authentic Islamic books and literature. 
+                    Serving Kashmir and beyond with quality books that inspire and educate.
+                </p>
+                <div class="social-links">
+                    <a href="#" class="social-link me-3" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-link me-3" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-link me-3" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-link me-3" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-lg-2 col-md-6">
+                <h6 class="font-serif mb-3">Quick Links</h6>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="{{ url_for('web.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('web.catalog') }}">Catalog</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='about') }}">About Us</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='contact') }}">Contact</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='faq') }}">FAQ</a></li>
+                </ul>
+            </div>
+
+            <!-- Categories -->
+            <div class="col-lg-2 col-md-6">
+                <h6 class="font-serif mb-3">Categories</h6>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="{{ url_for('web.catalog', category_slug='quran-studies') }}">Quran Studies</a></li>
+                    <li><a href="{{ url_for('web.catalog', category_slug='hadith') }}">Hadith</a></li>
+                    <li><a href="{{ url_for('web.catalog', category_slug='fiqh') }}">Fiqh</a></li>
+                    <li><a href="{{ url_for('web.catalog', category_slug='seerah') }}">Seerah</a></li>
+                    <li><a href="{{ url_for('web.catalog', category_slug='academic') }}">Academic</a></li>
+                </ul>
+            </div>
+
+            <!-- Customer Service -->
+            <div class="col-lg-2 col-md-6">
+                <h6 class="font-serif mb-3">Customer Service</h6>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="{{ url_for('web.content_page', slug='shipping') }}">Shipping Info</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='returns') }}">Returns</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='privacy') }}">Privacy Policy</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='terms') }}">Terms of Service</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='support') }}">Support</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="col-lg-2 col-md-6">
+                <h6 class="font-serif mb-3">Contact Info</h6>
+                <ul class="list-unstyled footer-contact">
+                    <li class="mb-2">
+                        <i class="fas fa-map-marker-alt me-2 text-brand-orange"></i>
+                        <small>Srinagar, Kashmir<br>Jammu & Kashmir, India</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-phone me-2 text-brand-orange"></i>
+                        <small>+91-194-XXXXXX</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-envelope me-2 text-brand-orange"></i>
+                        <small>info@abcpublishingkashmir.com</small>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-clock me-2 text-brand-orange"></i>
+                        <small>Mon-Sat: 9AM-6PM</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="row mt-4 pt-4 border-top border-secondary">
+            <div class="col-lg-6">
+                <h6 class="font-serif mb-3">We Accept</h6>
+                <div class="payment-methods">
+                    <span class="payment-method me-3">
+                        <i class="fab fa-cc-visa fa-2x"></i>
+                    </span>
+                    <span class="payment-method me-3">
+                        <i class="fab fa-cc-mastercard fa-2x"></i>
+                    </span>
+                    <span class="payment-method me-3">
+                        <i class="fas fa-mobile-alt fa-2x"></i>
+                        <small class="d-block">UPI</small>
+                    </span>
+                    <span class="payment-method me-3">
+                        <i class="fas fa-money-bill-wave fa-2x"></i>
+                        <small class="d-block">COD</small>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-6 text-lg-end">
+                <h6 class="font-serif mb-3">Secure Shopping</h6>
+                <div class="security-badges">
+                    <span class="badge bg-success me-2">
+                        <i class="fas fa-shield-alt me-1"></i>SSL Secured
+                    </span>
+                    <span class="badge bg-success me-2">
+                        <i class="fas fa-lock me-1"></i>Safe Payments
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="row mt-4 pt-4 border-top border-secondary">
+            <div class="col-lg-8">
+                <p class="mb-0">
+                    &copy; {{ current_year or 2024 }} ABC Publishing Kashmir. All rights reserved.
+                    Made with <i class="fas fa-heart text-brand-orange"></i> for the Kashmir community.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="footer-links d-inline">
+                    <a href="{{ url_for('web.content_page', slug='privacy') }}" class="me-3">Privacy</a>
+                    <a href="{{ url_for('web.content_page', slug='terms') }}" class="me-3">Terms</a>
+                    <a href="{{ url_for('web.content_page', slug='sitemap') }}">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- Islamic Calligraphy Footer Decoration -->
+<div class="islamic-footer-decoration text-center py-2 bg-brand-dark text-white">
+    <div class="container">
+        <small class="arabic-text">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</small>
+    </div>
+</div>

@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.id }} - ABC Publishing Kashmir{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumbs -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb breadcrumb-brand">
+            <li class="breadcrumb-item"><a href="{{ url_for('web.index') }}">Home</a></li>
+            {% if current_user.is_authenticated %}
+            <li class="breadcrumb-item"><a href="{{ url_for('web.account') }}">Account</a></li>
+            {% endif %}
+            <li class="breadcrumb-item active">Order #{{ order.id }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="font-serif text-brand-brown">Order #{{ order.id }}</h1>
+                    <p class="text-muted mb-0">
+                        Placed on {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    </p>
+                </div>
+                <div class="order-status">
+                    <span class="badge bg-{{ 'success' if order.status.value == 'Delivered' else 'primary' if order.status.value == 'Shipped' else 'warning' if order.status.value == 'Paid' else 'secondary' }} fs-6">
+                        {{ order.status.value }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Order Details -->
+        <div class="col-lg-8">
+            <!-- Order Status Timeline -->
+            <div class="card card-brand mb-4">
+                <div class="card-header">
+                    <h4 class="font-serif text-brand-brown mb-0">
+                        <i class="fas fa-shipping-fast me-2"></i>Order Status
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="order-timeline">
+                        <div class="timeline-item {{ 'active' if order.status.value in ['Pending', 'Paid', 'Packed', 'Shipped', 'Delivered'] else '' }}">
+                            <div class="timeline-icon">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Order Placed</h6>
+                                <small class="text-muted">{{ order.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
+                            </div>
+                        </div>
+                        
+                        {% if order.status.value in ['Paid', 'Packed', 'Shipped', 'Delivered'] %}
+                        <div class="timeline-item active">
+                            <div class="timeline-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Payment Confirmed</h6>
+                                <small class="text-muted">{{ order.payment_method.value }}</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if order.status.value in ['Packed', 'Shipped', 'Delivered'] %}
+                        <div class="timeline-item active">
+                            <div class="timeline-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Order Packed</h6>
+                                <small class="text-muted">Ready for shipment</small>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if order.status.value in ['Shipped', 'Delivered'] %}
+                        <div class="timeline-item active">
+                            <div class="timeline-icon">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Order Shipped</h6>
+                                {% if order.shipments %}
+                                    {% for shipment in order.shipments %}
+                                    <small class="text-muted d-block">
+                                        Tracking: {{ shipment.tracking_no if shipment.tracking_no else 'Will be updated soon' }}
+                                    </small>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="timeline-item {{ 'active' if order.status.value == 'Delivered' else '' }}">
+                            <div class="timeline-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Delivered</h6>
+                                {% if order.status.value == 'Delivered' %}
+                                <small class="text-muted">Order delivered successfully</small>
+                                {% else %}
+                                <small class="text-muted">Estimated delivery: 2-7 business days</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card card-brand mb-4">
+                <div class="card-header">
+                    <h4 class="font-serif text-brand-brown mb-0">
+                        <i class="fas fa-book me-2"></i>Order Items
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% for item in order.items %}
+                    <div class="order-item row g-3 align-items-center {% if not loop.last %}border-bottom pb-3 mb-3{% endif %}">
+                        <div class="col-md-2">
+                            <img src="{{ url_for('static', filename=item.product.cover_image) if item.product and item.product.cover_image else url_for('static', filename='images/no-cover.jpg') }}" 
+                                 alt="{{ item.title_snapshot }}" 
+                                 class="img-fluid rounded"
+                                 style="width: 100%; height: 100px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-1">
+                                {% if item.product %}
+                                <a href="{{ url_for('web.product_detail', slug=item.product.slug) }}" 
+                                   class="text-decoration-none text-brand-brown">
+                                    {{ item.title_snapshot }}
+                                </a>
+                                {% else %}
+                                {{ item.title_snapshot }}
+                                {% endif %}
+                            </h5>
+                            <p class="text-muted small mb-1">SKU: {{ item.sku_snapshot }}</p>
+                            <p class="text-muted small">Quantity: {{ item.quantity }}</p>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="unit-price">
+                                <span class="fw-bold">{{ format_currency(item.unit_price_inr) }}</span>
+                                <br><small class="text-muted">per item</small>
+                            </div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="line-total">
+                                <span class="fw-bold text-brand-orange">{{ format_currency(item.line_total_inr) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Shipping Information -->
+            {% if order.shipping_address %}
+            <div class="card card-brand mb-4">
+                <div class="card-header">
+                    <h4 class="font-serif text-brand-brown mb-0">
+                        <i class="fas fa-map-marker-alt me-2"></i>Shipping Address
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <address class="mb-0">
+                        <strong>{{ order.shipping_address.name }}</strong><br>
+                        {{ order.shipping_address.line1 }}<br>
+                        {% if order.shipping_address.line2 %}{{ order.shipping_address.line2 }}<br>{% endif %}
+                        {{ order.shipping_address.city }}, {{ order.shipping_address.district }}<br>
+                        {{ order.shipping_address.state }} - {{ order.shipping_address.pincode }}<br>
+                        {{ order.shipping_address.country }}
+                    </address>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Order Actions -->
+            <div class="order-actions mb-4">
+                <div class="d-flex gap-2 flex-wrap">
+                    {% if order.status.value not in ['Delivered', 'Cancelled', 'Refunded'] %}
+                    <button class="btn btn-outline-danger" 
+                            onclick="if(confirm('Are you sure you want to cancel this order?')) { /* Add cancel logic */ }">
+                        <i class="fas fa-times me-2"></i>Cancel Order
+                    </button>
+                    {% endif %}
+                    
+                    {% if order.razorpay_payment_id %}
+                    <button class="btn btn-outline-brand" onclick="window.print()">
+                        <i class="fas fa-file-invoice me-2"></i>Print Invoice
+                    </button>
+                    {% endif %}
+                    
+                    <a href="{{ url_for('web.account') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Orders
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary Sidebar -->
+        <div class="col-lg-4">
+            <div class="order-summary position-sticky" style="top: 2rem;">
+                <!-- Payment Summary -->
+                <div class="card card-brand mb-3">
+                    <div class="card-header">
+                        <h5 class="font-serif text-brand-brown mb-0">Payment Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="summary-row d-flex justify-content-between">
+                            <span>Subtotal:</span>
+                            <span>{{ format_currency(order.subtotal_inr) }}</span>
+                        </div>
+                        {% if order.discount_inr > 0 %}
+                        <div class="summary-row d-flex justify-content-between text-success">
+                            <span>Discount:</span>
+                            <span>-{{ format_currency(order.discount_inr) }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="summary-row d-flex justify-content-between">
+                            <span>Shipping:</span>
+                            <span>{{ format_currency(order.shipping_inr) if order.shipping_inr > 0 else 'Free' }}</span>
+                        </div>
+                        {% if order.tax_inr > 0 %}
+                        <div class="summary-row d-flex justify-content-between">
+                            <span>Tax:</span>
+                            <span>{{ format_currency(order.tax_inr) }}</span>
+                        </div>
+                        {% endif %}
+                        <hr>
+                        <div class="summary-row d-flex justify-content-between">
+                            <strong>Total:</strong>
+                            <strong class="text-brand-orange">{{ format_currency(order.grand_total_inr) }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Information -->
+                <div class="card card-brand mb-3">
+                    <div class="card-header">
+                        <h5 class="font-serif text-brand-brown mb-0">Payment Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="payment-info">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Method:</span>
+                                <span class="fw-medium">{{ order.payment_method.value if order.payment_method else 'N/A' }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Status:</span>
+                                <span class="badge bg-{{ 'success' if order.payment_status.value == 'Paid' else 'warning' }}">
+                                    {{ order.payment_status.value }}
+                                </span>
+                            </div>
+                            {% if order.razorpay_payment_id %}
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    Transaction ID: {{ order.razorpay_payment_id }}
+                                </small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Support -->
+                <div class="card card-brand">
+                    <div class="card-body text-center">
+                        <h6 class="font-serif text-brand-brown">Need Help?</h6>
+                        <p class="small text-muted mb-3">
+                            Contact us for any questions about your order
+                        </p>
+                        <div class="d-grid gap-2">
+                            <a href="tel:+91-194-XXXXXX" class="btn btn-outline-brand btn-sm">
+                                <i class="fas fa-phone me-2"></i>Call Us
+                            </a>
+                            <a href="mailto:info@abcpublishingkashmir.com" class="btn btn-outline-brand btn-sm">
+                                <i class="fas fa-envelope me-2"></i>Email Support
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.order-timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.order-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: -22px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+}
+
+.timeline-item.active .timeline-icon {
+    background: var(--brand-orange-600);
+}
+
+.timeline-content h6 {
+    margin-bottom: 2px;
+    color: var(--brand-brown-900);
+}
+
+.summary-row {
+    margin-bottom: 8px;
+    padding: 4px 0;
+}
+
+.summary-row:last-child {
+    margin-bottom: 0;
+}
+</style>
+{% endblock %}
