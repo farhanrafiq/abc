@@ -1,0 +1,144 @@
+You are a senior full-stack engineer. Generate a complete production-ready monorepo for a bookstore/e-commerce platform inspired by a warm, bookish theme (earthy browns with an orange accent, cream backgrounds). Do NOT copy any text, images, logos, or trademarks from other websites. All content and assets must be original placeholders. Brand name: "ABC Publishing Kashmir".
+
+# Tech stack
+- Frontend: Next.js 14 (App Router) + TypeScript + Tailwind CSS + shadcn/ui + React Hook Form + Zod.
+- Server/API: Next.js Route Handlers + tRPC OR REST (pick one; prefer tRPC), Node 20, TypeScript.
+- Auth: Auth.js (NextAuth) with email/password + optional Google sign-in; role-based access (admin, staff, customer).
+- DB: PostgreSQL via Prisma ORM (Neon in dev by default). Add Prisma migrations + seed script.
+- Search: Meilisearch (self-hosted) OR PostgreSQL full-text (provide both; default to Postgres FTS if Meilisearch env not set).
+- Payments (India): Razorpay (test + live keys via env). Also support Cash on Delivery and UPI intent.
+- Storage: S3-compatible (e.g., Cloudflare R2) for product images; fall back to local /public for dev.
+- Emails: Resend or SendGrid (env-driven), with server-side templates (order confirmations, password reset, shipment updates).
+- Docs & Quality: ESLint, Prettier, tsconfig strict, basic Playwright tests for cart/checkout happy path, Vitest for unit tests. Add a README with full run/deploy steps.
+
+# Monorepo structure
+- apps/web  -> customer storefront (SSR/ISR, fast search, SEO, structured data)
+- apps/admin -> admin dashboard (protected routes, CRUD, analytics)
+- packages/ui -> shared UI components (buttons, inputs, badges, table, modal, toast)
+- packages/config -> shared types, zod schemas, constants (currencies, order statuses, permissions)
+- packages/db -> Prisma schema, client, seeders, repository helpers
+- infra -> docker-compose for Postgres + Meilisearch (dev), sample Nginx for prod
+
+# Theme & UX
+- Color tokens (Tailwind custom):
+  -- brand-brown-900: #3B2A22
+  -- brand-brown-700: #5A4034
+  -- brand-brown-100: #F2E9E4
+  -- brand-orange-600: #E86A17
+  -- accent-cream: #FAF6EF
+- Typography: Headings with "Merriweather", body "Inter". Comfortable line-height for long descriptions.
+- Components: sticky header, mega-menu categories, faceted filters, responsive product grid, product quick-view, sticky add-to-cart on mobile, accessible modals, toast notifications.
+- SEO: next-sitemap, robots.txt, Open Graph, JSON-LD for Product and BreadcrumbList.
+- PWA: add minimal SW for offline cart and cached product pages.
+
+# Domain model (Prisma)
+Model the following (with relations, indexes, and soft-delete flags where useful):
+- User(id, name, email, phone, role)
+- Address(id, userId, name, line1, line2, city, district, state, pincode, country='IN', isDefault)
+- Author(id, name, slug, bio)
+- Publisher(id, name, slug, description)
+- Category(id, name, slug, parentId nullable)
+- Product(id, title, slug, isbn, language enum ['EN','UR','HI','AR','OTHER'], format enum ['Paperback','Hardcover','Other'], description, publisherId, coverImage, images[], publishedAt nullable, weightGrams, dimensions {L,W,H}, status enum ['Draft','Active','Archived'])
+- ProductAuthor(productId, authorId)
+- ProductCategory(productId, categoryId)
+- Price(id, productId, mrpINR int, saleINR int nullable, currency='INR', taxRatePct default 0)
+- Inventory(productId, sku, stockOnHand int, lowStockThreshold int)
+- Coupon(id, code, type ['PERCENT','AMOUNT'], value, minSubtotal, startsAt, endsAt, maxRedemptions, perUserLimit)
+- Cart(id, userId nullable, sessionId, items[])
+- Order(id, userId nullable, email, phone, billingAddressId, shippingAddressId, subtotalINR int, discountINR int, shippingINR int, taxINR int, grandTotalINR int, status ['Pending','Paid','Packed','Shipped','Delivered','Cancelled','Refunded'], paymentStatus ['Unpaid','Paid','Failed','Refunded'], paymentMethod ['Razorpay','COD','UPI'], razorpayOrderId nullable, razorpayPaymentId nullable, notes)
+- OrderItem(id, orderId, productId, titleSnapshot, skuSnapshot, unitPriceINR, quantity, lineTotalINR)
+- Shipment(id, orderId, carrier, trackingNo, status, shippedAt, deliveredAt)
+- Review(id, productId, userId, rating 1-5, title, body, isApproved)
+- ContentPage(id, slug, title, body) // for About, Terms, Privacy, Returns
+
+Add sensible indexes: UNIQUE on slug fields, trigram or tsvector index on title/isbn for search, composite indexes for lookups.
+
+# Storefront features (apps/web)
+- Home: hero banner, featured categories, new arrivals, bestsellers, deals, newsletter form.
+- Catalog: filters by Category, Author, Publisher, Language, Format, Price range, In-stock. Sort by relevance/newest/price.
+- Search: instant results (debounced), highlights matches in title/isbn/author. If Meilisearch not configured, use Postgres FTS with tsvector.
+- Product page: images gallery, specs (ISBN, language, format, weight, dimensions, publisher, authors), price with discount badge, stock badge, add-to-cart, related items, breadcrumbs, structured data.
+- Cart + Checkout: guest checkout allowed (email + phone required). Apply coupon. Shipping options (Kashmir local, Rest of India, International placeholder). COD toggle. Razorpay modal for card/UPI/wallets when selected.
+- Orders: confirmation page, email receipt with PDF GST invoice (see below), order tracking page (by id + email/phone).
+- Account: profile, addresses, orders list, one-click reorder, password change.
+- Static pages: About, Contact, Privacy, Terms, Returns & Refunds (editable from Admin Content).
+
+# Admin features (apps/admin)
+- Auth-gated /admin with roles (admin, staff).
+- Dashboard: KPIs (Today/MTD sales, orders, AOV, top categories), mini charts (sales by day).
+- Catalog Manager: CRUD for Products, Authors, Publishers, Categories; bulk image upload; variant/format fields; WYSIWYG for descriptions; slug generator; real-time preview.
+- Pricing & Inventory: inline editing for price, sale, stock; low-stock report; CSV export.
+- Orders: searchable by id, status, email/phone; timeline (created, paid, packed, shipped, delivered); edit address; add internal notes; issue refunds (Razorpay API hooks ready but disabled if no key).
+- Coupons: create, schedule, limit, usage analytics.
+- Reviews: moderate, approve, reply.
+- Content: edit About/Terms/Privacy/Returns via MDX.
+- Import/Export: CSV/XLSX importers for products, authors, publishers; downloadable sample templates; export products/orders to CSV.
+- Settings:
+  - Store: name, support email, phone, WhatsApp click-to-chat message template, currency (INR), timezone Asia/Kolkata.
+  - Payments: Razorpay keys; COD on/off; UPI instructions text.
+  - Shipping: table rates (Kashmir districts vs rest of India), free-shipping threshold, handling fee.
+  - Taxes: per category override (default 0% for printed books—admin can edit).
+  - Emails: sender, templates, BCC for admin.
+  - Integrations: Meilisearch host/key, S3 bucket creds, analytics (GA4).
+
+# India specifics
+- Currency everywhere in INR with proper formatting.
+- Address form tailored for India: district, state, pincode validation.
+- GST invoice generator (PDFKit):
+  - Configurable fields: Legal entity name, GSTIN (optional), CIN (optional), registered address, HSN (books often 4901; let admin override), tax lines (default 0 for printed books).
+  - Invoice numbering scheme, downloadable from Admin Order view, auto-attached to emails.
+
+# Security & Ops
+- CSRF protection, rate limiting on login and checkout APIs, server-side validation with Zod.
+- Fine-grained RBAC guards on admin routes and API procedures.
+- Audit log table for critical admin actions (price change, refund, coupon edits).
+- .env.template with all required keys; fail-fast on missing envs at boot.
+- Seed script adds: demo admin user (email admin@example.com / password Admin123!), sample categories (Islamic, Academic, Novels), authors, publishers, and 20 sample products with placeholder images.
+
+# Developer experience
+- npm scripts:
+  - dev: run Postgres (docker), Prisma migrate dev, start both apps with turborepo.
+  - build, start, test, lint, format
+  - seed, create-admin
+- README with:
+  - 1-click dev steps (docker compose up, pnpm i, prisma migrate, seed)
+  - Razorpay test guide (keys, creating test order)
+  - Meilisearch optional setup
+  - Deploy notes (Replit, Vercel for web, Fly/Render for API if split)
+- Add minimal Playwright tests: add product to cart, checkout COD, admin login + create product.
+
+# Pages & routes
+Storefront:
+- /, /search, /catalog/[category], /product/[slug], /cart, /checkout, /order/[id], /account/*, /pages/[slug]
+Admin:
+- /admin (dashboard)
+- /admin/products, /admin/products/new, /admin/products/[id]
+- /admin/orders, /admin/orders/[id]
+- /admin/coupons, /admin/reviews, /admin/content, /admin/settings
+
+# API (tRPC or REST)
+- products: list, getBySlug, create/update/delete (admin)
+- search: query with filters, pagination
+- cart: add/remove/update
+- checkout: create order, apply coupon, initiate Razorpay order
+- payment-webhooks: Razorpay webhook handler (signature verification)
+- orders: get by id for customer, list/search for admin, update status
+- inventory: adjust on order paid/cancelled
+- uploads: signed URL for S3, accept image, optimize (sharp)
+- content: get/set pages (admin)
+- auth: login, logout, register, password reset email
+
+# UI polish
+- Keep it fast. Use React Server Components for data-heavy pages.
+- Accessible components (keyboard/focus states), 44px touch targets on mobile.
+- Breadcrumbs across catalog/product.
+- Toasts and optimistic updates in admin tables.
+
+# Legal/ethical guardrails
+- Do NOT scrape or import any third-party content without explicit permission. CSV importers are provided for data you own or are licensed to use.
+- All placeholder text/images must be clearly generic.
+
+# Deliverables
+- Generate all source files, config, and a working dev environment.
+- Provide sample .env values and clear instructions in README.
+- Ensure apps/web boots with seeded data and apps/admin allows full CRUD.
