@@ -1,0 +1,300 @@
+{% extends "base_elegant.html" %}
+
+{% block title %}ABC Publishing Kashmir - Your Trusted Islamic Bookstore Since 1987{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-elegant">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="hero-content animate-fadeInUp">
+                    <h1 class="hero-title">38 Years of<br>Publishing Legacy</h1>
+                    <p class="hero-subtitle">Since 1987</p>
+                    <div class="hero-legacy">
+                        <p class="mb-0">مشتاق بک کارنر • عبداللہ اکیڈمی</p>
+                        <p>زیر پیپلی کیشنز • حسین ریڈرز</p>
+                    </div>
+                    <p class="hero-subtitle mt-3">
+                        Mushtaq Group of Publications<br>
+                        Your gateway to authentic Islamic literature
+                    </p>
+                    <div class="mt-4">
+                        <a href="{{ url_for('web.catalog') }}" class="btn btn-elegant me-3">
+                            <i class="fas fa-book me-2"></i>Browse Collection
+                        </a>
+                        <a href="{{ url_for('web.catalog', category_slug='tafaseer-ul-quran') }}" class="btn btn-elegant-outline">
+                            <i class="fas fa-quran me-2"></i>Tafaseer Books
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="text-center">
+                    <img src="{{ url_for('static', filename='images/books-hero.png') }}" 
+                         alt="Islamic Books" class="img-fluid" style="max-height: 400px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Categories -->
+<section class="py-5 islamic-pattern">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Popular Categories</h2>
+            <p class="section-subtitle">Explore our curated collection of Islamic literature</p>
+        </div>
+        
+        <div class="row g-4">
+            {% set category_icons = {
+                'tafaseer-ul-quran': 'fa-book-quran',
+                'hadith-collections': 'fa-book-open',
+                'seerat-biography': 'fa-scroll',
+                'fiqh-islamic-law': 'fa-balance-scale',
+                'tasawwuf-spirituality': 'fa-heart',
+                'islamic-history': 'fa-landmark'
+            } %}
+            
+            {% for category in featured_categories[:6] if featured_categories %}
+            <div class="col-lg-4 col-md-6">
+                <div class="category-card-elegant">
+                    <div class="category-icon">
+                        <i class="fas {{ category_icons.get(category.slug, 'fa-book') }}"></i>
+                    </div>
+                    <h4 class="category-title">{{ category.name }}</h4>
+                    <p class="category-count">{{ category.products|length if category.products else 0 }} Books Available</p>
+                    <a href="{{ url_for('web.catalog', category_slug=category.slug) }}" class="btn btn-elegant-outline btn-sm mt-3">
+                        View Books <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <!-- Default categories if no data -->
+            <div class="col-lg-4 col-md-6">
+                <div class="category-card-elegant">
+                    <div class="category-icon">
+                        <i class="fas fa-book-quran"></i>
+                    </div>
+                    <h4 class="category-title">Tafaseer-ul-Quran</h4>
+                    <p class="category-count">Quranic Commentaries</p>
+                    <a href="{{ url_for('web.catalog') }}" class="btn btn-elegant-outline btn-sm mt-3">
+                        View Books <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="category-card-elegant">
+                    <div class="category-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h4 class="category-title">Hadith Collections</h4>
+                    <p class="category-count">Prophetic Traditions</p>
+                    <a href="{{ url_for('web.catalog') }}" class="btn btn-elegant-outline btn-sm mt-3">
+                        View Books <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="category-card-elegant">
+                    <div class="category-icon">
+                        <i class="fas fa-scroll"></i>
+                    </div>
+                    <h4 class="category-title">Seerat & Biography</h4>
+                    <p class="category-count">Life of the Prophet (PBUH)</p>
+                    <a href="{{ url_for('web.catalog') }}" class="btn btn-elegant-outline btn-sm mt-3">
+                        View Books <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="category-card-elegant">
+                    <div class="category-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h4 class="category-title">Fiqh & Islamic Law</h4>
+                    <p class="category-count">Jurisprudence & Rulings</p>
+                    <a href="{{ url_for('web.catalog') }}" class="btn btn-elegant-outline btn-sm mt-3">
+                        View Books <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="category-card-elegant">
+                    <div class="category-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h4 class="category-title">Tasawwuf & Spirituality</h4>
+                    <p class="category-count">Islamic Mysticism</p>
+                    <a href="{{ url_for('web.catalog') }}" class="btn btn-elegant-outline btn-sm mt-3">
+                        View Books <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="category-card-elegant">
+                    <div class="category-icon">
+                        <i class="fas fa-landmark"></i>
+                    </div>
+                    <h4 class="category-title">Islamic History</h4>
+                    <p class="category-count">Historical Accounts</p>
+                    <a href="{{ url_for('web.catalog') }}" class="btn btn-elegant-outline btn-sm mt-3">
+                        View Books <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Featured Books</h2>
+            <p class="section-subtitle">Handpicked Islamic literature for your spiritual journey</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for product in featured_products[:8] if featured_products %}
+            <div class="col-lg-3 col-md-6">
+                <div class="product-card-elegant">
+                    <div class="product-image-container">
+                        {% if product.cover_image %}
+                            <img src="{{ url_for('static', filename='uploads/products/' + product.cover_image) }}" 
+                                 alt="{{ product.title }}" class="product-image">
+                        {% else %}
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 420'%3E%3Crect fill='%23f5e6d3'/%3E%3Ctext x='150' y='210' text-anchor='middle' font-family='serif' font-size='20' fill='%238B4513'%3EBook Cover%3C/text%3E%3C/svg%3E" 
+                                 alt="{{ product.title }}" class="product-image">
+                        {% endif %}
+                        {% if product.is_bestseller %}
+                            <span class="product-badge">BESTSELLER</span>
+                        {% elif product.is_new %}
+                            <span class="product-badge">NEW</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-body">
+                        <h5 class="product-title">{{ product.title }}</h5>
+                        {% if product.authors %}
+                            <p class="product-author">By {{ product.authors[0].name }}</p>
+                        {% endif %}
+                        {% if product.language %}
+                            <span class="product-language">{{ product.language }}</span>
+                        {% endif %}
+                        <div class="product-price">
+                            {% if product.price %}
+                                <div>
+                                    <span class="price-current">₹{{ "%.0f"|format(product.price.sale_inr / 100) }}</span>
+                                    {% if product.price.mrp_inr > product.price.sale_inr %}
+                                        <span class="price-original ms-2">₹{{ "%.0f"|format(product.price.mrp_inr / 100) }}</span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                            <a href="{{ url_for('web.product_detail', slug=product.slug) }}" class="btn btn-sm btn-elegant">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Sample products if no data -->
+            {% for i in range(4) %}
+            <div class="col-lg-3 col-md-6">
+                <div class="product-card-elegant">
+                    <div class="product-image-container">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 420'%3E%3Crect fill='%23f5e6d3'/%3E%3Ctext x='150' y='210' text-anchor='middle' font-family='serif' font-size='20' fill='%238B4513'%3ETafseer Book%3C/text%3E%3C/svg%3E" 
+                             alt="Book Cover" class="product-image">
+                        <span class="product-badge">NEW</span>
+                    </div>
+                    <div class="product-body">
+                        <h5 class="product-title">Tafseer Ibn Kathir</h5>
+                        <p class="product-author">By Imam Ibn Kathir</p>
+                        <span class="product-language">URDU</span>
+                        <div class="product-price">
+                            <div>
+                                <span class="price-current">₹7,000</span>
+                                <span class="price-original ms-2">₹9,000</span>
+                            </div>
+                            <a href="{{ url_for('web.catalog') }}" class="btn btn-sm btn-elegant">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('web.catalog') }}" class="btn btn-elegant">
+                View All Books <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="divider-ornament">
+    ✦ ✦ ✦
+</div>
+
+<!-- Why Choose Us -->
+<section class="py-5">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Why Choose ABC Publishing Kashmir</h2>
+            <p class="section-subtitle">Serving the Ummah with authentic Islamic literature since 1987</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-certificate fa-3x text-warning"></i>
+                </div>
+                <h5>Authentic Sources</h5>
+                <p class="text-muted">Only verified and authentic Islamic texts from renowned scholars</p>
+            </div>
+            <div class="col-md-3 col-sm-6 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-language fa-3x text-warning"></i>
+                </div>
+                <h5>Multiple Languages</h5>
+                <p class="text-muted">Books in Arabic, Urdu, English, and Hindi</p>
+            </div>
+            <div class="col-md-3 col-sm-6 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-truck fa-3x text-warning"></i>
+                </div>
+                <h5>Fast Delivery</h5>
+                <p class="text-muted">Quick delivery across Kashmir and all of India</p>
+            </div>
+            <div class="col-md-3 col-sm-6 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-shield-alt fa-3x text-warning"></i>
+                </div>
+                <h5>Secure Payment</h5>
+                <p class="text-muted">Safe and secure payment options including COD</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="py-5" style="background-color: var(--secondary-cream);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <h3 class="mb-3">Stay Updated</h3>
+                <p class="text-muted mb-4">Subscribe to our newsletter for new arrivals and special offers</p>
+                <form class="d-flex gap-2 justify-content-center">
+                    <input type="email" class="form-control" placeholder="Enter your email" style="max-width: 300px;">
+                    <button type="submit" class="btn btn-elegant">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

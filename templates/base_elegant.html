@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}ABC Publishing Kashmir - Authentic Islamic Books{% endblock %}</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="{% block description %}Discover authentic Islamic books, Quran commentaries, Hadith collections, and spiritual literature at ABC Publishing Kashmir.{% endblock %}">
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/elegant-islamic.css') }}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="elegant-header">
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-elegant">
+            <div class="container">
+                <a class="navbar-brand-elegant" href="{{ url_for('web.index') }}">
+                    ABC Publishing Kashmir
+                    <span class="brand-arabic">مکتبہ کشمیر</span>
+                </a>
+                
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-elegant" href="{{ url_for('web.index') }}">Home</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link nav-link-elegant dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                Categories
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='tafaseer-ul-quran') }}">Tafaseer-ul-Quran</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='hadith-collections') }}">Hadith Collections</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='seerat-biography') }}">Seerat & Biography</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='fiqh-islamic-law') }}">Fiqh & Islamic Law</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='tasawwuf-spirituality') }}">Tasawwuf & Spirituality</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('web.catalog') }}">All Categories</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-elegant" href="{{ url_for('web.catalog') }}">Books</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-elegant" href="{{ url_for('web.content_page', slug='about') }}">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-elegant" href="{{ url_for('web.content_page', slug='contact') }}">Contact</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-elegant position-relative" href="{{ url_for('cart.view_cart') }}">
+                                <i class="fas fa-shopping-cart"></i> Cart
+                                <span class="cart-count">{{ session.get('cart_count', 0) }}</span>
+                            </a>
+                        </li>
+                        {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link nav-link-elegant dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> {{ current_user.name.split()[0] }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('web.account') }}">My Account</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('web.orders') }}">My Orders</a></li>
+                                {% if current_user.role.value in ['admin', 'staff'] %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">Admin Panel</a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                            </ul>
+                        </li>
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-elegant" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer-elegant">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="footer-title">ABC Publishing Kashmir</h5>
+                    <p class="arabic-text mb-3">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</p>
+                    <p>Your trusted source for authentic Islamic literature since 1987. Serving Kashmir and beyond with quality books that inspire and educate.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="footer-title">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('web.index') }}" class="footer-link">Home</a></li>
+                        <li><a href="{{ url_for('web.catalog') }}" class="footer-link">All Books</a></li>
+                        <li><a href="{{ url_for('web.catalog') }}?sort=newest" class="footer-link">New Arrivals</a></li>
+                        <li><a href="{{ url_for('web.catalog') }}?sort=bestseller" class="footer-link">Best Sellers</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="footer-title">Categories</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('web.catalog', category_slug='tafaseer-ul-quran') }}" class="footer-link">Tafaseer</a></li>
+                        <li><a href="{{ url_for('web.catalog', category_slug='hadith-collections') }}" class="footer-link">Hadith</a></li>
+                        <li><a href="{{ url_for('web.catalog', category_slug='seerat-biography') }}" class="footer-link">Seerat</a></li>
+                        <li><a href="{{ url_for('web.catalog', category_slug='fiqh-islamic-law') }}" class="footer-link">Fiqh</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="footer-title">Customer Service</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('web.content_page', slug='shipping') }}" class="footer-link">Shipping Info</a></li>
+                        <li><a href="{{ url_for('web.content_page', slug='returns') }}" class="footer-link">Returns</a></li>
+                        <li><a href="{{ url_for('web.content_page', slug='faq') }}" class="footer-link">FAQ</a></li>
+                        <li><a href="{{ url_for('web.content_page', slug='contact') }}" class="footer-link">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 mb-4">
+                    <h6 class="footer-title">Contact Info</h6>
+                    <p class="small">
+                        <i class="fas fa-map-marker-alt me-2 text-warning"></i>
+                        Srinagar, Kashmir<br>
+                        <i class="fas fa-phone me-2 text-warning"></i>
+                        +92-194-2724082<br>
+                        <i class="fas fa-envelope me-2 text-warning"></i>
+                        info@abcpublishing.com
+                    </p>
+                </div>
+            </div>
+            
+            <hr class="my-4 border-secondary">
+            
+            <div class="text-center">
+                <p class="mb-0">&copy; 2024 ABC Publishing Kashmir. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

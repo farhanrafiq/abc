@@ -1,0 +1,482 @@
+/* Elegant Islamic Bookstore Theme */
+:root {
+    /* Professional Color Palette */
+    --primary-brown: #8B4513;
+    --secondary-cream: #F5E6D3;
+    --accent-gold: #D4AF37;
+    --dark-brown: #4A2C2A;
+    --light-beige: #FAF4E8;
+    --text-dark: #2C1810;
+    --text-light: #6B5D54;
+    --success-green: #4A7C59;
+    --border-light: #E8DCC8;
+    --shadow-color: rgba(139, 69, 19, 0.1);
+    --header-gradient: linear-gradient(135deg, #8B4513, #A0522D);
+}
+
+/* Typography */
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Playfair+Display:wght@400;500;600;700;900&family=Open+Sans:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    color: var(--text-dark);
+    background-color: var(--light-beige);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    color: var(--dark-brown);
+    font-weight: 600;
+}
+
+.arabic-text {
+    font-family: 'Amiri', serif;
+    font-size: 1.2em;
+    direction: rtl;
+}
+
+.urdu-text {
+    font-family: 'Noto Nastaliq Urdu', serif;
+    direction: rtl;
+}
+
+/* Header Styling */
+.elegant-header {
+    background: var(--header-gradient);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-elegant {
+    padding: 0.5rem 0;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand-elegant {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: white !important;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand-elegant .brand-arabic {
+    font-family: 'Amiri', serif;
+    font-size: 1.4rem;
+    margin-left: 1rem;
+    color: var(--accent-gold);
+}
+
+.nav-link-elegant {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 500;
+    padding: 0.75rem 1.25rem !important;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-link-elegant:hover {
+    color: var(--accent-gold) !important;
+    border-bottom-color: var(--accent-gold);
+}
+
+/* Hero Section */
+.hero-elegant {
+    background: linear-gradient(rgba(139, 69, 19, 0.8), rgba(139, 69, 19, 0.8)),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23D4AF37" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,133.3C960,128,1056,96,1152,96C1248,96,1344,128,1392,144L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+    background-size: cover;
+    background-position: center;
+    padding: 4rem 0;
+    color: white;
+}
+
+.hero-content {
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.95;
+    margin-bottom: 2rem;
+}
+
+.hero-legacy {
+    font-family: 'Amiri', serif;
+    font-size: 1.5rem;
+    color: var(--accent-gold);
+    margin: 2rem 0;
+}
+
+/* Buttons */
+.btn-elegant {
+    background: var(--primary-brown);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-elegant:hover {
+    background: var(--dark-brown);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--shadow-color);
+}
+
+.btn-elegant-outline {
+    background: transparent;
+    color: var(--primary-brown);
+    border: 2px solid var(--primary-brown);
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.btn-elegant-outline:hover {
+    background: var(--primary-brown);
+    color: white;
+}
+
+/* Category Cards */
+.category-card-elegant {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-light);
+    height: 100%;
+}
+
+.category-card-elegant:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.category-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    background: var(--secondary-cream);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-brown);
+    font-size: 2rem;
+}
+
+.category-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--dark-brown);
+    margin-bottom: 0.5rem;
+}
+
+.category-count {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* Product Cards */
+.product-card-elegant {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-light);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card-elegant:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px var(--shadow-color);
+}
+
+.product-image-container {
+    position: relative;
+    padding-top: 140%; /* 5:7 aspect ratio for book covers */
+    overflow: hidden;
+    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+}
+
+.product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--accent-gold);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.product-body {
+    padding: 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--dark-brown);
+    margin-bottom: 0.5rem;
+    min-height: 2.5em;
+    line-height: 1.3;
+}
+
+.product-author {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.product-language {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    background: var(--secondary-cream);
+    color: var(--primary-brown);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.product-price {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-current {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-brown);
+}
+
+.price-original {
+    text-decoration: line-through;
+    color: var(--text-light);
+    font-size: 1rem;
+}
+
+/* Section Headers */
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    color: var(--dark-brown);
+    margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: var(--accent-gold);
+}
+
+.section-subtitle {
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+/* Islamic Decorative Elements */
+.islamic-pattern {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><g fill="none" stroke="%23D4AF37" stroke-width="0.5" opacity="0.2"><circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="20"/><polygon points="50,10 61,40 90,40 66,60 77,90 50,70 23,90 34,60 10,40 39,40"/></g></svg>');
+    background-repeat: repeat;
+}
+
+.divider-ornament {
+    text-align: center;
+    margin: 3rem 0;
+    color: var(--accent-gold);
+    font-size: 1.5rem;
+}
+
+/* Footer */
+.footer-elegant {
+    background: var(--dark-brown);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 3rem 0 1rem;
+    margin-top: 5rem;
+}
+
+.footer-title {
+    color: white;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.footer-link {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: block;
+    padding: 0.25rem 0;
+}
+
+.footer-link:hover {
+    color: var(--accent-gold);
+}
+
+.footer-social {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+    background: var(--accent-gold);
+    transform: translateY(-3px);
+}
+
+/* Cart Count Badge */
+.cart-count {
+    background: var(--accent-gold);
+    color: white;
+    border-radius: 50%;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+}
+
+/* Search Bar */
+.search-elegant {
+    position: relative;
+}
+
+.search-input {
+    border: 1px solid var(--border-light);
+    border-radius: 25px;
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-brown);
+    box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+}
+
+/* Testimonial Section */
+.testimonial-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px var(--shadow-color);
+    text-align: center;
+}
+
+.testimonial-text {
+    font-style: italic;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.testimonial-author {
+    color: var(--primary-brown);
+    font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+    }
+    
+    .navbar-brand-elegant {
+        font-size: 1.5rem;
+    }
+    
+    .product-card-elegant {
+        margin-bottom: 1.5rem;
+    }
+}

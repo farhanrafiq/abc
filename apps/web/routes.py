@@ -38,7 +38,7 @@ def index():
         .order_by(desc(Product.created_at))\
         .limit(6).all()
     
-    return render_template('web/index_3d.html',
+    return render_template('web/index_elegant.html',
                          featured_categories=featured_categories,
                          featured_products=featured_products,
                          bestsellers=bestsellers,
@@ -133,7 +133,7 @@ def catalog(category_slug=None):
     form.author.choices = [('', 'All Authors')] + [(a.id, a.name) for a in authors]
     form.publisher.choices = [('', 'All Publishers')] + [(p.id, p.name) for p in publishers]
     
-    return render_template('web/catalog_3d.html',
+    return render_template('web/catalog.html',
                          products=products,
                          form=form,
                          selected_category=selected_category,

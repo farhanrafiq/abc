@@ -133,7 +133,9 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     slug = db.Column(db.String(120), unique=True, nullable=False)
+    description = db.Column(db.Text)
     parent_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Self-referential relationship
@@ -148,11 +150,14 @@ class Product(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
+    title_urdu = db.Column(db.String(200))
+    title_arabic = db.Column(db.String(200))
     slug = db.Column(db.String(220), unique=True, nullable=False)
     isbn = db.Column(db.String(20))
-    language = db.Column(db.Enum(Language), default=Language.ENGLISH)
-    format = db.Column(db.Enum(Format), default=Format.PAPERBACK)
+    language = db.Column(db.String(10), default='EN')
+    format = db.Column(db.String(20), default='Hardcover')
     description = db.Column(db.Text)
+    pages = db.Column(db.Integer)
     publisher_id = db.Column(db.Integer, db.ForeignKey('publishers.id'))
     cover_image = db.Column(db.String(255))
     images = db.Column(db.JSON)  # Store array of image URLs
@@ -162,6 +167,10 @@ class Product(db.Model):
     dimensions_w = db.Column(db.Float)  # Width in cm
     dimensions_h = db.Column(db.Float)  # Height in cm
     status = db.Column(db.Enum(ProductStatus), default=ProductStatus.DRAFT)
+    is_bestseller = db.Column(db.Boolean, default=False)
+    is_new = db.Column(db.Boolean, default=False)
+    average_rating = db.Column(db.Float, default=0.0)
+    review_count = db.Column(db.Integer, default=0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
