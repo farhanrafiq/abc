@@ -51,6 +51,11 @@ class CouponType(enum.Enum):
     PERCENT = "PERCENT"
     AMOUNT = "AMOUNT"
 
+class BannerType(enum.Enum):
+    HERO = "hero"
+    PROMOTIONAL = "promotional"
+    CATEGORY = "category"
+
 # User model
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -351,3 +356,33 @@ class Setting(db.Model):
     description = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# Banner model for hero sliders and promotional content
+class Banner(db.Model):
+    __tablename__ = 'banners'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    subtitle = db.Column(db.String(300))
+    description = db.Column(db.Text)
+    image_url = db.Column(db.String(300))
+    link_url = db.Column(db.String(300))
+    link_text = db.Column(db.String(100))
+    banner_type = db.Column(db.Enum(BannerType), default=BannerType.HERO)
+    is_active = db.Column(db.Boolean, default=True)
+    sort_order = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+# Featured Category model for homepage management
+class FeaturedCategory(db.Model):
+    __tablename__ = 'featured_categories'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    sort_order = db.Column(db.Integer, default=0)
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    category = db.relationship('Category', backref='featured_entries')

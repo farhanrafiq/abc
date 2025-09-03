@@ -184,6 +184,58 @@ h1, h2, h3, h4, h5, h6 {
     color: white;
 }
 
+/* Hero Carousel */
+.hero-carousel {
+    position: relative;
+}
+
+.hero-carousel .carousel-item {
+    min-height: 80vh;
+}
+
+.hero-carousel .carousel-control-prev,
+.hero-carousel .carousel-control-next {
+    width: 5%;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.hero-carousel .carousel-control-prev:hover,
+.hero-carousel .carousel-control-next:hover {
+    opacity: 1;
+}
+
+.hero-carousel .carousel-control-prev-icon,
+.hero-carousel .carousel-control-next-icon {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    background-size: 20px;
+}
+
+.hero-carousel .carousel-indicators {
+    margin-bottom: 2rem;
+}
+
+.hero-carousel .carousel-indicators [data-bs-target] {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.hero-carousel .carousel-indicators .active {
+    background-color: var(--secondary-gold);
+    border-color: var(--secondary-gold);
+}
+
+.min-vh-80 {
+    min-height: 80vh;
+}
+
 .hero-content {
     max-width: 600px;
     z-index: 2;

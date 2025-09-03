@@ -3,7 +3,8 @@ from flask_login import login_required, current_user
 from functools import wraps
 from sqlalchemy import func, desc, and_, or_
 from models import (Product, Category, Author, Publisher, Price, Inventory, Order, OrderItem, 
-                   User, Review, Coupon, Setting, UserRole, OrderStatus, PaymentStatus, ProductStatus)
+                   User, Review, Coupon, Setting, UserRole, OrderStatus, PaymentStatus, ProductStatus,
+                   Banner, FeaturedCategory, BannerType)
 from forms import (ProductForm, AuthorForm, PublisherForm, CategoryForm, CouponForm, UserForm)
 from utils.helpers import format_currency, save_uploaded_file, generate_slug, paginate_query
 from utils.pdf import generate_invoice_pdf
@@ -546,3 +547,123 @@ def update_inventory(product_id):
         })
     
     return jsonify({'success': False, 'error': 'No inventory record found'})
+
+# Banner Management Routes
+@admin_bp.route('/banners')
+@admin_required
+def banners():
+    """List all banners"""
+    page = request.args.get('page', 1, type=int)
+    query = Banner.query.order_by(Banner.sort_order, Banner.created_at.desc())
+    banners = paginate_query(query, page, per_page=20)
+    
+    return render_template('admin/banners/list.html', banners=banners)
+
+@admin_bp.route('/banners/create', methods=['GET', 'POST'])
+@admin_required
+def create_banner():
+    """Create new banner"""
+    if request.method == 'POST':
+        banner = Banner(
+            title=request.form['title'],
+            subtitle=request.form.get('subtitle'),
+            description=request.form.get('description'),
+            image_url=request.form.get('image_url'),
+            link_url=request.form.get('link_url'),
+            link_text=request.form.get('link_text'),
+            banner_type=BannerType(request.form.get('banner_type', 'hero')),
+            sort_order=request.form.get('sort_order', 0, type=int),
+            is_active=bool(request.form.get('is_active'))
+        )
+        
+        db.session.add(banner)
+        db.session.commit()
+        flash('Banner created successfully!', 'success')
+        return redirect(url_for('admin.banners'))
+    
+    return render_template('admin/banners/form.html', banner=None)
+
+@admin_bp.route('/banners/<int:banner_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_banner(banner_id):
+    """Edit existing banner"""
+    banner = Banner.query.get_or_404(banner_id)
+    
+    if request.method == 'POST':
+        banner.title = request.form['title']
+        banner.subtitle = request.form.get('subtitle')
+        banner.description = request.form.get('description')
+        banner.image_url = request.form.get('image_url')
+        banner.link_url = request.form.get('link_url')
+        banner.link_text = request.form.get('link_text')
+        banner.banner_type = BannerType(request.form.get('banner_type', 'hero'))
+        banner.sort_order = request.form.get('sort_order', 0, type=int)
+        banner.is_active = bool(request.form.get('is_active'))
+        banner.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        flash('Banner updated successfully!', 'success')
+        return redirect(url_for('admin.banners'))
+    
+    return render_template('admin/banners/form.html', banner=banner)
+
+@admin_bp.route('/banners/<int:banner_id>/delete', methods=['POST'])
+@admin_required
+def delete_banner(banner_id):
+    """Delete banner"""
+    banner = Banner.query.get_or_404(banner_id)
+    db.session.delete(banner)
+    db.session.commit()
+    flash('Banner deleted successfully!', 'success')
+    return redirect(url_for('admin.banners'))
+
+# Featured Categories Management
+@admin_bp.route('/featured-categories')
+@admin_required
+def featured_categories():
+    """Manage featured categories for homepage"""
+    featured = db.session.query(FeaturedCategory, Category)\
+        .join(Category)\
+        .filter(FeaturedCategory.is_active == True)\
+        .order_by(FeaturedCategory.sort_order).all()
+    
+    available_categories = Category.query\
+        .filter(~Category.id.in_([f.category_id for f, c in featured]))\
+        .order_by(Category.name).all()
+    
+    return render_template('admin/featured_categories.html', 
+                         featured=featured, 
+                         available_categories=available_categories)
+
+@admin_bp.route('/featured-categories/add', methods=['POST'])
+@admin_required
+def add_featured_category():
+    """Add category to featured list"""
+    category_id = request.form.get('category_id', type=int)
+    sort_order = request.form.get('sort_order', 0, type=int)
+    
+    # Check if already featured
+    existing = FeaturedCategory.query.filter_by(category_id=category_id, is_active=True).first()
+    if existing:
+        flash('Category is already featured!', 'warning')
+    else:
+        featured = FeaturedCategory(
+            category_id=category_id,
+            sort_order=sort_order,
+            is_active=True
+        )
+        db.session.add(featured)
+        db.session.commit()
+        flash('Category added to featured list!', 'success')
+    
+    return redirect(url_for('admin.featured_categories'))
+
+@admin_bp.route('/featured-categories/<int:featured_id>/remove', methods=['POST'])
+@admin_required
+def remove_featured_category(featured_id):
+    """Remove category from featured list"""
+    featured = FeaturedCategory.query.get_or_404(featured_id)
+    featured.is_active = False
+    db.session.commit()
+    flash('Category removed from featured list!', 'success')
+    return redirect(url_for('admin.featured_categories'))

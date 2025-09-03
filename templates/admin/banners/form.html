@@ -1,0 +1,148 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if banner %}Edit Banner{% else %}Create Banner{% endif %} - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-{% if banner %}edit{% else %}plus{% endif %} me-2"></i>
+        {% if banner %}Edit Banner{% else %}Create Banner{% endif %}
+    </h2>
+    <a href="{{ url_for('admin.banners') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Banners
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title *</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               value="{{ banner.title if banner else '' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="subtitle" class="form-label">Subtitle</label>
+                        <input type="text" class="form-control" id="subtitle" name="subtitle" 
+                               value="{{ banner.subtitle if banner else '' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ banner.description if banner else '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="image_url" class="form-label">Image URL</label>
+                        <input type="url" class="form-control" id="image_url" name="image_url" 
+                               value="{{ banner.image_url if banner else '' }}"
+                               placeholder="https://example.com/image.jpg">
+                        <div class="form-text">Enter the full URL of the banner image</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="link_url" class="form-label">Link URL</label>
+                                <input type="url" class="form-control" id="link_url" name="link_url" 
+                                       value="{{ banner.link_url if banner else '' }}"
+                                       placeholder="https://example.com/link">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="link_text" class="form-label">Link Text</label>
+                                <input type="text" class="form-control" id="link_text" name="link_text" 
+                                       value="{{ banner.link_text if banner else '' }}"
+                                       placeholder="Shop Now">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="banner_type" class="form-label">Banner Type</label>
+                        <select class="form-control" id="banner_type" name="banner_type">
+                            <option value="hero" {% if banner and banner.banner_type.value == 'hero' %}selected{% endif %}>
+                                Hero Banner
+                            </option>
+                            <option value="promotional" {% if banner and banner.banner_type.value == 'promotional' %}selected{% endif %}>
+                                Promotional Banner
+                            </option>
+                            <option value="category" {% if banner and banner.banner_type.value == 'category' %}selected{% endif %}>
+                                Category Banner
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="sort_order" class="form-label">Sort Order</label>
+                        <input type="number" class="form-control" id="sort_order" name="sort_order" 
+                               value="{{ banner.sort_order if banner else 0 }}" min="0">
+                        <div class="form-text">Lower numbers appear first</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" 
+                                   {% if not banner or banner.is_active %}checked{% endif %}>
+                            <label class="form-check-label" for="is_active">
+                                Active
+                            </label>
+                        </div>
+                    </div>
+                    
+                    {% if banner and banner.image_url %}
+                    <div class="mb-3">
+                        <label class="form-label">Current Image</label>
+                        <div>
+                            <img src="{{ banner.image_url }}" alt="{{ banner.title }}" 
+                                 class="img-fluid rounded" style="max-width: 100%;">
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <hr>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if banner %}Update Banner{% else %}Create Banner{% endif %}
+                        </button>
+                        <a href="{{ url_for('admin.banners') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Preview image when URL is entered
+document.getElementById('image_url').addEventListener('blur', function() {
+    const url = this.value;
+    const preview = document.getElementById('image-preview');
+    
+    if (url && !preview) {
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'img-fluid rounded mt-2';
+        img.style.maxWidth = '100%';
+        img.id = 'image-preview';
+        img.onerror = function() {
+            this.remove();
+        };
+        this.parentNode.appendChild(img);
+    } else if (preview) {
+        preview.src = url;
+    }
+});
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, current_app, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import or_, func, desc, asc
-from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format
+from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format, Banner, FeaturedCategory, BannerType
 from forms import SearchForm, ReviewForm
 from utils.helpers import format_currency, get_cart_count, paginate_query
 from app import db
@@ -12,8 +12,23 @@ web_bp = Blueprint('web', __name__)
 @web_bp.route('/')
 def index():
     """Homepage with featured products and categories"""
-    # Get featured categories
-    featured_categories = Category.query.filter_by(parent_id=None).limit(6).all()
+    # Get hero banners
+    hero_banners = Banner.query\
+        .filter(Banner.banner_type == BannerType.HERO, Banner.is_active == True)\
+        .order_by(Banner.sort_order, Banner.created_at.desc())\
+        .all()
+    
+    # Get featured categories (from admin panel)
+    featured_categories_query = db.session.query(Category)\
+        .join(FeaturedCategory, Category.id == FeaturedCategory.category_id)\
+        .filter(FeaturedCategory.is_active == True)\
+        .order_by(FeaturedCategory.sort_order)
+    
+    featured_categories = featured_categories_query.all()
+    
+    # Fallback to top categories if no featured categories set
+    if not featured_categories:
+        featured_categories = Category.query.filter_by(parent_id=None).limit(6).all()
     
     # Get featured products (latest active products)
     featured_products = db.session.query(Product).join(Price).join(Inventory)\
@@ -39,6 +54,7 @@ def index():
         .limit(6).all()
     
     return render_template('web/index_premium.html',
+                         hero_banners=hero_banners,
                          featured_categories=featured_categories,
                          featured_products=featured_products,
                          bestsellers=bestsellers,
