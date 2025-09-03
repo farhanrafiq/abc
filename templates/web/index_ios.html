@@ -1,0 +1,539 @@
+{% extends "base_ios.html" %}
+
+{% block title %}ABC Publishing Kashmir - Modern Islamic Literature Experience{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-ios">
+    <div class="container">
+        <div class="hero-content-ios">
+            <h1 class="hero-title-ios">
+                The Future of
+                <span style="background: linear-gradient(135deg, var(--islamic-gold), var(--islamic-emerald)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Islamic Literature</span>
+            </h1>
+            <p class="hero-subtitle-ios">
+                Discover, explore, and connect with authentic Islamic knowledge through our revolutionary digital experience. 
+                Curated collections from the world's most respected scholars.
+            </p>
+            
+            <div class="d-flex gap-lg justify-content-center flex-wrap" style="margin-top: var(--space-2xl);">
+                <a href="{{ url_for('web.catalog') }}" class="btn-primary-ios">
+                    <i class="fas fa-rocket"></i>
+                    Explore Now
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='tafaseer-ul-quran') }}" class="btn-secondary-ios">
+                    <i class="fas fa-book-quran"></i>
+                    Tafaseer Collection
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Elements -->
+    <div style="position: absolute; top: 20%; right: 10%; opacity: 0.1;">
+        <div style="width: 200px; height: 200px; background: radial-gradient(circle, var(--islamic-gold), transparent); border-radius: 50%; animation: pulse 4s infinite;"></div>
+    </div>
+    <div style="position: absolute; bottom: 20%; left: 10%; opacity: 0.1;">
+        <div style="width: 150px; height: 150px; background: radial-gradient(circle, var(--islamic-emerald), transparent); border-radius: 50%; animation: pulse 6s infinite;"></div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="section-ios" style="padding-top: 0;">
+    <div class="container">
+        <div class="row g-lg-5 g-4">
+            <div class="col-6 col-lg-3">
+                <div class="glass-card text-center">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--ios-blue); margin-bottom: var(--space-sm);">10K+</div>
+                    <div style="color: white; font-weight: 500;">Books</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="glass-card text-center">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--islamic-gold); margin-bottom: var(--space-sm);">500+</div>
+                    <div style="color: white; font-weight: 500;">Authors</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="glass-card text-center">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--islamic-emerald); margin-bottom: var(--space-sm);">38</div>
+                    <div style="color: white; font-weight: 500;">Years</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="glass-card text-center">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--ios-purple); margin-bottom: var(--space-sm);">50K+</div>
+                    <div style="color: white; font-weight: 500;">Customers</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Categories -->
+<section class="section-ios">
+    <div class="container">
+        <div class="section-title-ios">
+            <h2 class="display-medium">Explore Collections</h2>
+        </div>
+        <p class="section-subtitle-ios">
+            Immerse yourself in carefully curated categories of Islamic knowledge
+        </p>
+        
+        <div class="grid-ios grid-3">
+            {% for category in featured_categories[:6] if featured_categories %}
+            <div class="category-card-ios">
+                <div class="category-icon-ios">
+                    {% if 'tafaseer' in category.slug %}
+                        <i class="fas fa-book-quran"></i>
+                    {% elif 'hadith' in category.slug %}
+                        <i class="fas fa-scroll"></i>
+                    {% elif 'seerat' in category.slug %}
+                        <i class="fas fa-user"></i>
+                    {% elif 'fiqh' in category.slug %}
+                        <i class="fas fa-balance-scale"></i>
+                    {% elif 'tasawwuf' in category.slug %}
+                        <i class="fas fa-heart"></i>
+                    {% else %}
+                        <i class="fas fa-book"></i>
+                    {% endif %}
+                </div>
+                <h3 class="headline-medium" style="margin-bottom: var(--space-md);">{{ category.name }}</h3>
+                <p style="opacity: 0.8; margin-bottom: var(--space-lg);">
+                    {% if category.description %}
+                        {{ category.description[:100] }}...
+                    {% else %}
+                        Explore authentic {{ category.name.lower() }} from renowned scholars and trusted sources.
+                    {% endif %}
+                </p>
+                <a href="{{ url_for('web.catalog', category_slug=category.slug) }}" class="btn-primary-ios">
+                    Discover
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% else %}
+            <!-- Default categories -->
+            <div class="category-card-ios">
+                <div class="category-icon-ios"><i class="fas fa-book-quran"></i></div>
+                <h3 class="headline-medium" style="margin-bottom: var(--space-md);">Tafaseer-ul-Quran</h3>
+                <p style="opacity: 0.8; margin-bottom: var(--space-lg);">
+                    Comprehensive Quranic commentaries from the greatest scholars in Islamic history.
+                </p>
+                <a href="{{ url_for('web.catalog') }}" class="btn-primary-ios">
+                    Discover <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="category-card-ios">
+                <div class="category-icon-ios"><i class="fas fa-scroll"></i></div>
+                <h3 class="headline-medium" style="margin-bottom: var(--space-md);">Hadith Collections</h3>
+                <p style="opacity: 0.8; margin-bottom: var(--space-lg);">
+                    Authentic prophetic traditions from Sahih Bukhari, Muslim, and more.
+                </p>
+                <a href="{{ url_for('web.catalog') }}" class="btn-primary-ios">
+                    Discover <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="category-card-ios">
+                <div class="category-icon-ios"><i class="fas fa-heart"></i></div>
+                <h3 class="headline-medium" style="margin-bottom: var(--space-md);">Tasawwuf & Spirituality</h3>
+                <p style="opacity: 0.8; margin-bottom: var(--space-lg);">
+                    Journey of spiritual development and connection with Allah.
+                </p>
+                <a href="{{ url_for('web.catalog') }}" class="btn-primary-ios">
+                    Discover <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="section-ios" style="background: rgba(255, 255, 255, 0.05);">
+    <div class="container">
+        <div class="section-title-ios">
+            <h2 class="display-medium">Featured Books</h2>
+        </div>
+        <p class="section-subtitle-ios">
+            Handpicked selections from our premium collection
+        </p>
+        
+        <div class="grid-ios grid-4">
+            {% for product in featured_products[:8] if featured_products %}
+            <div class="product-card-ios">
+                <div class="product-image-ios">
+                    {% if product.cover_image %}
+                        <img src="{{ url_for('static', filename='uploads/products/' + product.cover_image) }}" 
+                             alt="{{ product.title }}">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
+                             alt="{{ product.title }}">
+                    {% endif %}
+                    {% if product.is_bestseller %}
+                        <div class="product-badge-ios">Bestseller</div>
+                    {% elif product.is_new %}
+                        <div class="product-badge-ios">New</div>
+                    {% endif %}
+                </div>
+                <div class="product-content-ios">
+                    {% if product.categories %}
+                        <div class="product-category-ios">{{ product.categories[0].name }}</div>
+                    {% endif %}
+                    <h3 class="product-title-ios">{{ product.title }}</h3>
+                    {% if product.authors %}
+                        <p class="product-author-ios">by {{ product.authors[0].name }}</p>
+                    {% endif %}
+                    
+                    {% if product.average_rating %}
+                        <div class="d-flex align-items-center gap-sm" style="margin-bottom: var(--space-md);">
+                            <div style="color: var(--islamic-gold);">
+                                {% for i in range(1, 6) %}
+                                    {% if i <= product.average_rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% elif i - 0.5 <= product.average_rating %}
+                                        <i class="fas fa-star-half-alt"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="caption">({{ product.review_count or 0 }})</span>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="product-price-ios">
+                        <div>
+                            {% if product.price %}
+                                <span class="price-current-ios">₹{{ "%.0f"|format(product.price.sale_inr / 100) }}</span>
+                                {% if product.price.mrp_inr > product.price.sale_inr %}
+                                    <span class="price-original-ios">₹{{ "%.0f"|format(product.price.mrp_inr / 100) }}</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <button class="add-to-cart-ios" data-product-id="{{ product.id }}">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Sample products -->
+            {% for i in range(8) %}
+            <div class="product-card-ios">
+                <div class="product-image-ios">
+                    <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
+                         alt="Islamic Book">
+                    <div class="product-badge-ios">New</div>
+                </div>
+                <div class="product-content-ios">
+                    <div class="product-category-ios">Islamic Literature</div>
+                    <h3 class="product-title-ios">Tafseer Ibn Kathir</h3>
+                    <p class="product-author-ios">by Imam Ibn Kathir</p>
+                    <div class="d-flex align-items-center gap-sm" style="margin-bottom: var(--space-md);">
+                        <div style="color: var(--islamic-gold);">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <span class="caption">(124)</span>
+                    </div>
+                    <div class="product-price-ios">
+                        <div>
+                            <span class="price-current-ios">₹7,000</span>
+                            <span class="price-original-ios">₹9,000</span>
+                        </div>
+                        <button class="add-to-cart-ios">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        
+        <div class="text-center" style="margin-top: var(--space-3xl);">
+            <a href="{{ url_for('web.catalog') }}" class="btn-primary-ios">
+                View All Books
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Bestsellers -->
+<section class="section-ios">
+    <div class="container">
+        <div class="section-title-ios">
+            <h2 class="display-medium">Most Popular</h2>
+        </div>
+        <p class="section-subtitle-ios">
+            Books that resonate with our community
+        </p>
+        
+        <div class="grid-ios grid-3">
+            {% for product in bestsellers[:6] if bestsellers %}
+            <div class="card-ios" style="padding: var(--space-lg);">
+                <div class="d-flex gap-lg">
+                    <div style="flex-shrink: 0;">
+                        {% if product.cover_image %}
+                            <img src="{{ url_for('static', filename='uploads/products/' + product.cover_image) }}" 
+                                 alt="{{ product.title }}" 
+                                 style="width: 80px; height: 100px; object-fit: cover; border-radius: var(--radius-md);">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
+                                 alt="{{ product.title }}" 
+                                 style="width: 80px; height: 100px; object-fit: cover; border-radius: var(--radius-md);">
+                        {% endif %}
+                    </div>
+                    <div style="flex: 1;">
+                        {% if product.categories %}
+                            <div class="caption" style="color: var(--ios-blue); margin-bottom: var(--space-xs);">{{ product.categories[0].name }}</div>
+                        {% endif %}
+                        <h4 style="margin-bottom: var(--space-sm); color: var(--islamic-navy);">{{ product.title }}</h4>
+                        {% if product.authors %}
+                            <p class="caption" style="margin-bottom: var(--space-sm);">by {{ product.authors[0].name }}</p>
+                        {% endif %}
+                        <div class="d-flex align-items-center justify-content-between">
+                            {% if product.price %}
+                                <span style="font-weight: 600; color: var(--islamic-navy);">₹{{ "%.0f"|format(product.price.sale_inr / 100) }}</span>
+                            {% endif %}
+                            <div style="color: var(--islamic-gold);">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Sample bestsellers -->
+            {% for i in range(6) %}
+            <div class="card-ios" style="padding: var(--space-lg);">
+                <div class="d-flex gap-lg">
+                    <div style="flex-shrink: 0;">
+                        <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
+                             alt="Book" 
+                             style="width: 80px; height: 100px; object-fit: cover; border-radius: var(--radius-md);">
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="caption" style="color: var(--ios-blue); margin-bottom: var(--space-xs);">Islamic Literature</div>
+                        <h4 style="margin-bottom: var(--space-sm); color: var(--islamic-navy);">Sahih Bukhari</h4>
+                        <p class="caption" style="margin-bottom: var(--space-sm);">by Imam Bukhari</p>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span style="font-weight: 600; color: var(--islamic-navy);">₹4,000</span>
+                            <div style="color: var(--islamic-gold);">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="section-ios" style="background: rgba(0, 0, 0, 0.3);">
+    <div class="container">
+        <div class="text-center">
+            <h2 class="display-medium" style="color: white; margin-bottom: var(--space-lg);">Stay Connected</h2>
+            <p style="color: rgba(255, 255, 255, 0.8); font-size: 1.125rem; margin-bottom: var(--space-2xl); max-width: 600px; margin-left: auto; margin-right: auto;">
+                Get notified about new arrivals, exclusive offers, and Islamic educational content.
+            </p>
+            
+            <div style="max-width: 500px; margin: 0 auto;">
+                <form class="d-flex gap-md align-items-stretch">
+                    <input type="email" placeholder="Enter your email" 
+                           style="flex: 1; padding: var(--space-md) var(--space-lg); border: none; border-radius: var(--radius-xl); background: rgba(255, 255, 255, 0.1); backdrop-filter: var(--blur-md); color: white; font-size: 1rem;"
+                           required>
+                    <button type="submit" class="btn-primary-ios" style="padding: var(--space-md) var(--space-xl);">
+                        <i class="fas fa-paper-plane"></i>
+                        Subscribe
+                    </button>
+                </form>
+                <p style="color: rgba(255, 255, 255, 0.6); font-size: 0.875rem; margin-top: var(--space-md);">
+                    Join 25,000+ subscribers. Privacy respected.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features -->
+<section class="section-ios">
+    <div class="container">
+        <div class="section-title-ios">
+            <h2 class="display-medium">Why Choose Us</h2>
+        </div>
+        
+        <div class="grid-ios grid-4">
+            <div class="glass-card text-center">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--ios-blue), var(--ios-blue-light)); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-lg); color: white; font-size: 1.5rem;">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h4 style="color: white; margin-bottom: var(--space-md);">Authentic Sources</h4>
+                <p style="color: rgba(255, 255, 255, 0.8);">Only verified Islamic texts from renowned scholars worldwide.</p>
+            </div>
+            
+            <div class="glass-card text-center">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--islamic-gold), var(--islamic-copper)); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-lg); color: white; font-size: 1.5rem;">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <h4 style="color: white; margin-bottom: var(--space-md);">Fast Delivery</h4>
+                <p style="color: rgba(255, 255, 255, 0.8);">Quick and secure delivery across Kashmir and India.</p>
+            </div>
+            
+            <div class="glass-card text-center">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--islamic-emerald), var(--ios-green)); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-lg); color: white; font-size: 1.5rem;">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h4 style="color: white; margin-bottom: var(--space-md);">Global Collection</h4>
+                <p style="color: rgba(255, 255, 255, 0.8);">Books in Arabic, Urdu, English from publishers worldwide.</p>
+            </div>
+            
+            <div class="glass-card text-center">
+                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--ios-purple), var(--ios-pink)); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-lg); color: white; font-size: 1.5rem;">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h4 style="color: white; margin-bottom: var(--space-md);">Expert Support</h4>
+                <p style="color: rgba(255, 255, 255, 0.8);">Knowledgeable team ready to help find the right books.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhanced add to cart functionality
+    document.querySelectorAll('.add-to-cart-ios').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            if (!productId) return;
+            
+            // Add loading state with iOS-style animation
+            const originalHTML = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.style.transform = 'scale(0.9)';
+            
+            // Simulate haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+            
+            // API call
+            fetch(`{{ url_for('cart.add_to_cart', product_id=0) }}`.replace('0', productId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `product_id=${productId}&quantity=1`
+            }).then(response => {
+                if (response.ok) {
+                    // Success animation
+                    this.innerHTML = '<i class="fas fa-check"></i>';
+                    this.style.background = 'linear-gradient(135deg, var(--ios-green), #30B85A)';
+                    this.style.transform = 'scale(1.1)';
+                    
+                    // Update cart count with iOS-style animation
+                    const cartBadge = document.querySelector('.navbar .badge');
+                    if (cartBadge) {
+                        const currentCount = parseInt(cartBadge.textContent) || 0;
+                        cartBadge.textContent = currentCount + 1;
+                        cartBadge.style.transform = 'scale(1.3)';
+                        setTimeout(() => {
+                            cartBadge.style.transform = 'scale(1)';
+                        }, 200);
+                    }
+                    
+                    // Reset button after delay
+                    setTimeout(() => {
+                        this.innerHTML = originalHTML;
+                        this.style.background = '';
+                        this.style.transform = 'scale(1)';
+                    }, 2000);
+                } else {
+                    // Error state
+                    this.innerHTML = '<i class="fas fa-exclamation"></i>';
+                    this.style.background = 'linear-gradient(135deg, var(--ios-red), #FF4757)';
+                    setTimeout(() => {
+                        this.innerHTML = originalHTML;
+                        this.style.background = '';
+                        this.style.transform = 'scale(1)';
+                    }, 2000);
+                }
+            }).catch(() => {
+                this.innerHTML = originalHTML;
+                this.style.transform = 'scale(1)';
+            });
+        });
+    });
+    
+    // Newsletter subscription
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="email"]').value;
+        const button = this.querySelector('button');
+        
+        if (email) {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Subscribed!';
+            button.style.background = 'linear-gradient(135deg, var(--ios-green), #30B85A)';
+            this.querySelector('input').value = '';
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.style.background = '';
+            }, 3000);
+        }
+    });
+    
+    // Parallax effect for floating elements
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelectorAll('[style*="animation: pulse"]');
+        
+        parallax.forEach(element => {
+            const speed = 0.5;
+            element.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+    });
+    
+    // iOS-style card interactions
+    document.querySelectorAll('.card-ios, .product-card-ios, .glass-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+    });
+    
+    // Smooth reveal animations
+    const observeElements = document.querySelectorAll('.card-ios, .product-card-ios, .category-card-ios, .glass-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }, index * 100);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    observeElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        observer.observe(el);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{% block title %}ABC Publishing Kashmir - Modern Islamic Literature{% endblock %}</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="{% block description %}Experience the future of Islamic literature with our modern, curated collection of authentic books and digital resources.{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}Islamic books, modern Islamic literature, digital books, premium collection, iOS design{% endblock %}">
+    
+    <!-- iOS Safari Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ABC Publishing">
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/ios-modern.css') }}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="container">
+            <div class="navbar-ios d-flex align-items-center justify-content-between">
+                <a class="navbar-brand-ios" href="{{ url_for('web.index') }}">
+                    <div class="brand-icon">
+                        <i class="fas fa-book-quran"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 1.1rem; font-weight: 700;">ABC Publishing</div>
+                        <div style="font-size: 0.7rem; opacity: 0.8;">Kashmir</div>
+                    </div>
+                </a>
+                
+                <!-- Desktop Navigation -->
+                <div class="d-none d-lg-flex align-items-center gap-md">
+                    <a class="nav-link-ios" href="{{ url_for('web.index') }}">Home</a>
+                    
+                    <div class="dropdown">
+                        <a class="nav-link-ios dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            Categories
+                        </a>
+                        <ul class="dropdown-menu border-0 shadow-lg" style="border-radius: var(--radius-lg); backdrop-filter: var(--blur-md);">
+                            <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='tafaseer-ul-quran') }}">
+                                <i class="fas fa-book-quran me-2 text-primary"></i>Tafaseer-ul-Quran
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='hadith-collections') }}">
+                                <i class="fas fa-scroll me-2 text-primary"></i>Hadith Collections
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='seerat-biography') }}">
+                                <i class="fas fa-user me-2 text-primary"></i>Seerat & Biography
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='fiqh-islamic-law') }}">
+                                <i class="fas fa-balance-scale me-2 text-primary"></i>Fiqh & Islamic Law
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='tasawwuf-spirituality') }}">
+                                <i class="fas fa-heart me-2 text-primary"></i>Tasawwuf & Spirituality
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('web.catalog') }}">
+                                <i class="fas fa-th me-2 text-primary"></i>All Categories
+                            </a></li>
+                        </ul>
+                    </div>
+                    
+                    <a class="nav-link-ios" href="{{ url_for('web.catalog') }}">Books</a>
+                    <a class="nav-link-ios" href="{{ url_for('web.content_page', slug='authors') }}">Authors</a>
+                    <a class="nav-link-ios" href="{{ url_for('web.content_page', slug='about') }}">About</a>
+                </div>
+                
+                <!-- Search & Actions -->
+                <div class="d-flex align-items-center gap-md">
+                    <!-- Search -->
+                    <div class="search-ios d-none d-md-block">
+                        <form method="GET" action="{{ url_for('web.search') }}">
+                            <i class="fas fa-search search-icon-ios"></i>
+                            <input type="text" name="q" class="search-input-ios" 
+                                   placeholder="Search books..." 
+                                   value="{{ request.args.get('q', '') }}">
+                        </form>
+                    </div>
+                    
+                    <!-- Cart -->
+                    <a href="{{ url_for('cart.view_cart') }}" class="nav-link-ios position-relative">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill" 
+                              style="background: var(--ios-blue); font-size: 0.7rem;">
+                            {{ session.get('cart_count', 0) }}
+                        </span>
+                    </a>
+                    
+                    <!-- User Menu -->
+                    {% if current_user.is_authenticated %}
+                    <div class="dropdown">
+                        <a class="nav-link-ios dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                            {{ current_user.name.split()[0] }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg" style="border-radius: var(--radius-lg);">
+                            <li><a class="dropdown-item" href="{{ url_for('web.account') }}">
+                                <i class="fas fa-user me-2"></i>My Account
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('web.orders') }}">
+                                <i class="fas fa-box me-2"></i>My Orders
+                            </a></li>
+                            {% if current_user.role.value in ['admin', 'staff'] %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
+                                <i class="fas fa-cog me-2"></i>Admin Panel
+                            </a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Sign Out
+                            </a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn-primary-ios">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Mobile Menu Toggle -->
+                    <button class="d-lg-none btn nav-link-ios" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNav">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Mobile Navigation Offcanvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="mobileNav" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: var(--blur-lg);">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="d-flex flex-column gap-md">
+                <a class="nav-link-ios" href="{{ url_for('web.index') }}">Home</a>
+                <a class="nav-link-ios" href="{{ url_for('web.catalog') }}">All Books</a>
+                <a class="nav-link-ios" href="{{ url_for('web.catalog', category_slug='tafaseer-ul-quran') }}">Tafaseer</a>
+                <a class="nav-link-ios" href="{{ url_for('web.catalog', category_slug='hadith-collections') }}">Hadith</a>
+                <a class="nav-link-ios" href="{{ url_for('web.catalog', category_slug='seerat-biography') }}">Seerat</a>
+                <a class="nav-link-ios" href="{{ url_for('web.catalog', category_slug='fiqh-islamic-law') }}">Fiqh</a>
+                <a class="nav-link-ios" href="{{ url_for('web.catalog', category_slug='tasawwuf-spirituality') }}">Tasawwuf</a>
+                <hr>
+                <a class="nav-link-ios" href="{{ url_for('web.content_page', slug='authors') }}">Authors</a>
+                <a class="nav-link-ios" href="{{ url_for('web.content_page', slug='about') }}">About</a>
+                <a class="nav-link-ios" href="{{ url_for('web.content_page', slug='contact') }}">Contact</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container position-relative" style="margin-top: var(--space-md);">
+                {% for category, message in messages %}
+                    <div class="alert border-0 shadow-lg" 
+                         style="background: rgba({% if category == 'error' %}255, 59, 48{% elif category == 'success' %}52, 199, 89{% else %}0, 122, 255{% endif %}, 0.1); 
+                                backdrop-filter: var(--blur-md); 
+                                border-radius: var(--radius-lg); 
+                                color: {% if category == 'error' %}var(--ios-red){% elif category == 'success' %}var(--ios-green){% else %}var(--ios-blue){% endif %};" 
+                         role="alert">
+                        <i class="fas fa-{% if category == 'error' %}exclamation-circle{% elif category == 'success' %}check-circle{% else %}info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer style="background: rgba(0, 0, 0, 0.8); backdrop-filter: var(--blur-lg); color: white; padding: var(--space-3xl) 0 var(--space-xl);">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="mb-4">
+                        <a href="{{ url_for('web.index') }}" class="navbar-brand-ios text-white text-decoration-none mb-3 d-block">
+                            <div class="brand-icon">
+                                <i class="fas fa-book-quran"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 1.2rem;">ABC Publishing Kashmir</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">Modern Islamic Literature</div>
+                            </div>
+                        </a>
+                        <p style="opacity: 0.8; line-height: 1.6; margin-bottom: var(--space-lg);">
+                            Your premier destination for authentic Islamic literature. 
+                            Serving Kashmir and beyond with the finest collection since 1987.
+                        </p>
+                        <div class="d-flex gap-md">
+                            <a href="#" class="nav-link-ios" style="width: 44px; height: 44px; background: rgba(255,255,255,0.1); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="nav-link-ios" style="width: 44px; height: 44px; background: rgba(255,255,255,0.1); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="nav-link-ios" style="width: 44px; height: 44px; background: rgba(255,255,255,0.1); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6">
+                    <h6 style="color: var(--islamic-gold); margin-bottom: var(--space-lg);">Quick Links</h6>
+                    <div class="d-flex flex-column gap-sm">
+                        <a href="{{ url_for('web.catalog') }}" class="nav-link-ios">All Books</a>
+                        <a href="{{ url_for('web.catalog') }}?sort=newest" class="nav-link-ios">New Arrivals</a>
+                        <a href="{{ url_for('web.catalog') }}?sort=bestseller" class="nav-link-ios">Best Sellers</a>
+                        <a href="{{ url_for('web.content_page', slug='authors') }}" class="nav-link-ios">Authors</a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6">
+                    <h6 style="color: var(--islamic-gold); margin-bottom: var(--space-lg);">Categories</h6>
+                    <div class="d-flex flex-column gap-sm">
+                        <a href="{{ url_for('web.catalog', category_slug='tafaseer-ul-quran') }}" class="nav-link-ios">Tafaseer</a>
+                        <a href="{{ url_for('web.catalog', category_slug='hadith-collections') }}" class="nav-link-ios">Hadith</a>
+                        <a href="{{ url_for('web.catalog', category_slug='seerat-biography') }}" class="nav-link-ios">Seerat</a>
+                        <a href="{{ url_for('web.catalog', category_slug='fiqh-islamic-law') }}" class="nav-link-ios">Fiqh</a>
+                        <a href="{{ url_for('web.catalog', category_slug='tasawwuf-spirituality') }}" class="nav-link-ios">Tasawwuf</a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6">
+                    <h6 style="color: var(--islamic-gold); margin-bottom: var(--space-lg);">Support</h6>
+                    <div class="d-flex flex-column gap-sm">
+                        <a href="{{ url_for('web.content_page', slug='shipping') }}" class="nav-link-ios">Shipping</a>
+                        <a href="{{ url_for('web.content_page', slug='returns') }}" class="nav-link-ios">Returns</a>
+                        <a href="{{ url_for('web.content_page', slug='faq') }}" class="nav-link-ios">FAQ</a>
+                        <a href="{{ url_for('web.content_page', slug='contact') }}" class="nav-link-ios">Contact</a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6">
+                    <h6 style="color: var(--islamic-gold); margin-bottom: var(--space-lg);">Contact</h6>
+                    <div style="opacity: 0.8; font-size: 0.9rem; line-height: 1.6;">
+                        <p class="mb-2">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            Srinagar, Kashmir
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-phone me-2"></i>
+                            +92-194-2724082
+                        </p>
+                        <p class="mb-2">
+                            <i class="fas fa-envelope me-2"></i>
+                            info@abcpublishing.com
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="border-color: rgba(255, 255, 255, 0.2); margin: var(--space-2xl) 0 var(--space-lg);">
+            
+            <div class="text-center" style="opacity: 0.7;">
+                <p style="margin: 0; font-size: 0.9rem;">
+                    &copy; 2024 ABC Publishing Kashmir. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+    
+    <!-- iOS-Style Interactions -->
+    <script>
+        // Smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+        
+        // Navigation scroll effect
+        let lastScrollTop = 0;
+        const navbar = document.querySelector('.glass-nav');
+        
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop) {
+                // Scrolling down
+                navbar.style.transform = 'translateY(-100%)';
+            } else {
+                // Scrolling up
+                navbar.style.transform = 'translateY(0)';
+            }
+            
+            lastScrollTop = scrollTop;
+            
+            // Glass effect intensity based on scroll
+            const opacity = Math.min(scrollTop / 100, 0.95);
+            navbar.style.background = `rgba(255, 255, 255, ${0.8 + opacity * 0.15})`;
+        });
+        
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in-up');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe elements with animation classes
+        document.querySelectorAll('.card-ios, .product-card-ios, .category-card-ios').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Touch interactions for mobile
+        if (window.navigator.userAgent.includes('Mobile')) {
+            document.querySelectorAll('.btn-ios, .card-ios').forEach(el => {
+                el.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.95)';
+                });
+                
+                el.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+            });
+        }
+        
+        // Haptic feedback simulation (for supported devices)
+        function hapticFeedback() {
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        }
+        
+        document.querySelectorAll('.btn-ios').forEach(btn => {
+            btn.addEventListener('click', hapticFeedback);
+        });
+    </script>
+</body>
+</html>

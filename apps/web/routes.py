@@ -53,7 +53,7 @@ def index():
         .order_by(desc(Product.created_at))\
         .limit(6).all()
     
-    return render_template('web/index_premium.html',
+    return render_template('web/index_ios.html',
                          hero_banners=hero_banners,
                          featured_categories=featured_categories,
                          featured_products=featured_products,
