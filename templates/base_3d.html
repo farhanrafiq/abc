@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}ABC Publishing - Next Generation Bookstore{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;500;600;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/3d-advanced.css') }}" rel="stylesheet">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- 3D Navigation -->
+    <nav class="navbar navbar-3d navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand navbar-brand-3d" href="{{ url_for('web.index') }}">
+                <span class="glitch-hover">ABC PUBLISHING</span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('web.index') }}">
+                            <span class="holographic-text">HOME</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{{ url_for('web.catalog') }}">
+                            <span class="holographic-text">CATALOG</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white position-relative" href="{{ url_for('cart.view_cart') }}">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ session.get('cart_count', 0) }}
+                            </span>
+                        </a>
+                    </li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-astronaut"></i> {{ current_user.name.split()[0] }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark bg-dark">
+                            <li><a class="dropdown-item" href="{{ url_for('web.account') }}">
+                                <i class="fas fa-user"></i> Profile
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('web.orders') }}">
+                                <i class="fas fa-box"></i> Orders
+                            </a></li>
+                            {% if current_user.role.value in ['admin', 'staff'] %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
+                                <i class="fas fa-cog"></i> Admin
+                            </a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link btn-neon ms-3" href="{{ url_for('auth.login') }}">
+                            LOGIN
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="position-fixed top-0 end-0 p-3" style="z-index: 2000;">
+                {% for category, message in messages %}
+                    <div class="alert alert-dismissible fade show holographic-card" role="alert">
+                        <strong>{{ message }}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <!-- Main Content -->
+    <main class="min-vh-100">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Futuristic Footer -->
+    <footer class="mt-5 py-5" style="background: linear-gradient(180deg, transparent, rgba(0, 255, 255, 0.1));">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5 class="text-white mb-3">
+                        <span class="navbar-brand-3d">ABC PUBLISHING</span>
+                    </h5>
+                    <p class="text-white-50">Next Generation Bookstore Experience</p>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-white mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{{ url_for('web.index') }}" class="text-white-50 text-decoration-none">Home</a></li>
+                        <li><a href="{{ url_for('web.catalog') }}" class="text-white-50 text-decoration-none">Browse</a></li>
+                        <li><a href="{{ url_for('web.content_page', slug='about') }}" class="text-white-50 text-decoration-none">About</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="text-white mb-3">Connect</h6>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white-50"><i class="fab fa-facebook fa-2x"></i></a>
+                        <a href="#" class="text-white-50"><i class="fab fa-twitter fa-2x"></i></a>
+                        <a href="#" class="text-white-50"><i class="fab fa-instagram fa-2x"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4 border-white-50">
+            <div class="text-center text-white-50">
+                <small>&copy; 2024 ABC Publishing. Powered by Future Tech.</small>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Cyber Grid Overlay -->
+    <div class="cyber-grid"></div>
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/3d-effects.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

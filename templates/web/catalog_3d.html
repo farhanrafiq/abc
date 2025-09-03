@@ -1,0 +1,301 @@
+{% extends "base_3d.html" %}
+
+{% block title %}Catalog - ABC Publishing 3D Experience{% endblock %}
+
+{% block content %}
+<!-- 3D Catalog Header -->
+<section class="py-5" style="background: linear-gradient(180deg, rgba(0,255,255,0.1), transparent);">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="hero-title-3d" style="font-size: 3rem;">BOOK CATALOG</h1>
+            <p class="text-white-50 lead">Explore Our Digital Library</p>
+        </div>
+    </div>
+</section>
+
+<!-- Advanced Filters -->
+<section class="py-3">
+    <div class="container">
+        <div class="holographic-card p-4">
+            <form method="GET" action="{{ url_for('web.catalog') }}" class="row g-3">
+                <div class="col-md-3">
+                    <input type="text" name="q" class="form-control bg-transparent text-white" 
+                           placeholder="Search books..." value="{{ request.args.get('q', '') }}"
+                           style="border: 1px solid var(--neon-primary); border-radius: 25px;">
+                </div>
+                <div class="col-md-2">
+                    <select name="category" class="form-select bg-transparent text-white" 
+                            style="border: 1px solid var(--neon-primary); border-radius: 25px;">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="price_range" class="form-select bg-transparent text-white"
+                            style="border: 1px solid var(--neon-primary); border-radius: 25px;">
+                        <option value="">Price Range</option>
+                        <option value="0-500">Under ₹500</option>
+                        <option value="500-1000">₹500 - ₹1000</option>
+                        <option value="1000-2000">₹1000 - ₹2000</option>
+                        <option value="2000+">Above ₹2000</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="sort" class="form-select bg-transparent text-white"
+                            style="border: 1px solid var(--neon-primary); border-radius: 25px;">
+                        <option value="">Sort By</option>
+                        <option value="newest">Newest First</option>
+                        <option value="price_low">Price: Low to High</option>
+                        <option value="price_high">Price: High to Low</option>
+                        <option value="popular">Most Popular</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn-neon w-100">
+                        <i class="fas fa-search me-2"></i>APPLY FILTERS
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- 3D Product Grid -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            {% for product in products.items %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="product-card-3d h-100">
+                    <div class="product-card-3d-inner">
+                        <!-- Front Face -->
+                        <div class="product-card-face product-card-front">
+                            <div class="position-relative">
+                                <!-- Product Image or Placeholder -->
+                                <div class="product-image-3d" style="height: 250px; background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(255,0,255,0.2)); border-radius: 10px 10px 0 0;">
+                                    {% if product.cover_image %}
+                                        <img src="{{ url_for('static', filename='uploads/products/' + product.cover_image) }}" 
+                                             alt="{{ product.title }}" class="w-100 h-100" 
+                                             style="object-fit: cover; border-radius: 10px 10px 0 0;">
+                                    {% else %}
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="fas fa-book fa-5x text-white-50"></i>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Badges -->
+                                    <div class="position-absolute top-0 start-0 p-2">
+                                        {% if product.is_new %}
+                                            <span class="badge bg-success">NEW</span>
+                                        {% endif %}
+                                        {% if product.is_bestseller %}
+                                            <span class="badge bg-warning text-dark">BESTSELLER</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="p-3">
+                                    <h6 class="text-white mb-2 text-truncate">{{ product.title }}</h6>
+                                    {% if product.author %}
+                                        <p class="text-white-50 small mb-2">{{ product.author.name }}</p>
+                                    {% endif %}
+                                    
+                                    <!-- Rating -->
+                                    <div class="mb-2">
+                                        {% for i in range(5) %}
+                                            <i class="fas fa-star {% if i < (product.average_rating or 4) %}text-warning{% else %}text-white-50{% endif %} small"></i>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <!-- Price -->
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        {% if product.price %}
+                                            <h5 class="text-white mb-0">₹{{ "%.0f"|format(product.price.sale_price / 100) }}</h5>
+                                            {% if product.price.mrp > product.price.sale_price %}
+                                                <small class="text-white-50 text-decoration-line-through">
+                                                    ₹{{ "%.0f"|format(product.price.mrp / 100) }}
+                                                </small>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <button class="btn-glass btn-sm w-100 add-to-cart-btn" 
+                                            data-product-id="{{ product.id }}">
+                                        <i class="fas fa-cart-plus me-2"></i>ADD TO CART
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Back Face -->
+                        <div class="product-card-face product-card-back p-4">
+                            <h5 class="text-white mb-3">{{ product.title }}</h5>
+                            
+                            {% if product.description %}
+                                <p class="text-white-50 small mb-3">
+                                    {{ product.description[:150] }}...
+                                </p>
+                            {% endif %}
+                            
+                            <div class="mb-3">
+                                {% if product.language %}
+                                    <span class="badge bg-info me-2">{{ product.language }}</span>
+                                {% endif %}
+                                {% if product.format %}
+                                    <span class="badge bg-secondary">{{ product.format }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <a href="{{ url_for('web.product_detail', slug=product.slug) }}" 
+                                   class="btn-neon btn-sm w-100 mb-2">
+                                    VIEW DETAILS
+                                </a>
+                                <button class="btn-glass btn-sm w-100 quick-buy-btn" 
+                                        data-product-id="{{ product.id }}">
+                                    <i class="fas fa-bolt me-2"></i>QUICK BUY
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-5x text-white-50 mb-4"></i>
+                    <h3 class="text-white">No Books Found</h3>
+                    <p class="text-white-50">Try adjusting your filters or search terms</p>
+                    <a href="{{ url_for('web.catalog') }}" class="btn-glass mt-3">
+                        <i class="fas fa-redo me-2"></i>RESET FILTERS
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if products.pages > 1 %}
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if products.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link bg-transparent text-white border-white" 
+                           href="{{ url_for('web.catalog', page=products.prev_num, **request.args) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == products.page %}active{% endif %}">
+                            <a class="page-link bg-transparent text-white border-white" 
+                               href="{{ url_for('web.catalog', page=page_num, **request.args) }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link bg-transparent text-white border-white">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link bg-transparent text-white border-white" 
+                           href="{{ url_for('web.catalog', page=products.next_num, **request.args) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Virtual Reality Banner -->
+<section class="py-5" style="background: linear-gradient(135deg, rgba(255,0,255,0.1), rgba(0,255,255,0.1));">
+    <div class="container text-center">
+        <h3 class="text-white mb-3">EXPERIENCE BOOKS IN VR</h3>
+        <p class="text-white-50 mb-4">Coming Soon: Immersive Virtual Reality Reading Experience</p>
+        <button class="btn-neon">
+            <i class="fas fa-vr-cardboard me-2"></i>JOIN WAITLIST
+        </button>
+    </div>
+</section>
+
+<style>
+/* Page specific styles */
+.product-card-3d {
+    height: 450px;
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, var(--neon-primary), var(--neon-secondary)) !important;
+    border-color: transparent !important;
+}
+
+.page-link:hover {
+    background: rgba(0, 255, 255, 0.2) !important;
+    border-color: var(--neon-primary) !important;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add to cart functionality
+document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        
+        // Add glowing effect
+        this.style.animation = 'pulse 0.5s';
+        
+        // Simulate adding to cart
+        fetch("{{ url_for('cart.add_to_cart') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `product_id=${productId}&quantity=1`
+        }).then(response => {
+            if (response.ok) {
+                // Update cart count
+                const cartCount = document.querySelector('.badge.bg-danger');
+                if (cartCount) {
+                    cartCount.textContent = parseInt(cartCount.textContent) + 1;
+                }
+                
+                // Show success message
+                this.innerHTML = '<i class="fas fa-check me-2"></i>ADDED!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-cart-plus me-2"></i>ADD TO CART';
+                    this.style.animation = '';
+                }, 1500);
+            }
+        });
+    });
+});
+
+// Quick buy functionality
+document.querySelectorAll('.quick-buy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        // Redirect to checkout
+        window.location.href = "{{ url_for('cart.checkout') }}?quick_buy=" + productId;
+    });
+});
+
+// Filter animation
+const filterForm = document.querySelector('form');
+filterForm.addEventListener('submit', function(e) {
+    document.body.style.animation = 'glitch 0.3s';
+});
+</script>
+{% endblock %}

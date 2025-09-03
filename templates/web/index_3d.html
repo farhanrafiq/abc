@@ -1,0 +1,357 @@
+{% extends "base_3d.html" %}
+
+{% block title %}ABC Publishing - Immersive 3D Bookstore Experience{% endblock %}
+
+{% block content %}
+<!-- 3D Hero Section -->
+<section class="hero-3d position-relative overflow-hidden" style="min-height: 100vh;">
+    <div class="container">
+        <div class="hero-content-3d text-center">
+            <h1 class="hero-title-3d mb-4">
+                <span class="glitch">ABC PUBLISHING</span>
+            </h1>
+            <p class="lead text-white mb-5" style="font-size: 1.5rem; text-shadow: 0 0 20px rgba(0,255,255,0.5);">
+                ENTER THE FUTURE OF BOOK SHOPPING
+            </p>
+            
+            <!-- 3D Rotating Cube Menu -->
+            <div class="cube-menu mx-auto mb-5">
+                <div class="cube-face">BROWSE</div>
+                <div class="cube-face">EXPLORE</div>
+                <div class="cube-face">DISCOVER</div>
+                <div class="cube-face">LEARN</div>
+                <div class="cube-face">CREATE</div>
+                <div class="cube-face">CONNECT</div>
+            </div>
+            
+            <div class="d-flex justify-content-center gap-4">
+                <a href="{{ url_for('web.catalog') }}" class="btn-glass px-5 py-3">
+                    <i class="fas fa-rocket me-2"></i>LAUNCH CATALOG
+                </a>
+                <button class="btn-neon px-5 py-3" onclick="startExperience()">
+                    <i class="fas fa-play me-2"></i>START EXPERIENCE
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Animated Background Elements -->
+    <div class="position-absolute w-100 h-100 top-0 start-0" style="z-index: -1;">
+        <canvas id="backgroundCanvas"></canvas>
+    </div>
+</section>
+
+<!-- Featured Categories in 3D Grid -->
+<section class="py-5" data-parallax="0.5">
+    <div class="container">
+        <h2 class="text-center mb-5">
+            <span class="navbar-brand-3d">CATEGORIES</span>
+        </h2>
+        
+        <div class="row g-4">
+            {% for i in range(6) %}
+            <div class="col-md-4">
+                <div class="holographic-card h-100 tilt-card">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3" style="font-size: 3rem; color: var(--neon-primary);">
+                            {% if loop.index == 1 %}
+                                <i class="fas fa-book-open"></i>
+                            {% elif loop.index == 2 %}
+                                <i class="fas fa-scroll"></i>
+                            {% elif loop.index == 3 %}
+                                <i class="fas fa-graduation-cap"></i>
+                            {% elif loop.index == 4 %}
+                                <i class="fas fa-atom"></i>
+                            {% elif loop.index == 5 %}
+                                <i class="fas fa-brain"></i>
+                            {% else %}
+                                <i class="fas fa-rocket"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h4 class="text-white mb-1">
+                                {% if loop.index == 1 %}
+                                    Islamic Studies
+                                {% elif loop.index == 2 %}
+                                    Literature
+                                {% elif loop.index == 3 %}
+                                    Academic
+                                {% elif loop.index == 4 %}
+                                    Science
+                                {% elif loop.index == 5 %}
+                                    Philosophy
+                                {% else %}
+                                    Technology
+                                {% endif %}
+                            </h4>
+                            <small class="text-white-50">{{ 50 + loop.index * 23 }} Books</small>
+                        </div>
+                    </div>
+                    <p class="text-white-50 mb-3">Explore our curated collection of cutting-edge knowledge.</p>
+                    <a href="{{ url_for('web.catalog') }}" class="btn btn-outline-light btn-sm">
+                        EXPLORE <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- 3D Product Showcase -->
+<section class="py-5" style="background: linear-gradient(180deg, transparent, rgba(255,0,255,0.05));">
+    <div class="container">
+        <h2 class="text-center mb-5">
+            <span class="navbar-brand-3d">FEATURED BOOKS</span>
+        </h2>
+        
+        <div class="row g-4">
+            {% for i in range(8) %}
+            <div class="col-md-3">
+                <div class="product-card-3d">
+                    <div class="product-card-3d-inner">
+                        <!-- Front Face -->
+                        <div class="product-card-face product-card-front p-3">
+                            <div class="text-center">
+                                <div class="mb-3" style="height: 200px; background: linear-gradient(135deg, var(--neon-primary), var(--neon-secondary)); border-radius: 10px;">
+                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                        <i class="fas fa-book fa-4x text-white"></i>
+                                    </div>
+                                </div>
+                                <h5 class="text-white mb-2">Book Title {{ loop.index }}</h5>
+                                <p class="text-white-50 small mb-2">Author Name</p>
+                                <div class="mb-3">
+                                    {% for star in range(5) %}
+                                        <i class="fas fa-star text-warning"></i>
+                                    {% endfor %}
+                                </div>
+                                <h4 class="text-white mb-3">₹{{ 299 + loop.index * 50 }}</h4>
+                                <button class="btn-glass w-100">
+                                    <i class="fas fa-shopping-cart me-2"></i>ADD TO CART
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Back Face -->
+                        <div class="product-card-face product-card-back">
+                            <h5 class="text-white mb-3">Book Details</h5>
+                            <p class="text-white-50 small">
+                                Experience the future of reading with our advanced digital and physical book collection.
+                            </p>
+                            <ul class="list-unstyled text-white-50 small">
+                                <li><i class="fas fa-check text-success me-2"></i>Enhanced AR Reading</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Interactive Content</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Voice Narration</li>
+                                <li><i class="fas fa-check text-success me-2"></i>3D Illustrations</li>
+                            </ul>
+                            <div class="mt-auto">
+                                <button class="btn-neon w-100 mb-2">VIEW DETAILS</button>
+                                <button class="btn-glass w-100">QUICK BUY</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Interactive Stats Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="holographic-card float-3d">
+                    <h2 class="text-white counter" data-target="10000">0</h2>
+                    <p class="text-white-50">Books Available</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="holographic-card float-3d" style="animation-delay: 0.2s;">
+                    <h2 class="text-white counter" data-target="5000">0</h2>
+                    <p class="text-white-50">Happy Readers</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="holographic-card float-3d" style="animation-delay: 0.4s;">
+                    <h2 class="text-white counter" data-target="100">0</h2>
+                    <p class="text-white-50">Authors</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="holographic-card float-3d" style="animation-delay: 0.6s;">
+                    <h2 class="text-white counter" data-target="50">0</h2>
+                    <p class="text-white-50">Categories</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section with 3D Input -->
+<section class="py-5" style="background: linear-gradient(180deg, transparent, rgba(0,255,255,0.05));">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <h3 class="text-white mb-4">JOIN THE FUTURE</h3>
+                <p class="text-white-50 mb-4">Get exclusive access to new releases and special offers</p>
+                <form class="position-relative">
+                    <div class="input-group input-group-lg">
+                        <input type="email" class="form-control bg-transparent text-white border-white" 
+                               placeholder="Enter your email" 
+                               style="border: 2px solid var(--neon-primary); border-radius: 50px 0 0 50px;">
+                        <button class="btn-neon" type="submit" style="border-radius: 0 50px 50px 0;">
+                            SUBSCRIBE
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Additional page-specific styles */
+#backgroundCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+.counter {
+    font-size: 3rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--neon-primary), var(--neon-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Override bootstrap form styles for futuristic look */
+.form-control:focus {
+    background: transparent !important;
+    border-color: var(--neon-primary) !important;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5) !important;
+    color: white !important;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Animated counter
+const counters = document.querySelectorAll('.counter');
+const speed = 200;
+
+counters.forEach(counter => {
+    const updateCount = () => {
+        const target = +counter.getAttribute('data-target');
+        const count = +counter.innerText;
+        const inc = target / speed;
+        
+        if (count < target) {
+            counter.innerText = Math.ceil(count + inc);
+            setTimeout(updateCount, 1);
+        } else {
+            counter.innerText = target;
+        }
+    };
+    
+    // Start animation when in viewport
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                updateCount();
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+    
+    observer.observe(counter);
+});
+
+// Canvas background animation
+const canvas = document.getElementById('backgroundCanvas');
+if (canvas) {
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const particles = [];
+    const particleCount = 100;
+    
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = Math.random() * 2 - 1;
+            this.vy = Math.random() * 2 - 1;
+            this.radius = Math.random() * 2;
+        }
+        
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            
+            if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+        }
+        
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
+            ctx.fill();
+        }
+    }
+    
+    for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach(particle => {
+            particle.update();
+            particle.draw();
+        });
+        
+        // Connect nearby particles
+        particles.forEach((p1, i) => {
+            particles.slice(i + 1).forEach(p2 => {
+                const distance = Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+                if (distance < 100) {
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = `rgba(0, 255, 255, ${0.2 * (1 - distance / 100)})`;
+                    ctx.stroke();
+                }
+            });
+        });
+        
+        requestAnimationFrame(animate);
+    }
+    
+    animate();
+    
+    // Resize canvas on window resize
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+}
+
+function startExperience() {
+    document.body.style.animation = 'glitch 0.5s';
+    setTimeout(() => {
+        document.body.style.animation = '';
+        window.location.href = "{{ url_for('web.catalog') }}";
+    }, 500);
+}
+</script>
+{% endblock %}
