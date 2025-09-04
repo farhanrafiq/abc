@@ -79,6 +79,13 @@
 <!-- Responsive Horizontal Navigation Bar - directly below header -->
 <div class="desktop-header-nav bg-light border-bottom">
     <div class="container">
+        <!-- Mobile Menu Toggle Button -->
+        <div class="mobile-menu-toggle d-lg-none">
+            <button class="btn btn-outline-primary d-flex align-items-center" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars me-2"></i>Menu
+            </button>
+        </div>
+        
         <nav class="header-nav-horizontal py-3">
             <div class="header-nav-links">
                 <a href="{{ url_for('web.index') }}" class="header-nav-link">
@@ -685,9 +692,34 @@
 }
 
 @media (max-width: 768px) {
-    /* Transform horizontal nav into vertical menu for mobile */
+    /* Mobile menu toggle button styling */
+    .mobile-menu-toggle {
+        padding: 15px 20px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .mobile-menu-toggle .btn {
+        border-color: #3B2A22;
+        color: #3B2A22;
+        font-weight: 500;
+        padding: 8px 16px;
+    }
+    
+    .mobile-menu-toggle .btn:hover {
+        background-color: #3B2A22;
+        border-color: #3B2A22;
+        color: white;
+    }
+    
+    /* Hide navigation by default on mobile */
     .header-nav-horizontal {
+        display: none;
         padding: 0 !important;
+    }
+    
+    /* Show navigation when active */
+    .header-nav-horizontal.mobile-menu-active {
+        display: block;
     }
     
     .header-nav-links {
@@ -741,6 +773,24 @@
 }
 
 </style>
+
+<script>
+function toggleMobileMenu() {
+    const nav = document.querySelector('.header-nav-horizontal');
+    const button = document.querySelector('.mobile-menu-toggle .btn');
+    const icon = button.querySelector('i');
+    
+    if (nav.classList.contains('mobile-menu-active')) {
+        nav.classList.remove('mobile-menu-active');
+        icon.className = 'fas fa-bars me-2';
+        button.innerHTML = '<i class="fas fa-bars me-2"></i>Menu';
+    } else {
+        nav.classList.add('mobile-menu-active');
+        icon.className = 'fas fa-times me-2';
+        button.innerHTML = '<i class="fas fa-times me-2"></i>Close';
+    }
+}
+</script>
 
 <!-- Language Selector (if multi-language support is needed) -->
 {% if config.get('LANGUAGES') and config.LANGUAGES|length > 1 %}
