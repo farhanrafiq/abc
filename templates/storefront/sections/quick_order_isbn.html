@@ -16,10 +16,26 @@
                 {% if note_text %}
                     <p class="quick-order-note">{{ note_text }}</p>
                 {% else %}
-                    <p class="quick-order-note">
-                        Enter the ISBN number of any book to quickly find and order it. 
-                        Supports both ISBN-10 and ISBN-13 formats.
-                    </p>
+                    <div class="quick-order-content">
+                        <p class="quick-order-note">
+                            <strong>Fast & Accurate Book Search:</strong> Enter any ISBN number to instantly find and order your book. 
+                            Perfect for students, researchers, and book enthusiasts who know exactly what they're looking for.
+                        </p>
+                        <div class="isbn-features">
+                            <div class="feature-item">
+                                <i class="fas fa-bolt"></i>
+                                <span>Instant Results</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>ISBN-10 & ISBN-13</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Verified Books</span>
+                            </div>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
             
@@ -58,25 +74,50 @@
 <style>
 .quick-order {
     background: linear-gradient(135deg, var(--cream-100), white);
-    padding: 3rem;
+    padding: 2rem;
     border-radius: var(--border-radius);
     text-align: center;
     position: relative;
     box-shadow: var(--shadow-soft);
 }
 
+.quick-order-content {
+    max-width: 700px;
+    margin: 0 auto 1.5rem;
+}
+
 .quick-order-note {
     color: var(--muted);
-    font-size: 1rem;
+    font-size: 1.1rem;
     line-height: 1.6;
-    max-width: 500px;
-    margin: 1rem auto 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.isbn-features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--orange-600);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.feature-item i {
+    font-size: 1.1rem;
 }
 
 .isbn-input-group {
     display: flex;
-    max-width: 600px;
-    margin: 2rem auto;
+    max-width: 800px;
+    margin: 1.5rem auto;
     gap: 0.75rem;
     align-items: stretch;
 }
