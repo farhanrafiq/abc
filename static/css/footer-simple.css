@@ -1,6 +1,7 @@
-/* Simple Footer - Just Make It Visible */
+/* FORCE FOOTER VISIBILITY - OVERRIDE ALL */
 .modern-footer {
     background-color: #3B2A22 !important;
+    background: #3B2A22 !important;
     color: white !important;
     padding: 40px 0 !important;
     margin-top: 50px !important;
@@ -9,6 +10,27 @@
     position: static !important;
     clear: both !important;
     min-height: 300px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1 !important;
+    transform: none !important;
+    overflow: visible !important;
+}
+
+/* Override ANY footer class */
+footer, .footer, footer.modern-footer, .footer.modern-footer {
+    background-color: #3B2A22 !important;
+    background: #3B2A22 !important;
+    color: white !important;
+    padding: 40px 0 !important;
+    margin-top: 50px !important;
+    width: 100% !important;
+    display: block !important;
+    position: static !important;
+    clear: both !important;
+    min-height: 300px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .footer-main {
