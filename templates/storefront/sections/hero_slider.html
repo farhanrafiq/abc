@@ -13,7 +13,7 @@
                     {% if banner.image_url %}
                         <img src="{{ banner.image_url }}" alt="{{ banner.title }}" loading="lazy">
                     {% else %}
-                        <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
+                        <img src="{{ url_for('static', filename='uploads/slider_abc_50years.png') }}" 
                              alt="{{ banner.title }}" loading="lazy">
                     {% endif %}
                 </div>
@@ -36,8 +36,8 @@
         <div class="hero-slides-container">
             <a href="{{ url_for('web.catalog') }}" class="hero-slide-link active">
                 <div class="hero-slide-image">
-                    <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" 
-                         alt="Discover Islamic Literature" loading="lazy">
+                    <img src="{{ url_for('static', filename='uploads/slider_abc_50years.png') }}" 
+                         alt="ABC Publishing Kashmir - Celebrating 50 Years of Printing Legacy Since 1975" loading="lazy">
                 </div>
             </a>
         </div>
@@ -47,11 +47,12 @@
 <style>
 .simple-hero-slider {
     position: relative;
-    height: 400px;
+    height: 450px;
     margin-bottom: 0;
     overflow: hidden;
-    border-radius: 12px;
-    margin: 0 15px;
+    margin: 0;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
 }
 
 .hero-slides-container {
@@ -127,8 +128,22 @@
 
 @media (max-width: 768px) {
     .simple-hero-slider {
-        height: 250px;
-        margin: 0 10px;
+        height: 200px;
+        margin: 0;
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+    .simple-hero-slider {
+        height: 350px;
+    }
+}
+
+@media (min-width: 1201px) {
+    .simple-hero-slider {
+        height: 500px;
     }
 }
 </style>
