@@ -262,16 +262,17 @@ h1, h2, h3, h4, h5, h6 {
     transition: color 0.2s ease;
 }
 
-/* Compact navigation menu - reduce gaps between menu items */
+/* ULTRA COMPACT navigation menu - force single line */
 .header-nav-link {
     color: var(--text-primary);
     font-weight: 500;
-    padding: 0.5rem 0.6rem !important;
-    margin: 0 0.2rem;
+    padding: 0.4rem 0.45rem !important;
+    margin: 0 0.05rem;
     text-decoration: none;
     transition: all 0.2s ease;
-    border-radius: 4px;
-    font-size: 0.95rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 
 .header-nav-link:hover {
@@ -283,25 +284,35 @@ h1, h2, h3, h4, h5, h6 {
 .header-nav-links {
     display: flex;
     align-items: center;
-    gap: 0.1rem;
-    flex-wrap: wrap;
+    gap: 0.05rem;
+    flex-wrap: nowrap !important;
+    overflow: hidden;
 }
 
 /* Override Bootstrap padding and reduce menu spacing */
 .header-nav-horizontal {
-    padding-top: 0.75rem !important;
-    padding-bottom: 0.75rem !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
 }
 
 /* Reduce dropdown padding */
 .header-nav-dropdown {
-    margin: 0 0.1rem;
+    margin: 0 0.05rem;
 }
 
 /* Make menu more compact */
 .desktop-header-nav .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* Force single line layout */
+.header-nav-horizontal {
+    overflow: hidden;
+}
+
+.header-nav-horizontal nav {
+    overflow: hidden;
 }
 
 .navbar-light .navbar-nav .nav-link:hover {
