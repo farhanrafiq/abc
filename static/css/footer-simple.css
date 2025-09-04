@@ -1,0 +1,74 @@
+/* Simple Footer - Just Make It Visible */
+.modern-footer {
+    background-color: #3B2A22 !important;
+    color: white !important;
+    padding: 40px 0 !important;
+    margin-top: 50px !important;
+    width: 100% !important;
+    display: block !important;
+    position: static !important;
+    clear: both !important;
+    min-height: 300px !important;
+}
+
+.footer-main {
+    padding: 40px 0 !important;
+    display: block !important;
+}
+
+.footer-brand-section {
+    color: white !important;
+}
+
+.footer-logo {
+    max-height: 50px !important;
+    margin-bottom: 20px !important;
+}
+
+.brand-description {
+    color: #F5F5F5 !important;
+    margin-bottom: 20px !important;
+}
+
+.trust-badges {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    margin-bottom: 20px !important;
+}
+
+.trust-badge {
+    background: rgba(255,255,255,0.1) !important;
+    padding: 8px 15px !important;
+    border-radius: 20px !important;
+    font-size: 0.9rem !important;
+    color: white !important;
+}
+
+.social-links {
+    display: flex !important;
+    gap: 15px !important;
+}
+
+.social-link {
+    width: 40px !important;
+    height: 40px !important;
+    background: #E86A17 !important;
+    color: white !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    text-decoration: none !important;
+}
+
+.footer-bottom {
+    background: #2C1810 !important;
+    padding: 20px 0 !important;
+    border-top: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.footer-copyright {
+    color: #F5F5F5 !important;
+    margin: 0 !important;
+}
