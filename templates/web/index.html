@@ -95,11 +95,9 @@
             </div>
         </div>
         
-        <div class="row g-4">
+        <div class="product-grid">
             {% for product in featured_products %}
-            <div class="col-md-6 col-lg-3">
                 {% include 'storefront/partials/product_card.html' %}
-            </div>
             {% endfor %}
         </div>
         
@@ -121,11 +119,9 @@
             </div>
         </div>
         
-        <div class="row g-4">
+        <div class="product-grid">
             {% for product in bestsellers %}
-            <div class="col-md-6 col-lg-4">
                 {% include 'storefront/partials/product_card.html' %}
-            </div>
             {% endfor %}
         </div>
     </div>
