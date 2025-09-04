@@ -1,17 +1,19 @@
-/* Modern Footer Styles - Override existing styles */
+/* Modern Footer Styles - Force Display */
 .modern-footer {
     background: linear-gradient(135deg, #2C1810 0%, #3B2A22 50%, #2C1810 100%) !important;
     color: #F5F5F5 !important;
     margin-top: 4rem !important;
-    position: relative !important;
-    overflow: hidden !important;
+    position: static !important;
+    overflow: visible !important;
     padding: 0 !important;
     z-index: 100 !important;
     clear: both !important;
     width: 100% !important;
     display: block !important;
     float: none !important;
-    bottom: 0 !important;
+    min-height: 400px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 /* Override any existing footer classes */

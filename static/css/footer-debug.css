@@ -1,0 +1,23 @@
+/* Debug Footer - Force Visibility */
+.modern-footer {
+    background: red !important;
+    height: 200px !important;
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    margin: 20px 0 !important;
+    padding: 20px !important;
+    color: white !important;
+    font-size: 24px !important;
+    text-align: center !important;
+    border: 5px solid yellow !important;
+    z-index: 9999 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.modern-footer * {
+    color: white !important;
+    display: block !important;
+    visibility: visible !important;
+}
