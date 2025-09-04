@@ -71,57 +71,9 @@
             </a>
             {% endif %}
 
-            <!-- Mobile menu toggle - only visible on mobile -->
-            <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="collapse" 
-                    data-bs-target="#mobileNav" aria-controls="mobileNav" aria-expanded="false">
-                <span class="navbar-toggler-icon"></span>
-            </button>
         </div>
     </div>
 
-    <!-- Mobile Navigation - only visible on mobile -->
-    <div class="collapse navbar-collapse bg-light d-lg-none" id="mobileNav">
-        <div class="container-fluid px-4 py-3">
-            <!-- Mobile Search -->
-            <form class="mb-3" method="GET" action="{{ url_for('web.search') }}">
-                <div class="input-group">
-                    <input class="form-control" type="search" name="q" 
-                           placeholder="Search books..." value="{{ request.args.get('q', '') }}">
-                    <button class="btn btn-brand-orange" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </form>
-            
-            <!-- Mobile Menu Links -->
-            <div class="mobile-nav-links">
-                <a href="{{ url_for('web.index') }}" class="mobile-nav-link">
-                    <i class="fas fa-home me-2"></i>Home
-                </a>
-                <a href="{{ url_for('web.catalog') }}" class="mobile-nav-link">
-                    <i class="fas fa-th-large me-2"></i>All Books
-                </a>
-                <a href="{{ url_for('web.catalog', category_slug='quran-studies') }}" class="mobile-nav-link">
-                    <i class="fas fa-book-open me-2"></i>Quran Studies
-                </a>
-                <a href="{{ url_for('web.catalog', category_slug='hadith') }}" class="mobile-nav-link">
-                    <i class="fas fa-scroll me-2"></i>Hadith
-                </a>
-                <a href="{{ url_for('web.catalog', category_slug='fiqh') }}" class="mobile-nav-link">
-                    <i class="fas fa-balance-scale me-2"></i>Fiqh
-                </a>
-                <a href="{{ url_for('web.catalog', category_slug='seerah') }}" class="mobile-nav-link">
-                    <i class="fas fa-user me-2"></i>Seerah
-                </a>
-                <a href="{{ url_for('web.content_page', slug='about') }}" class="mobile-nav-link">
-                    <i class="fas fa-info-circle me-2"></i>About
-                </a>
-                <a href="{{ url_for('web.content_page', slug='contact') }}" class="mobile-nav-link">
-                    <i class="fas fa-phone me-2"></i>Contact
-                </a>
-            </div>
-        </div>
-    </div>
 </nav>
 
 <!-- Desktop Horizontal Navigation Bar - directly below header -->
