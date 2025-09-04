@@ -476,30 +476,30 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--brand-orange-600);
 }
 
-/* Footer Styles */
-.footer-brand {
+/* Footer Styles - Disable when using modern footer */
+.footer-brand:not(.modern-footer) {
     background: var(--brand-brown-900);
     color: white;
     padding: 3rem 0 1rem;
     margin-top: 4rem;
 }
 
-.footer-brand h5 {
+.footer-brand:not(.modern-footer) h5 {
     color: white;
     margin-bottom: 1rem;
 }
 
-.footer-brand a {
+.footer-brand:not(.modern-footer) a {
     color: #D1D5DB;
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
-.footer-brand a:hover {
+.footer-brand:not(.modern-footer) a:hover {
     color: var(--brand-orange-600);
 }
 
-.footer-brand .social-links a {
+.footer-brand:not(.modern-footer) .social-links a {
     display: inline-block;
     width: 40px;
     height: 40px;
@@ -511,7 +511,7 @@ h1, h2, h3, h4, h5, h6 {
     transition: background-color 0.2s ease;
 }
 
-.footer-brand .social-links a:hover {
+.footer-brand:not(.modern-footer) .social-links a:hover {
     background: var(--brand-orange-600);
 }
 
