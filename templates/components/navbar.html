@@ -26,6 +26,13 @@
             </form>
         </div>
 
+        <!-- Mobile Menu Toggle (appears on mobile) -->
+        <button class="navbar-toggler d-lg-none me-3" type="button" 
+                data-bs-toggle="collapse" data-bs-target="#mobileNavigation" 
+                aria-controls="mobileNavigation" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
         <!-- Right Section -->
         <div class="d-flex align-items-center gap-3">
             <!-- Cart with professional styling -->
@@ -74,6 +81,64 @@
         </div>
     </div>
 
+    <!-- Mobile Navigation Menu (collapsible) -->
+    <div class="collapse navbar-collapse d-lg-none" id="mobileNavigation">
+        <div class="container-fluid">
+            <ul class="navbar-nav py-2">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.index') }}">
+                        <i class="fas fa-home me-2"></i>Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.catalog') }}">
+                        <i class="fas fa-th-large me-2"></i>All Books
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='mushafs') }}">
+                        <i class="fas fa-book-quran me-2"></i>Mushafs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='academics') }}">
+                        <i class="fas fa-graduation-cap me-2"></i>Academics
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='quran-studies') }}">
+                        <i class="fas fa-quran me-2"></i>Quran Studies
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='hadith') }}">
+                        <i class="fas fa-scroll me-2"></i>Hadith
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='fiqh') }}">
+                        <i class="fas fa-balance-scale me-2"></i>Fiqh
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='seerah') }}">
+                        <i class="fas fa-mosque me-2"></i>Seerah
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.content_page', slug='about') }}">
+                        <i class="fas fa-info-circle me-2"></i>About
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('web.content_page', slug='contact') }}">
+                        <i class="fas fa-phone me-2"></i>Contact
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
 </nav>
 
 <!-- Responsive Horizontal Navigation Bar - directly below header -->
@@ -81,14 +146,14 @@
     <div class="container">
         <nav class="header-nav-horizontal py-3">
             <div class="header-nav-links">
-                <a href="{{ url_for('web.index') }}" class="header-nav-link" data-title="Home">
-                    <i class="fas fa-home me-1"></i><span class="d-none d-lg-inline">Home</span>
+                <a href="{{ url_for('web.index') }}" class="header-nav-link">
+                    <i class="fas fa-home me-1"></i>Home
                 </a>
                 
                 <div class="header-nav-dropdown">
-                    <a href="{{ url_for('web.catalog') }}" class="header-nav-link dropdown-trigger" data-title="All Books">
-                        <i class="fas fa-th-large me-1"></i><span class="d-none d-lg-inline">All Books</span>
-                        <i class="fas fa-chevron-down ms-1 d-none d-lg-inline"></i>
+                    <a href="{{ url_for('web.catalog') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-th-large me-1"></i>All Books
+                        <i class="fas fa-chevron-down ms-1"></i>
                     </a>
                     <div class="mega-menu">
                         <div class="mega-menu-container">
@@ -138,9 +203,9 @@
                 </div>
 
                 <div class="header-nav-dropdown">
-                    <a href="{{ url_for('web.catalog', category_slug='mushafs') }}" class="header-nav-link dropdown-trigger" data-title="Mushafs">
-                        <i class="fas fa-book-quran me-1"></i><span class="d-none d-lg-inline">Mushafs</span>
-                        <i class="fas fa-chevron-down ms-1 d-none d-lg-inline"></i>
+                    <a href="{{ url_for('web.catalog', category_slug='mushafs') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-book-quran me-1"></i>Mushafs
+                        <i class="fas fa-chevron-down ms-1"></i>
                     </a>
                     <div class="mega-menu">
                         <div class="mega-menu-container">
@@ -184,9 +249,9 @@
                 </div>
 
                 <div class="header-nav-dropdown">
-                    <a href="{{ url_for('web.catalog', category_slug='academics') }}" class="header-nav-link dropdown-trigger" data-title="Academics">
-                        <i class="fas fa-graduation-cap me-1"></i><span class="d-none d-lg-inline">Academics</span>
-                        <i class="fas fa-chevron-down ms-1 d-none d-lg-inline"></i>
+                    <a href="{{ url_for('web.catalog', category_slug='academics') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-graduation-cap me-1"></i>Academics
+                        <i class="fas fa-chevron-down ms-1"></i>
                     </a>
                     <div class="mega-menu">
                         <div class="mega-menu-container">
@@ -236,9 +301,9 @@
                 </div>
 
                 <div class="header-nav-dropdown">
-                    <a href="{{ url_for('web.catalog', category_slug='quran-studies') }}" class="header-nav-link dropdown-trigger" data-title="Quran Studies">
-                        <i class="fas fa-book-open me-1"></i><span class="d-none d-lg-inline">Quran Studies</span>
-                        <i class="fas fa-chevron-down ms-1 d-none d-lg-inline"></i>
+                    <a href="{{ url_for('web.catalog', category_slug='quran-studies') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-book-open me-1"></i>Quran Studies
+                        <i class="fas fa-chevron-down ms-1"></i>
                     </a>
                     <div class="mega-menu">
                         <div class="mega-menu-container">
@@ -279,9 +344,9 @@
                 </div>
 
                 <div class="header-nav-dropdown">
-                    <a href="{{ url_for('web.catalog', category_slug='hadith') }}" class="header-nav-link dropdown-trigger" data-title="Hadith">
-                        <i class="fas fa-scroll me-1"></i><span class="d-none d-lg-inline">Hadith</span>
-                        <i class="fas fa-chevron-down ms-1 d-none d-lg-inline"></i>
+                    <a href="{{ url_for('web.catalog', category_slug='hadith') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-scroll me-1"></i>Hadith
+                        <i class="fas fa-chevron-down ms-1"></i>
                     </a>
                     <div class="mega-menu">
                         <div class="mega-menu-container">
@@ -331,9 +396,9 @@
                 </div>
 
                 <div class="header-nav-dropdown">
-                    <a href="{{ url_for('web.catalog', category_slug='fiqh') }}" class="header-nav-link dropdown-trigger" data-title="Fiqh">
-                        <i class="fas fa-balance-scale me-1"></i><span class="d-none d-lg-inline">Fiqh</span>
-                        <i class="fas fa-chevron-down ms-1 d-none d-lg-inline"></i>
+                    <a href="{{ url_for('web.catalog', category_slug='fiqh') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-balance-scale me-1"></i>Fiqh
+                        <i class="fas fa-chevron-down ms-1"></i>
                     </a>
                     <div class="mega-menu">
                         <div class="mega-menu-container">
@@ -383,9 +448,9 @@
                 </div>
 
                 <div class="header-nav-dropdown">
-                    <a href="{{ url_for('web.catalog', category_slug='seerah') }}" class="header-nav-link dropdown-trigger" data-title="Seerah">
-                        <i class="fas fa-user me-1"></i><span class="d-none d-lg-inline">Seerah</span>
-                        <i class="fas fa-chevron-down ms-1 d-none d-lg-inline"></i>
+                    <a href="{{ url_for('web.catalog', category_slug='seerah') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-user me-1"></i>Seerah
+                        <i class="fas fa-chevron-down ms-1"></i>
                     </a>
                     <div class="mega-menu">
                         <div class="mega-menu-container">
@@ -433,11 +498,11 @@
                         </div>
                     </div>
                 </div>
-                <a href="{{ url_for('web.content_page', slug='about') }}" class="header-nav-link" data-title="About">
-                    <i class="fas fa-info-circle me-1"></i><span class="d-none d-lg-inline">About</span>
+                <a href="{{ url_for('web.content_page', slug='about') }}" class="header-nav-link">
+                    <i class="fas fa-info-circle me-1"></i>About
                 </a>
-                <a href="{{ url_for('web.content_page', slug='contact') }}" class="header-nav-link" data-title="Contact">
-                    <i class="fas fa-phone me-1"></i><span class="d-none d-lg-inline">Contact</span>
+                <a href="{{ url_for('web.content_page', slug='contact') }}" class="header-nav-link">
+                    <i class="fas fa-phone me-1"></i>Contact
                 </a>
             </div>
         </nav>
@@ -685,60 +750,36 @@
 }
 
 @media (max-width: 768px) {
-    .mega-menu {
+    .desktop-header-nav {
         display: none;
     }
     
-    .header-nav-links {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.5rem;
-        padding: 8px 0;
+    /* Mobile navigation styles */
+    #mobileNavigation {
+        background: white;
+        border-top: 1px solid #dee2e6;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
     
-    .header-nav-link {
-        font-size: 0;
-        padding: 12px 8px;
-        flex: 0 0 auto;
-        text-align: center;
-        min-width: 40px;
-        position: relative;
-    }
-    
-    .header-nav-link i {
-        font-size: 1.2rem;
+    #mobileNavigation .nav-link {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f8f9fa;
         color: #3B2A22;
+        font-weight: 500;
     }
     
-    .header-nav-link:hover i {
+    #mobileNavigation .nav-link:hover {
+        background-color: #f8f9fa;
         color: #E86A17;
     }
     
-    .header-nav-dropdown .dropdown-trigger .fa-chevron-down {
-        display: none;
+    .navbar-toggler {
+        border: none;
+        padding: 4px 8px;
     }
     
-    .desktop-header-nav .container {
-        padding: 0 10px;
-    }
-    
-    /* Add tooltips for mobile icons */
-    .header-nav-link::after {
-        content: attr(data-title);
-        position: absolute;
-        bottom: -20px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 0.7rem;
-        color: #666;
-        white-space: nowrap;
-        opacity: 0;
-        transition: opacity 0.2s;
-        pointer-events: none;
-    }
-    
-    .header-nav-link:hover::after {
-        opacity: 1;
+    .navbar-toggler:focus {
+        box-shadow: none;
     }
 }
 
