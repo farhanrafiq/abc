@@ -23,13 +23,16 @@ function initializeHeroSlider() {
     let currentSlide = 0;
     let slideInterval;
     
+    if (slides.length === 0) {
+        console.warn('No slides found in carousel');
+        return;
+    }
+    
     // Show single slide without autoplay
     if (slides.length === 1) {
         slides[0].classList.add('active');
         return;
     }
-    
-    if (slides.length <= 1) return;
     
     // Auto-play functionality
     const autoplay = heroSlider.dataset.autoplay === 'true';
