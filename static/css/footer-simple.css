@@ -78,13 +78,32 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
 .social-link {
     width: 40px !important;
     height: 40px !important;
-    background: #E86A17 !important;
+    background: #3B2A22 !important;
     color: white !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 50% !important;
     text-decoration: none !important;
+}
+
+.modern-footer .social-link:hover {
+    background: #2C1810 !important;
+    color: white !important;
+}
+
+/* Force all footer icons to brown */
+.modern-footer .payment-icon,
+.modern-footer .security-badge,
+.modern-footer .trust-badge {
+    background: rgba(59, 42, 34, 0.2) !important;
+    color: white !important;
+    border: 1px solid rgba(59, 42, 34, 0.3) !important;
+}
+
+.modern-footer .fas,
+.modern-footer .fab {
+    color: white !important;
 }
 
 /* FORCE FOOTER BOTTOM BACKGROUND - FULL WIDTH */
@@ -197,7 +216,7 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
 }
 
 .modern-footer a:hover {
-    color: #E86A17 !important;
+    color: #3B2A22 !important;
     text-decoration: none !important;
 }
 
