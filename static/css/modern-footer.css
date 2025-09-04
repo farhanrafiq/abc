@@ -1,19 +1,16 @@
-/* Modern Footer Styles - Force Display */
+/* Modern Elegant Footer Styles */
 .modern-footer {
     background: linear-gradient(135deg, #2C1810 0%, #3B2A22 50%, #2C1810 100%) !important;
     color: #F5F5F5 !important;
     margin-top: 4rem !important;
-    position: static !important;
-    overflow: visible !important;
+    position: relative !important;
+    overflow: hidden !important;
     padding: 0 !important;
     z-index: 100 !important;
     clear: both !important;
     width: 100% !important;
     display: block !important;
-    float: none !important;
-    min-height: 400px !important;
-    opacity: 1 !important;
-    visibility: visible !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3) !important;
 }
 
 /* Override any existing footer classes */
@@ -27,8 +24,7 @@ footer.modern-footer,
     clear: both !important;
     width: 100% !important;
     display: block !important;
-    float: none !important;
-    min-height: auto !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3) !important;
 }
 
 .modern-footer::before {
