@@ -80,27 +80,27 @@
 <div class="desktop-header-nav bg-light border-bottom">
     <div class="container">
         <!-- Mobile Menu Toggle and Action Buttons -->
-        <div class="mobile-menu-toggle d-lg-none d-flex justify-content-between align-items-center">
-            <button class="btn btn-outline-primary d-flex align-items-center" onclick="toggleMobileMenu()">
+        <div class="mobile-menu-toggle d-lg-none d-flex justify-content-between align-items-center w-100">
+            <button class="btn btn-outline-primary d-flex align-items-center flex-grow-1 me-2" onclick="toggleMobileMenu()">
                 <i class="fas fa-bars me-2"></i>Menu
             </button>
             
-            <div class="d-flex gap-2">
-                <button class="btn btn-outline-info d-flex align-items-center" onclick="toggleMobileSearch()" title="Search Books">
-                    <i class="fas fa-search"></i>
-                </button>
-                <a href="tel:+919876543210" 
-                   class="btn btn-outline-warning d-flex align-items-center"
-                   title="Call us">
-                    <i class="fas fa-phone"></i>
-                </a>
-                <a href="https://wa.me/919876543210?text=Hello%20ABC%20Publishing%20Kashmir" 
-                   class="btn btn-success d-flex align-items-center"
-                   target="_blank"
-                   title="Contact us on WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-            </div>
+            <button class="btn btn-outline-info d-flex align-items-center justify-content-center flex-grow-1 me-2" onclick="toggleMobileSearch()" title="Search Books">
+                <i class="fas fa-search me-1"></i>Search
+            </button>
+            
+            <a href="tel:+919876543210" 
+               class="btn btn-outline-warning d-flex align-items-center justify-content-center flex-grow-1 me-2"
+               title="Call us">
+                <i class="fas fa-phone me-1"></i>Call
+            </a>
+            
+            <a href="https://wa.me/919876543210?text=Hello%20ABC%20Publishing%20Kashmir" 
+               class="btn btn-success d-flex align-items-center justify-content-center flex-grow-1"
+               target="_blank"
+               title="Contact us on WhatsApp">
+                <i class="fab fa-whatsapp me-1"></i>Chat
+            </a>
         </div>
         
         <!-- Mobile Search Bar (hidden by default) -->
