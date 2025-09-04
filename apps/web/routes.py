@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, current_app, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import or_, func, desc, asc
-from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format, Banner, FeaturedCategory, BannerType, HomeSection, SectionType, MediaAsset, NewsletterSubscriber
+from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format, Banner, FeaturedCategory, BannerType, HomeSection, SectionType, MediaAsset, NewsletterSubscriber, product_categories, product_authors
 from forms import SearchForm, ReviewForm
 from utils.helpers import format_currency, get_cart_count, paginate_query
 from app import db
@@ -55,7 +55,7 @@ def get_section_data(section):
                 .filter(Inventory.stock_on_hand > 0)
             
             if category_slug:
-                query = query.join(Product.categories).filter(Category.slug == category_slug)
+                query = query.join(product_categories).join(Category).filter(Category.slug == category_slug)
             
             if sort_by == 'newest':
                 query = query.order_by(desc(Product.created_at))
@@ -110,9 +110,9 @@ def catalog(category_slug=None):
     selected_category = None
     if category_slug:
         selected_category = Category.query.filter_by(slug=category_slug).first_or_404()
-        query = query.join(Product.categories).filter(Category.id == selected_category.id)
+        query = query.join(product_categories).join(Category).filter(Category.id == selected_category.id)
     elif form.category.data:
-        query = query.join(Product.categories).filter(Category.id == form.category.data)
+        query = query.join(product_categories).join(Category).filter(Category.id == form.category.data)
     
     # Search filter
     if form.q.data:
@@ -125,7 +125,7 @@ def catalog(category_slug=None):
     
     # Author filter
     if form.author.data:
-        query = query.join(Product.authors).filter(Author.id == form.author.data)
+        query = query.join(product_authors).join(Author).filter(Author.id == form.author.data)
     
     # Publisher filter
     if form.publisher.data:
@@ -181,9 +181,9 @@ def catalog(category_slug=None):
     publishers = Publisher.query.all()
     
     # Populate form choices
-    form.category.choices = [('', 'All Categories')] + [(c.id, c.name) for c in categories]
-    form.author.choices = [('', 'All Authors')] + [(a.id, a.name) for a in authors]
-    form.publisher.choices = [('', 'All Publishers')] + [(p.id, p.name) for p in publishers]
+    form.category.choices = [('', 'All Categories')] + [(str(c.id), c.name) for c in categories]
+    form.author.choices = [('', 'All Authors')] + [(str(a.id), a.name) for a in authors]
+    form.publisher.choices = [('', 'All Publishers')] + [(str(p.id), p.name) for p in publishers]
     
     return render_template('web/catalog.html',
                          products=products,
@@ -201,7 +201,7 @@ def product_detail(slug):
     related_products = []
     if product.categories:
         related_products = db.session.query(Product).join(Price).join(Inventory)\
-            .join(Product.categories)\
+            .join(product_categories).join(Category)\
             .filter(Category.id.in_([c.id for c in product.categories]))\
             .filter(Product.id != product.id)\
             .filter(Product.status == ProductStatus.ACTIVE)\
@@ -233,7 +233,7 @@ def search():
     # Perform search
     search_term = f"%{form.q.data}%"
     query = db.session.query(Product).join(Price).join(Inventory)\
-        .outerjoin(Product.authors)\
+        .outerjoin(product_authors).outerjoin(Author)\
         .filter(Product.status == ProductStatus.ACTIVE)\
         .filter(or_(
             Product.title.ilike(search_term),
@@ -244,7 +244,7 @@ def search():
     
     # Apply additional filters
     if form.category.data:
-        query = query.join(Product.categories).filter(Category.id == form.category.data)
+        query = query.join(product_categories).join(Category).filter(Category.id == form.category.data)
     
     if form.language.data:
         query = query.filter(Product.language == form.language.data)
@@ -261,7 +261,7 @@ def search():
     
     # Get filter options
     categories = Category.query.all()
-    form.category.choices = [('', 'All Categories')] + [(c.id, c.name) for c in categories]
+    form.category.choices = [('', 'All Categories')] + [(str(c.id), c.name) for c in categories]
     
     return render_template('web/search.html',
                          products=products,
