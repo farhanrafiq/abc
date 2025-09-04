@@ -124,39 +124,6 @@
     </div>
 </nav>
 
-<!-- Desktop Horizontal Navigation Bar - below header -->
-<div class="desktop-main-nav d-none d-lg-block bg-light border-bottom">
-    <div class="container">
-        <nav class="main-nav-horizontal py-2">
-            <div class="main-nav-links">
-                <a href="{{ url_for('web.index') }}" class="main-nav-link">
-                    <i class="fas fa-home me-1"></i>Home
-                </a>
-                <a href="{{ url_for('web.catalog') }}" class="main-nav-link">
-                    <i class="fas fa-th-large me-1"></i>All Books
-                </a>
-                <a href="{{ url_for('web.catalog', category_slug='quran-studies') }}" class="main-nav-link">
-                    <i class="fas fa-book-open me-1"></i>Quran Studies
-                </a>
-                <a href="{{ url_for('web.catalog', category_slug='hadith') }}" class="main-nav-link">
-                    <i class="fas fa-scroll me-1"></i>Hadith
-                </a>
-                <a href="{{ url_for('web.catalog', category_slug='fiqh') }}" class="main-nav-link">
-                    <i class="fas fa-balance-scale me-1"></i>Fiqh
-                </a>
-                <a href="{{ url_for('web.catalog', category_slug='seerah') }}" class="main-nav-link">
-                    <i class="fas fa-user me-1"></i>Seerah
-                </a>
-                <a href="{{ url_for('web.content_page', slug='about') }}" class="main-nav-link">
-                    <i class="fas fa-info-circle me-1"></i>About
-                </a>
-                <a href="{{ url_for('web.content_page', slug='contact') }}" class="main-nav-link">
-                    <i class="fas fa-phone me-1"></i>Contact
-                </a>
-            </div>
-        </nav>
-    </div>
-</div>
 
 <!-- Professional Header Styles -->
 <style>
@@ -205,52 +172,6 @@
     border-bottom: none;
 }
 
-/* Desktop Main Navigation Below Header */
-.desktop-main-nav {
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.main-nav-links {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 2rem;
-}
-
-.main-nav-link {
-    color: #3B2A22;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.95rem;
-    padding: 8px 12px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-}
-
-.main-nav-link:hover {
-    color: #E86A17;
-    background: rgba(232, 106, 23, 0.1);
-    text-decoration: none;
-}
-
-.main-nav-link i {
-    color: #E86A17;
-}
-
-@media (max-width: 1200px) {
-    .main-nav-links {
-        gap: 1.5rem;
-    }
-    
-    .main-nav-link {
-        font-size: 0.9rem;
-        padding: 6px 10px;
-    }
-}
 </style>
 
 <!-- Language Selector (if multi-language support is needed) -->
