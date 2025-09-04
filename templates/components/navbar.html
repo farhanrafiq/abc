@@ -84,12 +84,200 @@
                 <a href="{{ url_for('web.index') }}" class="header-nav-link">
                     <i class="fas fa-home me-1"></i>Home
                 </a>
-                <a href="{{ url_for('web.catalog') }}" class="header-nav-link">
-                    <i class="fas fa-th-large me-1"></i>All Books
-                </a>
-                <a href="{{ url_for('web.catalog', category_slug='quran-studies') }}" class="header-nav-link">
-                    <i class="fas fa-book-open me-1"></i>Quran Studies
-                </a>
+                
+                <div class="header-nav-dropdown">
+                    <a href="{{ url_for('web.catalog') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-th-large me-1"></i>All Books
+                        <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <div class="mega-menu">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-content">
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">English</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='quran-studies') }}">Quran Studies</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='hadith') }}">Hadith Collections</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='fiqh') }}">Islamic Jurisprudence</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='seerah') }}">Biography of Prophet</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='islamic-history') }}">Islamic History</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='contemporary-issues') }}">Contemporary Issues</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='spirituality') }}">Spirituality & Sufism</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='comparative-religion') }}">Comparative Religion</a>
+                                    </div>
+                                </div>
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">اردو</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='quran-studies') }}">قرآنی علوم</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='hadith') }}">احادیث کے مجموعے</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='fiqh') }}">اسلامی فقہ</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='seerah') }}">سیرت النبی</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='dua-books') }}">دعاؤں کی کتابیں</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='akhlaq') }}">اخلاق و آداب</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='poetry') }}">اسلامی شاعری</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='children') }}">بچوں کی کتابیں</a>
+                                    </div>
+                                </div>
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">العربية</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='quran-studies') }}">علوم القرآن</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='hadith') }}">الأحاديث النبوية</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='fiqh') }}">الفقه الإسلامي</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='aqeedah') }}">العقيدة الإسلامية</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='arabic-grammar') }}">النحو والصرف</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='classical-texts') }}">النصوص الكلاسيكية</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='islamic-philosophy') }}">الفلسفة الإسلامية</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='quranic-commentary') }}">التفسير</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-nav-dropdown">
+                    <a href="{{ url_for('web.catalog', category_slug='mushafs') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-book-quran me-1"></i>Mushafs
+                        <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <div class="mega-menu">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-content">
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">English</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='quran-translation') }}">English Translation</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='quran-transliteration') }}">Transliteration</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='pocket-quran') }}">Pocket Size Quran</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='large-print-quran') }}">Large Print Quran</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='color-coded-quran') }}">Color Coded Quran</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='quran-with-tafseer') }}">Quran with Commentary</a>
+                                    </div>
+                                </div>
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">اردو</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='quran-pak') }}">قرآن پاک</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='quran-urdu-translation') }}">اردو ترجمہ کے ساتھ</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='hafzi-quran') }}">حافظی قرآن</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='tajweed-quran') }}">تجوید کے ساتھ</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='15-lines-quran') }}">پندرہ لائن</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='13-lines-quran') }}">تیرہ لائن</a>
+                                    </div>
+                                </div>
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">العربية</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='mushaf-arabic') }}">المصحف الشريف</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='mushaf-madinah') }}">مصحف المدينة</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='mushaf-uthmani') }}">الرسم العثماني</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='mushaf-tajweed') }}">مصحف التجويد</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='mushaf-warsh') }}">رواية ورش</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='mushaf-hafs') }}">رواية حفص</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-nav-dropdown">
+                    <a href="{{ url_for('web.catalog', category_slug='academics') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-graduation-cap me-1"></i>Academics
+                        <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <div class="mega-menu">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-content">
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">English</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='islamic-studies') }}">Islamic Studies</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='arabic-language') }}">Arabic Language</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='islamic-law') }}">Islamic Law</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='theology') }}">Islamic Theology</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='research-methodology') }}">Research Methodology</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='dissertation-guides') }}">Dissertation Guides</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='conference-proceedings') }}">Conference Proceedings</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='journal-publications') }}">Journal Publications</a>
+                                    </div>
+                                </div>
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">اردو</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='islamiyat') }}">اسلامیات</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='arabic-adab') }}">عربی ادب</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='urdu-adab') }}">اردو ادب</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='mantiq') }}">منطق</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='falsafa') }}">فلسفہ</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='tareekh') }}">تاریخ</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='tahqeeq') }}">تحقیقی مقالات</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='madrasa-books') }}">درسی کتب</a>
+                                    </div>
+                                </div>
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">العربية</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='usul-fiqh') }}">أصول الفقه</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='usul-hadith') }}">أصول الحديث</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='usul-tafseer') }}">أصول التفسير</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='logic') }}">المنطق</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='rhetoric') }}">البلاغة</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='prosody') }}">العروض</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='academic-research') }}">البحوث الأكاديمية</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='university-texts') }}">النصوص الجامعية</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-nav-dropdown">
+                    <a href="{{ url_for('web.catalog', category_slug='quran-studies') }}" class="header-nav-link dropdown-trigger">
+                        <i class="fas fa-book-open me-1"></i>Quran Studies
+                        <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <div class="mega-menu">
+                        <div class="mega-menu-container">
+                            <div class="mega-menu-content">
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">English</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='tafseer') }}">Quranic Commentary</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='quran-science') }}">Quran & Science</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='memorization') }}">Memorization Guides</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='recitation') }}">Recitation (Qiraat)</a>
+                                        <a href="{{ url_for('web.catalog', language='english', category_slug='themes') }}">Thematic Studies</a>
+                                    </div>
+                                </div>
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">اردو</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='tafseer-urdu') }}">تفسیر قرآن</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='uloom-quran') }}">علوم القرآن</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='hifz') }}">حفظ قرآن</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='qirat') }}">قراءت</a>
+                                        <a href="{{ url_for('web.catalog', language='urdu', category_slug='nazm-quran') }}">نظم قرآن</a>
+                                    </div>
+                                </div>
+                                <div class="mega-menu-section">
+                                    <h5 class="mega-menu-title">العربية</h5>
+                                    <div class="mega-menu-links">
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='tafseer-arabic') }}">التفسير</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='quranic-sciences') }}">علوم القرآن</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='qiraat') }}">القراءات</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='nasikh-mansukh') }}">الناسخ والمنسوخ</a>
+                                        <a href="{{ url_for('web.catalog', language='arabic', category_slug='asbab-nuzul') }}">أسباب النزول</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <a href="{{ url_for('web.catalog', category_slug='hadith') }}" class="header-nav-link">
                     <i class="fas fa-scroll me-1"></i>Hadith
                 </a>
@@ -162,6 +350,8 @@
 .desktop-header-nav {
     background: #f8f9fa;
     border-bottom: 1px solid #dee2e6;
+    position: relative;
+    z-index: 1000;
 }
 
 .header-nav-links {
@@ -179,9 +369,10 @@
     font-size: 0.95rem;
     padding: 8px 12px;
     border-radius: 6px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
+    position: relative;
 }
 
 .header-nav-link:hover {
@@ -194,6 +385,120 @@
     color: #E86A17;
 }
 
+/* Mega Menu System */
+.header-nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-trigger .fa-chevron-down {
+    font-size: 0.75rem;
+    transition: transform 0.3s ease;
+}
+
+.header-nav-dropdown:hover .dropdown-trigger .fa-chevron-down {
+    transform: rotate(180deg);
+}
+
+.mega-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    background: white;
+    border-top: 3px solid #E86A17;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 999;
+    margin-top: 0;
+}
+
+.header-nav-dropdown:hover .mega-menu {
+    opacity: 1;
+    visibility: visible;
+    margin-top: 0;
+}
+
+.mega-menu-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.mega-menu-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    padding: 40px 0;
+}
+
+.mega-menu-section {
+    min-height: 200px;
+}
+
+.mega-menu-title {
+    color: #3B2A22;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #E86A17;
+    position: relative;
+}
+
+.mega-menu-title::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background: #3B2A22;
+}
+
+.mega-menu-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mega-menu-links a {
+    color: #666;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    position: relative;
+    border-left: 3px solid transparent;
+}
+
+.mega-menu-links a:hover {
+    color: #E86A17;
+    background: rgba(232, 106, 23, 0.05);
+    border-left-color: #E86A17;
+    transform: translateX(5px);
+    text-decoration: none;
+}
+
+/* Arabic and Urdu text styling */
+.mega-menu-title:contains('اردو'),
+.mega-menu-title:contains('العربية') {
+    text-align: right;
+    font-family: 'Amiri', 'Times New Roman', serif;
+}
+
+.mega-menu-links a[href*="language='urdu'"],
+.mega-menu-links a[href*="language='arabic'"] {
+    text-align: right;
+    font-family: 'Amiri', 'Times New Roman', serif;
+    direction: rtl;
+}
+
+/* Responsive adjustments */
 @media (max-width: 1200px) {
     .header-nav-links {
         gap: 1.5rem;
@@ -202,6 +507,36 @@
     .header-nav-link {
         font-size: 0.9rem;
         padding: 6px 10px;
+    }
+    
+    .mega-menu-content {
+        gap: 30px;
+        padding: 30px 0;
+    }
+    
+    .mega-menu-container {
+        padding: 0 15px;
+    }
+}
+
+@media (max-width: 992px) {
+    .mega-menu-content {
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+    }
+    
+    .mega-menu-section:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .mega-menu {
+        display: none;
+    }
+    
+    .header-nav-dropdown {
+        display: none;
     }
 }
 
