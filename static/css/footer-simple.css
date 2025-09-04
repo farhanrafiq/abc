@@ -85,10 +85,39 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     text-decoration: none !important;
 }
 
+/* FORCE FOOTER BOTTOM BACKGROUND */
 .footer-bottom {
-    background: #2C1810 !important;
+    background-color: #3B2A22 !important;
+    background: #3B2A22 !important;
     padding: 20px 0 !important;
     border-top: 1px solid rgba(255,255,255,0.1) !important;
+    color: white !important;
+    width: 100% !important;
+    display: block !important;
+}
+
+.modern-footer .footer-bottom {
+    background-color: #3B2A22 !important;
+    background: #3B2A22 !important;
+    color: white !important;
+}
+
+/* Force all footer bottom elements to have dark background */
+.footer-bottom .container,
+.footer-bottom .row,
+.footer-bottom .col-lg-6,
+.footer-bottom .copyright,
+.footer-bottom .footer-legal {
+    background: transparent !important;
+    color: white !important;
+}
+
+/* Force copyright and legal text colors */
+.footer-bottom p,
+.footer-bottom a,
+.footer-bottom .tagline {
+    color: white !important;
+    background: transparent !important;
 }
 
 .footer-copyright {
@@ -98,6 +127,21 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
 
 /* Fix Footer Issues */
 .modern-footer * {
+    color: white !important;
+    background: transparent !important;
+}
+
+/* FORCE ISLAMIC DECORATION BACKGROUND */
+.islamic-decoration {
+    background-color: #3B2A22 !important;
+    background: #3B2A22 !important;
+    color: white !important;
+    padding: 15px 0 !important;
+    border-top: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+.islamic-decoration .bismillah,
+.islamic-decoration .translation {
     color: white !important;
     background: transparent !important;
 }
