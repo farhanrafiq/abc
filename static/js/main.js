@@ -33,9 +33,12 @@ function initializeHeroSlider() {
         return;
     }
     
+    // Initialize first slide as active
+    slides[0].classList.add('active');
+    if (dots[0]) dots[0].classList.add('active');
+    
     // Show single slide without autoplay
     if (slides.length === 1) {
-        slides[0].classList.add('active');
         return;
     }
     
@@ -88,6 +91,8 @@ function initializeHeroSlider() {
     
     // Start autoplay
     startAutoplay();
+    
+    console.log('Hero slider initialized with', slides.length, 'slides');
 }
 
 // Search functionality
