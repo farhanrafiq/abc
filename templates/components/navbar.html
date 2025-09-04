@@ -79,11 +79,17 @@
 <!-- Responsive Horizontal Navigation Bar - directly below header -->
 <div class="desktop-header-nav bg-light border-bottom">
     <div class="container">
-        <!-- Mobile Menu Toggle Button -->
-        <div class="mobile-menu-toggle d-lg-none">
+        <!-- Mobile Menu Toggle and WhatsApp Button -->
+        <div class="mobile-menu-toggle d-lg-none d-flex justify-content-between align-items-center">
             <button class="btn btn-outline-primary d-flex align-items-center" onclick="toggleMobileMenu()">
                 <i class="fas fa-bars me-2"></i>Menu
             </button>
+            <a href="https://wa.me/919876543210?text=Hello%20ABC%20Publishing%20Kashmir" 
+               class="btn btn-success d-flex align-items-center"
+               target="_blank"
+               title="Contact us on WhatsApp">
+                <i class="fab fa-whatsapp me-2"></i>WhatsApp
+            </a>
         </div>
         
         <nav class="header-nav-horizontal py-3">
@@ -699,16 +705,34 @@
     }
     
     .mobile-menu-toggle .btn {
-        border-color: #3B2A22;
-        color: #3B2A22;
         font-weight: 500;
         padding: 8px 16px;
+        border-radius: 5px;
+        font-size: 0.9rem;
     }
     
-    .mobile-menu-toggle .btn:hover {
+    /* Menu button styling */
+    .mobile-menu-toggle .btn-outline-primary {
+        border-color: #3B2A22;
+        color: #3B2A22;
+    }
+    
+    .mobile-menu-toggle .btn-outline-primary:hover {
         background-color: #3B2A22;
         border-color: #3B2A22;
         color: white;
+    }
+    
+    /* WhatsApp button styling */
+    .mobile-menu-toggle .btn-success {
+        background-color: #25D366;
+        border-color: #25D366;
+        color: white;
+    }
+    
+    .mobile-menu-toggle .btn-success:hover {
+        background-color: #20BA5A;
+        border-color: #20BA5A;
     }
     
     /* Hide navigation by default on mobile */
