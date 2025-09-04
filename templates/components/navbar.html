@@ -26,13 +26,6 @@
             </form>
         </div>
 
-        <!-- Mobile Menu Toggle (appears on mobile) -->
-        <button class="navbar-toggler d-lg-none me-3" type="button" 
-                data-bs-toggle="collapse" data-bs-target="#mobileNavigation" 
-                aria-controls="mobileNavigation" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
         <!-- Right Section -->
         <div class="d-flex align-items-center gap-3">
             <!-- Cart with professional styling -->
@@ -78,64 +71,6 @@
             </a>
             {% endif %}
 
-        </div>
-    </div>
-
-    <!-- Mobile Navigation Menu (collapsible) -->
-    <div class="collapse navbar-collapse d-lg-none" id="mobileNavigation">
-        <div class="container-fluid">
-            <ul class="navbar-nav py-2">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.index') }}">
-                        <i class="fas fa-home me-2"></i>Home
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.catalog') }}">
-                        <i class="fas fa-th-large me-2"></i>All Books
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='mushafs') }}">
-                        <i class="fas fa-book-quran me-2"></i>Mushafs
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='academics') }}">
-                        <i class="fas fa-graduation-cap me-2"></i>Academics
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='quran-studies') }}">
-                        <i class="fas fa-quran me-2"></i>Quran Studies
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='hadith') }}">
-                        <i class="fas fa-scroll me-2"></i>Hadith
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='fiqh') }}">
-                        <i class="fas fa-balance-scale me-2"></i>Fiqh
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.catalog', category_slug='seerah') }}">
-                        <i class="fas fa-mosque me-2"></i>Seerah
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.content_page', slug='about') }}">
-                        <i class="fas fa-info-circle me-2"></i>About
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.content_page', slug='contact') }}">
-                        <i class="fas fa-phone me-2"></i>Contact
-                    </a>
-                </li>
-            </ul>
         </div>
     </div>
 
@@ -750,36 +685,58 @@
 }
 
 @media (max-width: 768px) {
-    .desktop-header-nav {
+    /* Transform horizontal nav into vertical menu for mobile */
+    .header-nav-horizontal {
+        padding: 0 !important;
+    }
+    
+    .header-nav-links {
+        flex-direction: column;
+        gap: 0 !important;
+        align-items: stretch;
+    }
+    
+    .header-nav-link, .header-nav-dropdown {
+        width: 100%;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .header-nav-link {
+        padding: 15px 20px;
+        display: block;
+        color: #3B2A22;
+        font-weight: 500;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        white-space: normal;
+    }
+    
+    .header-nav-link:hover {
+        background-color: #f8f9fa;
+        color: #E86A17;
+        padding-left: 25px;
+    }
+    
+    .header-nav-link i {
+        width: 20px;
+        text-align: center;
+        margin-right: 12px;
+    }
+    
+    /* Hide mega menus on mobile */
+    .mega-menu {
+        display: none !important;
+    }
+    
+    /* Hide chevron arrows on mobile */
+    .fa-chevron-down {
         display: none;
     }
     
-    /* Mobile navigation styles */
-    #mobileNavigation {
-        background: white;
-        border-top: 1px solid #dee2e6;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    
-    #mobileNavigation .nav-link {
-        padding: 12px 16px;
-        border-bottom: 1px solid #f8f9fa;
-        color: #3B2A22;
-        font-weight: 500;
-    }
-    
-    #mobileNavigation .nav-link:hover {
-        background-color: #f8f9fa;
-        color: #E86A17;
-    }
-    
-    .navbar-toggler {
-        border: none;
-        padding: 4px 8px;
-    }
-    
-    .navbar-toggler:focus {
-        box-shadow: none;
+    /* Ensure container takes full width */
+    .desktop-header-nav .container {
+        padding: 0;
+        max-width: 100%;
     }
 }
 
