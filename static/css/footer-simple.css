@@ -135,6 +135,24 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     background: transparent !important;
 }
 
+/* FORCE FOOTER SECONDARY BACKGROUND - FULL WIDTH */
+.footer-secondary {
+    background-color: #3B2A22 !important;
+    background: #3B2A22 !important;
+    color: white !important;
+    padding: 20px 0 !important;
+    border-top: 1px solid rgba(255,255,255,0.05) !important;
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
+}
+
+.modern-footer .footer-secondary {
+    background-color: #3B2A22 !important;
+    background: #3B2A22 !important;
+    color: white !important;
+}
+
 /* FORCE ISLAMIC DECORATION BACKGROUND - FULL WIDTH */
 .islamic-decoration {
     background-color: #3B2A22 !important;
