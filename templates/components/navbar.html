@@ -733,6 +733,10 @@
     }
     
     .mobile-search-bar {
+        display: none !important;
+    }
+    
+    .mobile-search-bar.show {
         display: block !important;
     }
     
@@ -876,8 +880,8 @@ function toggleMobileMenu() {
     const searchBar = document.getElementById('mobileSearchBar');
     
     // Close search if open
-    if (searchBar.style.display === 'block') {
-        searchBar.style.display = 'none';
+    if (searchBar.classList.contains('show')) {
+        searchBar.classList.remove('show');
     }
     
     if (nav.classList.contains('mobile-menu-active')) {
@@ -902,11 +906,15 @@ function toggleMobileSearch() {
         menuButton.innerHTML = '<i class="fas fa-bars me-2"></i>Menu';
     }
     
-    if (searchBar.style.display === 'none' || searchBar.style.display === '') {
-        searchBar.style.display = 'block';
-        searchBar.querySelector('input').focus();
+    // Toggle search bar visibility
+    if (searchBar.classList.contains('show')) {
+        searchBar.classList.remove('show');
     } else {
-        searchBar.style.display = 'none';
+        searchBar.classList.add('show');
+        // Focus on input after a short delay to ensure it's visible
+        setTimeout(() => {
+            searchBar.querySelector('input').focus();
+        }, 100);
     }
 }
 </script>
