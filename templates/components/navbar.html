@@ -515,6 +515,35 @@
     height: 18px;
 }
 
+/* Professional mobile cart styling */
+@media (max-width: 768px) {
+    .cart-link {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 10px 12px;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+    
+    .cart-link:hover {
+        background-color: #e9ecef;
+        border-color: #3B2A22;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    }
+    
+    .cart-count {
+        font-size: 0.65rem;
+        min-width: 16px;
+        height: 16px;
+        line-height: 16px;
+        font-weight: 600;
+        top: -2px;
+        right: -2px;
+    }
+}
+
 .mobile-nav-link {
     display: block;
     padding: 12px 0;
