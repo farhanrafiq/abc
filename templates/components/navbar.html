@@ -498,8 +498,6 @@
     border-bottom: 1px solid #dee2e6;
     position: relative;
     z-index: 1000;
-    width: 100%;
-    overflow: visible;
 }
 
 .header-nav-links {
@@ -549,10 +547,10 @@
 }
 
 .mega-menu {
-    position: absolute;
-    top: calc(100% + 10px);
+    position: fixed;
+    top: 150px;
     left: 0;
-    width: 100vw;
+    right: 0;
     background: white;
     border-top: 3px solid #E86A17;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -560,7 +558,6 @@
     visibility: hidden;
     transition: all 0.3s ease;
     z-index: 999;
-    margin-left: calc(-50vw + 50%);
 }
 
 .header-nav-dropdown:hover .mega-menu {
@@ -573,7 +570,6 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-    width: 100%;
 }
 
 .mega-menu-content {
