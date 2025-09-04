@@ -549,11 +549,10 @@
 }
 
 .mega-menu {
-    position: fixed;
-    top: 140px;
+    position: absolute;
+    top: calc(100% + 10px);
     left: 0;
-    right: 0;
-    width: 100%;
+    width: 100vw;
     background: white;
     border-top: 3px solid #E86A17;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
@@ -561,7 +560,7 @@
     visibility: hidden;
     transition: all 0.3s ease;
     z-index: 999;
-    margin: 0;
+    margin-left: calc(-50vw + 50%);
 }
 
 .header-nav-dropdown:hover .mega-menu {
