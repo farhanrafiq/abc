@@ -157,9 +157,92 @@
     </div>
 </footer>
 
+<!-- Desktop Horizontal Navigation - only visible on desktop -->
+<div class="desktop-nav-bar d-none d-lg-block bg-light border-top">
+    <div class="container">
+        <nav class="desktop-horizontal-nav py-3">
+            <div class="nav-links-horizontal">
+                <a href="{{ url_for('web.index') }}" class="desktop-nav-link">
+                    <i class="fas fa-home me-1"></i>Home
+                </a>
+                <a href="{{ url_for('web.catalog') }}" class="desktop-nav-link">
+                    <i class="fas fa-th-large me-1"></i>All Books
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='quran-studies') }}" class="desktop-nav-link">
+                    <i class="fas fa-book-open me-1"></i>Quran Studies
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='hadith') }}" class="desktop-nav-link">
+                    <i class="fas fa-scroll me-1"></i>Hadith
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='fiqh') }}" class="desktop-nav-link">
+                    <i class="fas fa-balance-scale me-1"></i>Fiqh
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='seerah') }}" class="desktop-nav-link">
+                    <i class="fas fa-user me-1"></i>Seerah
+                </a>
+                <a href="{{ url_for('web.content_page', slug='about') }}" class="desktop-nav-link">
+                    <i class="fas fa-info-circle me-1"></i>About
+                </a>
+                <a href="{{ url_for('web.content_page', slug='contact') }}" class="desktop-nav-link">
+                    <i class="fas fa-phone me-1"></i>Contact
+                </a>
+            </div>
+        </nav>
+    </div>
+</div>
+
 <!-- Islamic Calligraphy Footer Decoration -->
 <div class="islamic-footer-decoration text-center py-2 bg-brand-dark text-white">
     <div class="container">
         <small class="arabic-text">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</small>
     </div>
 </div>
+
+<!-- Desktop Navigation Styles -->
+<style>
+.desktop-nav-bar {
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.nav-links-horizontal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.desktop-nav-link {
+    color: #3B2A22;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.desktop-nav-link:hover {
+    color: #E86A17;
+    background: rgba(232, 106, 23, 0.1);
+    text-decoration: none;
+}
+
+.desktop-nav-link i {
+    color: #E86A17;
+}
+
+@media (max-width: 1200px) {
+    .nav-links-horizontal {
+        gap: 1.5rem;
+    }
+    
+    .desktop-nav-link {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+}
+</style>

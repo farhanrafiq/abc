@@ -81,16 +81,16 @@
             </a>
             {% endif %}
 
-            <!-- Mobile menu toggle -->
-            <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="collapse" 
+            <!-- Mobile menu toggle - only visible on mobile -->
+            <button class="navbar-toggler border-0 d-md-block d-lg-none" type="button" data-bs-toggle="collapse" 
                     data-bs-target="#mobileNav" aria-controls="mobileNav" aria-expanded="false">
                 <span class="navbar-toggler-icon"></span>
             </button>
         </div>
     </div>
 
-    <!-- Mobile Navigation -->
-    <div class="collapse navbar-collapse bg-light" id="mobileNav">
+    <!-- Mobile Navigation - only visible on mobile -->
+    <div class="collapse navbar-collapse bg-light d-lg-none" id="mobileNav">
         <div class="container-fluid px-4 py-3">
             <!-- Mobile Search -->
             <form class="mb-3" method="GET" action="{{ url_for('web.search') }}">
