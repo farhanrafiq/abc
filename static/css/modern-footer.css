@@ -1,10 +1,19 @@
-/* Modern Footer Styles */
+/* Modern Footer Styles - Override existing styles */
 .modern-footer {
-    background: linear-gradient(135deg, #2C1810 0%, #3B2A22 50%, #2C1810 100%);
-    color: #F5F5F5;
-    margin-top: 4rem;
-    position: relative;
-    overflow: hidden;
+    background: linear-gradient(135deg, #2C1810 0%, #3B2A22 50%, #2C1810 100%) !important;
+    color: #F5F5F5 !important;
+    margin-top: 4rem !important;
+    position: relative !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+/* Override any existing footer classes */
+footer.modern-footer,
+.footer.modern-footer {
+    background: linear-gradient(135deg, #2C1810 0%, #3B2A22 50%, #2C1810 100%) !important;
+    color: #F5F5F5 !important;
+    padding: 0 !important;
 }
 
 .modern-footer::before {
@@ -19,8 +28,9 @@
 
 /* Main Footer Content */
 .footer-main {
-    padding: 4rem 0 3rem;
-    position: relative;
+    padding: 4rem 0 3rem !important;
+    position: relative !important;
+    background: transparent !important;
 }
 
 /* Brand Section */
@@ -50,16 +60,16 @@
 }
 
 .trust-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: rgba(232, 106, 23, 0.1);
-    border: 1px solid rgba(232, 106, 23, 0.2);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.9);
-    transition: all 0.3s ease;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 1rem !important;
+    background: rgba(232, 106, 23, 0.1) !important;
+    border: 1px solid rgba(232, 106, 23, 0.2) !important;
+    border-radius: 20px !important;
+    font-size: 0.85rem !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: all 0.3s ease !important;
 }
 
 .trust-badge:hover {
@@ -92,17 +102,17 @@
 }
 
 .social-link {
-    width: 45px;
-    height: 45px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    width: 45px !important;
+    height: 45px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.2rem !important;
+    text-decoration: none !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 
 .social-link::before {
