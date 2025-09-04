@@ -3,7 +3,7 @@
     background-color: #3B2A22 !important;
     background: #3B2A22 !important;
     color: white !important;
-    padding: 40px 0 !important;
+    padding: 40px 0 20px 0 !important;
     margin-top: 50px !important;
     width: 100% !important;
     display: block !important;
@@ -15,6 +15,7 @@
     z-index: 1 !important;
     transform: none !important;
     overflow: visible !important;
+    margin-bottom: 0 !important;
 }
 
 /* Override ANY footer class */
@@ -93,4 +94,54 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
 .footer-copyright {
     color: #F5F5F5 !important;
     margin: 0 !important;
+}
+
+/* Fix Footer Issues */
+.modern-footer * {
+    color: white !important;
+    background: transparent !important;
+}
+
+.modern-footer a {
+    color: white !important;
+    text-decoration: none !important;
+}
+
+.modern-footer a:hover {
+    color: #E86A17 !important;
+    text-decoration: none !important;
+}
+
+.modern-footer ul {
+    list-style: none !important;
+    padding-left: 0 !important;
+    margin: 0 !important;
+}
+
+.modern-footer li {
+    list-style: none !important;
+    padding: 5px 0 !important;
+    margin: 0 !important;
+}
+
+/* Remove light rectangles */
+.trust-badge {
+    background: rgba(255,255,255,0.1) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.container, .row, .col-lg-4, .col-lg-2 {
+    background: transparent !important;
+}
+
+/* Fix footer bottom spacing */
+body {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+html {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
 }
