@@ -1,0 +1,79 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Category Management - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tags me-2"></i>Category Management</h2>
+    <a href="{{ url_for('admin.category_new') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add Category
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if categories %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Slug</th>
+                        <th>Description</th>
+                        <th>Product Count</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>
+                            <strong>{{ category.name }}</strong>
+                            {% if category.parent %}
+                                <br><small class="text-muted">Parent: {{ category.parent.name }}</small>
+                            {% endif %}
+                        </td>
+                        <td><code>{{ category.slug }}</code></td>
+                        <td>
+                            {% if category.description %}
+                                {{ category.description[:100] }}{% if category.description|length > 100 %}...{% endif %}
+                            {% else %}
+                                <span class="text-muted">No description</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ category.products|length }} products</span>
+                        </td>
+                        <td>{{ category.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('admin.category_edit', category_id=category.id) }}" 
+                                   class="btn btn-outline-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('web.catalog', category_slug=category.slug) }}" 
+                                   class="btn btn-outline-info" title="View on Site" target="_blank">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Categories Found</h5>
+            <p class="text-muted">Start by creating your first category.</p>
+            <a href="{{ url_for('admin.category_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create Category
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

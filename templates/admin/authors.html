@@ -1,0 +1,73 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Author Management - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-user-pen me-2"></i>Author Management</h2>
+    <a href="{{ url_for('admin.author_new') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add Author
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if authors %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Biography</th>
+                        <th>Books</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for author in authors %}
+                    <tr>
+                        <td>
+                            <strong>{{ author.name }}</strong>
+                            {% if author.birth_year %}
+                                <br><small class="text-muted">Born: {{ author.birth_year }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if author.biography %}
+                                {{ author.biography[:100] }}{% if author.biography|length > 100 %}...{% endif %}
+                            {% else %}
+                                <span class="text-muted">No biography</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ author.products|length }} books</span>
+                        </td>
+                        <td>{{ author.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('admin.author_edit', author_id=author.id) }}" 
+                                   class="btn btn-outline-primary" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-user-pen fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Authors Found</h5>
+            <p class="text-muted">Start by adding your first author.</p>
+            <a href="{{ url_for('admin.author_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add Author
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
