@@ -36,16 +36,69 @@
                             </div>
                         </div>
                         <div class="isbn-help-text">
-                            <p><strong>What is an ISBN?</strong> The International Standard Book Number (ISBN) is a unique identifier for books. You can find it on the back cover or copyright page of any book.</p>
+                            <p><strong>What is an ISBN?</strong> The International Standard Book Number (ISBN) is a unique identifier assigned to every published book. It's like a fingerprint that helps identify the exact edition, format, and publisher of any book worldwide. You can find it printed on the back cover, inside cover, or copyright page.</p>
+                            
+                            <div class="isbn-benefits">
+                                <h4><i class="fas fa-star"></i> Why Use ISBN Search?</h4>
+                                <ul>
+                                    <li><strong>Exact Match Guarantee:</strong> Find the precise edition you need, not similar titles</li>
+                                    <li><strong>Academic Accuracy:</strong> Perfect for students needing specific textbook editions</li>
+                                    <li><strong>Research Efficiency:</strong> Locate scholarly works and references instantly</li>
+                                    <li><strong>No Confusion:</strong> Avoid mix-ups between different editions or translations</li>
+                                    <li><strong>Quick Verification:</strong> Confirm book details before purchasing</li>
+                                </ul>
+                            </div>
+                            
                             <div class="isbn-examples">
                                 <div class="example">
-                                    <strong>ISBN-10 Format:</strong> <code>0123456789</code>
+                                    <strong>ISBN-10 Format:</strong> <code>0123456789</code><br>
+                                    <small>Used for books published before 2007</small>
                                 </div>
                                 <div class="example">
-                                    <strong>ISBN-13 Format:</strong> <code>978-0123456789</code>
+                                    <strong>ISBN-13 Format:</strong> <code>978-0123456789</code><br>
+                                    <small>Standard format for all modern books</small>
                                 </div>
                             </div>
-                            <p class="tip"><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> You can enter the ISBN with or without dashes - our system automatically recognizes both formats!</p>
+                            
+                            <div class="isbn-locations">
+                                <h4><i class="fas fa-search"></i> Where to Find ISBN Numbers:</h4>
+                                <div class="location-grid">
+                                    <div class="location-item">
+                                        <i class="fas fa-book"></i>
+                                        <div>
+                                            <strong>Back Cover</strong>
+                                            <small>Usually near the barcode</small>
+                                        </div>
+                                    </div>
+                                    <div class="location-item">
+                                        <i class="fas fa-file-alt"></i>
+                                        <div>
+                                            <strong>Copyright Page</strong>
+                                            <small>First few pages inside the book</small>
+                                        </div>
+                                    </div>
+                                    <div class="location-item">
+                                        <i class="fas fa-bookmark"></i>
+                                        <div>
+                                            <strong>Spine</strong>
+                                            <small>Sometimes printed vertically</small>
+                                        </div>
+                                    </div>
+                                    <div class="location-item">
+                                        <i class="fas fa-barcode"></i>
+                                        <div>
+                                            <strong>Near Barcode</strong>
+                                            <small>Look for numbers above/below bars</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <p class="tip"><i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> You can enter the ISBN with or without dashes, spaces, or the "ISBN" prefix - our intelligent system automatically recognizes and formats it correctly!</p>
+                            
+                            <div class="isbn-popular">
+                                <p><strong><i class="fas fa-fire"></i> Popular with:</strong> University students, researchers, teachers, librarians, book collectors, and anyone who needs to find a specific book edition quickly and accurately.</p>
+                            </div>
                         </div>
                     </div>
                 {% endif %}
@@ -179,6 +232,109 @@
 }
 
 .tip i {
+    color: var(--orange-600);
+    margin-right: 0.5rem;
+}
+
+.isbn-benefits {
+    margin: 1.5rem 0;
+    background: rgba(44, 95, 101, 0.05);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--orange-600);
+}
+
+.isbn-benefits h4 {
+    color: var(--orange-600);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.isbn-benefits ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.isbn-benefits li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    line-height: 1.5;
+}
+
+.isbn-benefits li:last-child {
+    border-bottom: none;
+}
+
+.isbn-locations {
+    margin: 1.5rem 0;
+    background: rgba(232, 106, 23, 0.05);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--teal-600);
+}
+
+.isbn-locations h4 {
+    color: var(--teal-600);
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.location-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.location-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.location-item i {
+    font-size: 1.25rem;
+    color: var(--teal-600);
+    flex-shrink: 0;
+}
+
+.location-item strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    color: var(--ink);
+}
+
+.location-item small {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.2;
+}
+
+.example small {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.isbn-popular {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: linear-gradient(45deg, rgba(37, 211, 102, 0.1), rgba(232, 106, 23, 0.1));
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--ink);
+}
+
+.isbn-popular i {
     color: var(--orange-600);
     margin-right: 0.5rem;
 }
