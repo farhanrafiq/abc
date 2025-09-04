@@ -577,10 +577,12 @@
     grid-template-columns: 1fr 1fr 1fr;
     gap: 40px;
     padding: 40px 0;
+    overflow: hidden;
 }
 
 .mega-menu-section {
     min-height: 200px;
+    overflow: hidden;
 }
 
 .mega-menu-title {
@@ -618,6 +620,9 @@
     transition: all 0.2s ease;
     position: relative;
     border-left: 3px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mega-menu-links a:hover {
@@ -639,18 +644,12 @@
     text-align: right;
     font-family: 'Jameel Noori Nastaleeq', 'Noto Nastaliq Urdu', serif;
     direction: rtl;
-    white-space: nowrap;
 }
 
 .mega-menu-links a[href*="language='arabic'"] {
     text-align: right;
     font-family: 'Amiri', 'Times New Roman', serif;
     direction: rtl;
-    white-space: nowrap;
-}
-
-.mega-menu-links a {
-    white-space: nowrap;
 }
 
 /* Responsive adjustments */
