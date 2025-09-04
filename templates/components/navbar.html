@@ -1,124 +1,186 @@
+<!-- Professional Header -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
-    <div class="container">
+    <div class="container-fluid px-4">
         <!-- Brand -->
-        <a class="navbar-brand" href="{{ url_for('web.index') }}">
-            <span class="brand-text">ABC Publishing Kashmir</span>
-            <span class="brand-subtitle d-block">Islamic Books & Literature</span>
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('web.index') }}">
+            <div class="brand-logo me-3">
+                <i class="fas fa-book-open text-brand-orange" style="font-size: 1.8rem;"></i>
+            </div>
+            <div>
+                <div class="brand-text fw-bold" style="color: #3B2A22; font-size: 1.4rem;">ABC Publishing</div>
+                <small class="brand-subtitle text-muted d-none d-md-block">Kashmir's Premier Islamic Bookstore</small>
+            </div>
         </a>
 
-        <!-- Mobile menu button -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Navigation items -->
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <!-- Main Navigation -->
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.index') }}">Home</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" 
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        Categories
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='quran-studies') }}">
-                            <i class="fas fa-book-open me-2 text-brand-orange"></i>Quran Studies
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='hadith') }}">
-                            <i class="fas fa-scroll me-2 text-brand-orange"></i>Hadith
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='fiqh') }}">
-                            <i class="fas fa-balance-scale me-2 text-brand-orange"></i>Fiqh
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.catalog', category_slug='seerah') }}">
-                            <i class="fas fa-user me-2 text-brand-orange"></i>Seerah
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.catalog') }}">
-                            <i class="fas fa-th me-2 text-brand-orange"></i>All Categories
-                        </a></li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.catalog') }}">Catalog</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.content_page', slug='about') }}">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('web.content_page', slug='contact') }}">Contact</a>
-                </li>
-            </ul>
-
-            <!-- Search Bar -->
-            <form class="d-flex me-3" method="GET" action="{{ url_for('web.search') }}">
-                <div class="input-group">
-                    <input class="form-control search-input" type="search" name="q" 
-                           placeholder="Search books..." aria-label="Search" 
-                           value="{{ request.args.get('q', '') }}">
-                    <button class="btn btn-outline-brand" type="submit">
+        <!-- Desktop Search Bar (centered) -->
+        <div class="d-none d-lg-flex flex-grow-1 justify-content-center mx-4">
+            <form class="search-form" method="GET" action="{{ url_for('web.search') }}" style="width: 100%; max-width: 500px;">
+                <div class="input-group shadow-sm">
+                    <input class="form-control border-0 py-2 px-3" type="search" name="q" 
+                           placeholder="Search for books, authors, ISBN..." aria-label="Search" 
+                           value="{{ request.args.get('q', '') }}" style="font-size: 0.95rem;">
+                    <button class="btn btn-brand-orange px-4" type="submit">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
             </form>
+        </div>
 
-            <!-- Right Navigation -->
-            <ul class="navbar-nav">
-                <!-- Cart -->
-                <li class="nav-item">
-                    <a class="nav-link position-relative" href="{{ url_for('cart.view_cart') }}">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="cart-badge position-absolute top-0 start-100 translate-middle badge rounded-pill bg-brand-orange">
-                            <span id="cart-count">{{ session.get('cart_count', 0) }}</span>
-                        </span>
-                    </a>
-                </li>
+        <!-- Right Section -->
+        <div class="d-flex align-items-center gap-3">
+            <!-- Quick Links -->
+            <div class="d-none d-md-flex align-items-center gap-3">
+                <a href="{{ url_for('web.catalog') }}" class="nav-link-custom">
+                    <i class="fas fa-th-large me-1"></i>Catalog
+                </a>
+                <a href="{{ url_for('web.content_page', slug='contact') }}" class="nav-link-custom">
+                    <i class="fas fa-phone me-1"></i>Contact
+                </a>
+            </div>
 
-                <!-- User Account -->
-                {% if current_user.is_authenticated %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user me-1"></i>
-                        {{ current_user.first_name or current_user.email.split('@')[0] }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('web.account') }}">
-                            <i class="fas fa-user me-2"></i>My Account
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.orders') }}">
-                            <i class="fas fa-box me-2"></i>My Orders
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ url_for('web.addresses') }}">
-                            <i class="fas fa-map-marker-alt me-2"></i>Addresses
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        {% if current_user.role in ['admin', 'staff'] %}
-                        <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
-                            <i class="fas fa-cog me-2"></i>Admin Panel
-                        </a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        {% endif %}
-                        <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
-                            <i class="fas fa-sign-out-alt me-2"></i>Logout
-                        </a></li>
-                    </ul>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.login') }}">
-                        <i class="fas fa-sign-in-alt me-1"></i>Login
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
+            <!-- Cart with professional styling -->
+            <a href="{{ url_for('cart.view_cart') }}" class="cart-link position-relative">
+                <i class="fas fa-shopping-cart" style="font-size: 1.3rem; color: #3B2A22;"></i>
+                <span class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    <span id="cart-count">{{ session.get('cart_count', 0) }}</span>
+                </span>
+            </a>
+
+            <!-- User Account -->
+            {% if current_user.is_authenticated %}
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-user me-2"></i>{{ current_user.first_name or 'Account' }}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{{ url_for('web.account') }}">
+                        <i class="fas fa-user me-2"></i>My Account
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('web.orders') }}">
+                        <i class="fas fa-box me-2"></i>My Orders
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('web.addresses') }}">
+                        <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% if current_user.role in ['admin', 'staff'] %}
+                    <li><a class="dropdown-item" href="{{ url_for('admin.dashboard') }}">
+                        <i class="fas fa-cog me-2"></i>Admin Panel
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    {% endif %}
+                    <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a></li>
+                </ul>
+            </div>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" class="btn btn-brand-orange">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </a>
+            {% endif %}
+
+            <!-- Mobile menu toggle -->
+            <button class="navbar-toggler border-0 d-lg-none" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#mobileNav" aria-controls="mobileNav" aria-expanded="false">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="collapse navbar-collapse bg-light" id="mobileNav">
+        <div class="container-fluid px-4 py-3">
+            <!-- Mobile Search -->
+            <form class="mb-3" method="GET" action="{{ url_for('web.search') }}">
+                <div class="input-group">
+                    <input class="form-control" type="search" name="q" 
+                           placeholder="Search books..." value="{{ request.args.get('q', '') }}">
+                    <button class="btn btn-brand-orange" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Mobile Menu Links -->
+            <div class="mobile-nav-links">
+                <a href="{{ url_for('web.index') }}" class="mobile-nav-link">
+                    <i class="fas fa-home me-2"></i>Home
+                </a>
+                <a href="{{ url_for('web.catalog') }}" class="mobile-nav-link">
+                    <i class="fas fa-th-large me-2"></i>All Books
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='quran-studies') }}" class="mobile-nav-link">
+                    <i class="fas fa-book-open me-2"></i>Quran Studies
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='hadith') }}" class="mobile-nav-link">
+                    <i class="fas fa-scroll me-2"></i>Hadith
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='fiqh') }}" class="mobile-nav-link">
+                    <i class="fas fa-balance-scale me-2"></i>Fiqh
+                </a>
+                <a href="{{ url_for('web.catalog', category_slug='seerah') }}" class="mobile-nav-link">
+                    <i class="fas fa-user me-2"></i>Seerah
+                </a>
+                <a href="{{ url_for('web.content_page', slug='about') }}" class="mobile-nav-link">
+                    <i class="fas fa-info-circle me-2"></i>About
+                </a>
+                <a href="{{ url_for('web.content_page', slug='contact') }}" class="mobile-nav-link">
+                    <i class="fas fa-phone me-2"></i>Contact
+                </a>
+            </div>
         </div>
     </div>
 </nav>
+
+<!-- Professional Header Styles -->
+<style>
+.nav-link-custom {
+    color: #3B2A22;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.nav-link-custom:hover {
+    color: #E86A17;
+}
+
+.cart-link {
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.cart-link:hover {
+    background-color: #f8f9fa;
+}
+
+.cart-count {
+    font-size: 0.7rem;
+    min-width: 18px;
+    height: 18px;
+}
+
+.mobile-nav-link {
+    display: block;
+    padding: 12px 0;
+    color: #3B2A22;
+    text-decoration: none;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 500;
+}
+
+.mobile-nav-link:hover {
+    color: #E86A17;
+}
+
+.mobile-nav-link:last-child {
+    border-bottom: none;
+}
+</style>
 
 <!-- Language Selector (if multi-language support is needed) -->
 {% if config.get('LANGUAGES') and config.LANGUAGES|length > 1 %}

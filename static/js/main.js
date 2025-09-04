@@ -10,7 +10,71 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeQuantityControls();
     initializePriceFormatting();
     initializeFormValidation();
+    initializeHeroSlider();
 });
+
+// Hero Slider functionality
+function initializeHeroSlider() {
+    const heroSlider = document.querySelector('.simple-hero-slider');
+    if (!heroSlider) return;
+    
+    const slides = heroSlider.querySelectorAll('.hero-slide-link');
+    const dots = heroSlider.querySelectorAll('.hero-dot');
+    let currentSlide = 0;
+    let slideInterval;
+    
+    if (slides.length <= 1) return;
+    
+    // Auto-play functionality
+    const autoplay = heroSlider.dataset.autoplay === 'true';
+    const interval = parseInt(heroSlider.dataset.interval) || 5000;
+    
+    function showSlide(index) {
+        // Remove active class from all slides and dots
+        slides.forEach(slide => slide.classList.remove('active'));
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        // Add active class to current slide and dot
+        slides[index].classList.add('active');
+        if (dots[index]) dots[index].classList.add('active');
+        
+        currentSlide = index;
+    }
+    
+    function nextSlide() {
+        const next = (currentSlide + 1) % slides.length;
+        showSlide(next);
+    }
+    
+    function startAutoplay() {
+        if (autoplay) {
+            slideInterval = setInterval(nextSlide, interval);
+        }
+    }
+    
+    function stopAutoplay() {
+        if (slideInterval) {
+            clearInterval(slideInterval);
+            slideInterval = null;
+        }
+    }
+    
+    // Dot navigation
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            showSlide(index);
+            stopAutoplay();
+            startAutoplay(); // Restart autoplay
+        });
+    });
+    
+    // Pause on hover
+    heroSlider.addEventListener('mouseenter', stopAutoplay);
+    heroSlider.addEventListener('mouseleave', startAutoplay);
+    
+    // Start autoplay
+    startAutoplay();
+}
 
 // Search functionality
 function initializeSearch() {

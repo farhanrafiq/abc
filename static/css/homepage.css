@@ -14,7 +14,7 @@
   --danger: #B00020;
   
   /* Layout & Spacing */
-  --section-padding: 4rem 0;
+  --section-padding: 2.5rem 0;
   --container-padding: 0 1.5rem;
   --border-radius: 0.75rem;
   --shadow-soft: 0 4px 20px rgba(59, 42, 34, 0.08);
@@ -331,9 +331,9 @@
 /* Product Grids and Carousels */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .product-carousel {
@@ -348,6 +348,221 @@
   gap: 1.5rem;
 }
 
+/* Professional Product Cards */
+.product-card-professional {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+  height: 100%;
+}
+
+.product-card-professional:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.product-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.product-image-container {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+}
+
+.product-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.product-card-professional:hover .product-image-container img {
+  transform: scale(1.05);
+}
+
+.product-badge-compact {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #dc3545;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.product-badge-compact.bestseller {
+  background: #28a745;
+}
+
+.product-badge-compact.new {
+  background: #17a2b8;
+}
+
+.product-content-compact {
+  padding: 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-category-compact {
+  font-size: 0.7rem;
+  color: #E86A17;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.product-title-compact {
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.product-title-compact a {
+  color: #3B2A22;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.product-title-compact a:hover {
+  color: #E86A17;
+}
+
+.product-author-compact {
+  color: #666;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.product-details-compact {
+  flex: 1;
+  margin-bottom: 8px;
+}
+
+.product-description-compact {
+  color: #555;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.product-meta-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.meta-tag {
+  font-size: 0.7rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.meta-tag i {
+  color: #E86A17;
+}
+
+.product-rating-compact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.rating-stars-compact {
+  display: flex;
+  gap: 2px;
+}
+
+.rating-stars-compact i {
+  font-size: 0.7rem;
+  color: #E86A17;
+}
+
+.rating-text {
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.product-footer-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.price-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.price-current-compact {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #E86A17;
+}
+
+.price-original-compact {
+  font-size: 0.8rem;
+  color: #999;
+  text-decoration: line-through;
+}
+
+.add-to-cart-btn-professional {
+  background: #E86A17;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.add-to-cart-btn-professional:hover {
+  background: #d55a0e;
+}
+
+.stock-alert-compact {
+  margin-top: 8px;
+  padding: 4px 6px;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 0.7rem;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Legacy product card compatibility */
 .product-card {
   background: white;
   border-radius: var(--border-radius);

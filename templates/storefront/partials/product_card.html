@@ -1,99 +1,125 @@
-<!-- Product Card Partial -->
-<article class="product-card" itemscope itemtype="https://schema.org/Book">
-    <a href="{{ url_for('web.product_detail', slug=product.slug) }}" class="product-link" aria-label="View {{ product.title }}">
+<!-- Compact Professional Product Card -->
+<article class="product-card-professional" itemscope itemtype="https://schema.org/Book">
+    <div class="product-card-wrapper">
         
         <!-- Product Image -->
-        <div class="product-image">
-            {% if product.cover_image %}
-                <img src="{{ url_for('static', filename='uploads/products/' + product.cover_image) }}" 
-                     alt="{{ product.title }}" 
-                     loading="lazy"
-                     itemprop="image">
-            {% else %}
-                <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
-                     alt="{{ product.title }}" 
-                     loading="lazy"
-                     itemprop="image">
-            {% endif %}
+        <div class="product-image-container">
+            <a href="{{ url_for('web.product_detail', slug=product.slug) }}" aria-label="View {{ product.title }}">
+                {% if product.cover_image %}
+                    <img src="{{ url_for('static', filename='uploads/products/' + product.cover_image) }}" 
+                         alt="{{ product.title }}" 
+                         loading="lazy"
+                         itemprop="image">
+                {% else %}
+                    <img src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
+                         alt="{{ product.title }}" 
+                         loading="lazy"
+                         itemprop="image">
+                {% endif %}
+            </a>
             
             <!-- Product Badges -->
             {% if show_price_badges and product.price and product.price.sale_inr < product.price.mrp_inr %}
                 {% set discount_pct = ((product.price.mrp_inr - product.price.sale_inr) / product.price.mrp_inr * 100) | round %}
-                <div class="product-badge">{{ discount_pct }}% OFF</div>
+                <div class="product-badge-compact">{{ discount_pct }}% OFF</div>
             {% elif product.is_bestseller %}
-                <div class="product-badge">Bestseller</div>
+                <div class="product-badge-compact bestseller">Bestseller</div>
             {% elif product.is_new %}
-                <div class="product-badge">New</div>
+                <div class="product-badge-compact new">New</div>
             {% endif %}
         </div>
         
         <!-- Product Content -->
-        <div class="product-content">
+        <div class="product-content-compact">
             <!-- Category -->
             {% if product.categories %}
-                <div class="product-category" itemprop="genre">{{ product.categories[0].name }}</div>
+                <div class="product-category-compact" itemprop="genre">{{ product.categories[0].name }}</div>
             {% endif %}
             
             <!-- Title -->
-            <h3 class="product-title" itemprop="name">{{ product.title }}</h3>
+            <h3 class="product-title-compact" itemprop="name">
+                <a href="{{ url_for('web.product_detail', slug=product.slug) }}">{{ product.title }}</a>
+            </h3>
             
             <!-- Author -->
             {% if product.authors %}
-                <p class="product-author">
-                    <span>by</span>
-                    {% for author in product.authors %}
-                        <span itemprop="author">{{ author.name }}</span>{% if not loop.last %}, {% endif %}
-                    {% endfor %}
-                </p>
+                <div class="product-author-compact">
+                    by {% for author in product.authors %}<span itemprop="author">{{ author.name }}</span>{% if not loop.last %}, {% endif %}{% endfor %}
+                </div>
             {% endif %}
             
-            <!-- Rating -->
+            <!-- Product Details -->
+            <div class="product-details-compact">
+                {% if product.description %}
+                    <p class="product-description-compact">
+                        {{ product.description[:100] }}{% if product.description|length > 100 %}...{% endif %}
+                    </p>
+                {% endif %}
+                
+                <div class="product-meta-compact">
+                    {% if product.language %}
+                        <span class="meta-tag"><i class="fas fa-language"></i> {{ product.language.value }}</span>
+                    {% endif %}
+                    {% if product.format %}
+                        <span class="meta-tag"><i class="fas fa-book"></i> {{ product.format.value }}</span>
+                    {% endif %}
+                    {% if product.pages %}
+                        <span class="meta-tag"><i class="fas fa-file-alt"></i> {{ product.pages }} pages</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Rating (if available) -->
             {% if product.average_rating and product.review_count > 0 %}
-                <div class="product-rating" itemscope itemtype="https://schema.org/AggregateRating">
-                    <div class="rating-stars" aria-label="Rating: {{ product.average_rating }} out of 5 stars">
+                <div class="product-rating-compact" itemscope itemtype="https://schema.org/AggregateRating">
+                    <div class="rating-stars-compact">
                         {% for i in range(1, 6) %}
                             {% if i <= product.average_rating %}
-                                <i class="fas fa-star" style="color: var(--orange-600);"></i>
+                                <i class="fas fa-star"></i>
                             {% elif i - 0.5 <= product.average_rating %}
-                                <i class="fas fa-star-half-alt" style="color: var(--orange-600);"></i>
+                                <i class="fas fa-star-half-alt"></i>
                             {% else %}
-                                <i class="far fa-star" style="color: var(--muted);"></i>
+                                <i class="far fa-star"></i>
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <span class="rating-count">
-                        (<span itemprop="ratingValue">{{ product.average_rating }}</span>) 
-                        <span itemprop="reviewCount">{{ product.review_count }}</span> reviews
-                    </span>
-                    <meta itemprop="bestRating" content="5">
-                    <meta itemprop="worstRating" content="1">
+                    <span class="rating-text">{{ "%.1f"|format(product.average_rating) }} ({{ product.review_count }})</span>
                 </div>
             {% endif %}
             
             <!-- Price and Actions -->
-            {% if product.price %}
-                <div class="product-price" itemscope itemtype="https://schema.org/Offer">
-                    <div class="price-container">
-                        <span class="price-current" itemprop="price" content="{{ product.price.sale_inr / 100 }}">
+            <div class="product-footer-compact">
+                {% if product.price %}
+                    <div class="price-section" itemscope itemtype="https://schema.org/Offer">
+                        <span class="price-current-compact" itemprop="price" content="{{ product.price.sale_inr / 100 }}">
                             ₹{{ "%.0f"|format(product.price.sale_inr / 100) }}
                         </span>
                         {% if product.price.mrp_inr > product.price.sale_inr %}
-                            <span class="price-original">₹{{ "%.0f"|format(product.price.mrp_inr / 100) }}</span>
+                            <span class="price-original-compact">₹{{ "%.0f"|format(product.price.mrp_inr / 100) }}</span>
                         {% endif %}
                         <meta itemprop="priceCurrency" content="INR">
                         <meta itemprop="availability" content="https://schema.org/InStock">
                     </div>
-                    
-                    <button class="add-to-cart-btn" 
-                            data-product-id="{{ product.id }}"
-                            onclick="event.preventDefault(); event.stopPropagation(); addToCart({{ product.id }});"
-                            aria-label="Add {{ product.title }} to cart">
-                        <i class="fas fa-cart-plus"></i>
-                    </button>
+                {% endif %}
+                
+                <button class="add-to-cart-btn-professional" 
+                        data-product-id="{{ product.id }}"
+                        onclick="addToCart({{ product.id }});"
+                        aria-label="Add {{ product.title }} to cart">
+                    <i class="fas fa-cart-plus"></i>
+                    Add to Cart
+                </button>
+            </div>
+            
+            <!-- Stock Alert -->
+            {% if product.inventory and product.inventory.stock_on_hand <= 5 %}
+                <div class="stock-alert-compact">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Only {{ product.inventory.stock_on_hand }} left!
                 </div>
             {% endif %}
         </div>
-    </a>
+    </div>
     
     <!-- Schema.org structured data -->
     <meta itemprop="isbn" content="{{ product.isbn }}">

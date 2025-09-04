@@ -5,22 +5,35 @@
             <div class="col-lg-4">
                 <h5 class="font-serif mb-3">ABC Publishing Kashmir</h5>
                 <p class="mb-3">
-                    Your trusted source for authentic Islamic books and literature. 
-                    Serving Kashmir and beyond with quality books that inspire and educate.
+                    Kashmir's premier destination for authentic Islamic literature. We specialize in Quran studies, 
+                    Hadith collections, Islamic history, and contemporary Islamic scholarship. 
+                    Serving readers across India with carefully curated books since 2020.
                 </p>
                 <div class="social-links">
                     <a href="#" class="social-link me-3" title="Facebook">
                         <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a href="#" class="social-link me-3" title="Twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
                     <a href="#" class="social-link me-3" title="Instagram">
                         <i class="fab fa-instagram"></i>
                     </a>
-                    <a href="#" class="social-link me-3" title="WhatsApp">
+                    <a href="https://wa.me/+919419012345" class="social-link me-3" title="WhatsApp">
                         <i class="fab fa-whatsapp"></i>
                     </a>
+                    <a href="mailto:info@abcpublishingkashmir.com" class="social-link me-3" title="Email">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+                
+                <!-- Business Info -->
+                <div class="business-info mt-3">
+                    <small class="text-muted d-block">
+                        <i class="fas fa-certificate me-1"></i>
+                        Licensed Book Retailer • GST: 01XXXXX1234X1XX
+                    </small>
+                    <small class="text-muted d-block">
+                        <i class="fas fa-truck me-1"></i>
+                        Free shipping on orders above ₹500
+                    </small>
                 </div>
             </div>
 
@@ -52,11 +65,12 @@
             <div class="col-lg-2 col-md-6">
                 <h6 class="font-serif mb-3">Customer Service</h6>
                 <ul class="list-unstyled footer-links">
-                    <li><a href="{{ url_for('web.content_page', slug='shipping') }}">Shipping Info</a></li>
-                    <li><a href="{{ url_for('web.content_page', slug='returns') }}">Returns</a></li>
-                    <li><a href="{{ url_for('web.content_page', slug='privacy') }}">Privacy Policy</a></li>
-                    <li><a href="{{ url_for('web.content_page', slug='terms') }}">Terms of Service</a></li>
-                    <li><a href="{{ url_for('web.content_page', slug='support') }}">Support</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='shipping') }}">Shipping & Delivery</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='returns') }}">Returns & Exchanges</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='faq') }}">FAQ</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='support') }}">Help Center</a></li>
+                    <li><a href="https://wa.me/+919419012345" target="_blank">Live Chat Support</a></li>
+                    <li><a href="{{ url_for('web.content_page', slug='track-order') }}">Track Your Order</a></li>
                 </ul>
             </div>
 
@@ -70,7 +84,7 @@
                     </li>
                     <li class="mb-2">
                         <i class="fas fa-phone me-2 text-brand-orange"></i>
-                        <small>+91-194-XXXXXX</small>
+                        <small>+91-9419-012345</small>
                     </li>
                     <li class="mb-2">
                         <i class="fas fa-envelope me-2 text-brand-orange"></i>
@@ -79,6 +93,12 @@
                     <li class="mb-2">
                         <i class="fas fa-clock me-2 text-brand-orange"></i>
                         <small>Mon-Sat: 9AM-6PM</small>
+                    </li>
+                    <li class="mb-2">
+                        <a href="https://wa.me/+919419012345" class="text-decoration-none text-success">
+                            <i class="fab fa-whatsapp me-2"></i>
+                            <small>WhatsApp Support</small>
+                        </a>
                     </li>
                 </ul>
             </div>

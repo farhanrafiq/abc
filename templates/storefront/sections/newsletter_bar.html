@@ -1,164 +1,172 @@
-<!-- Newsletter Subscription Section -->
-<section class="homepage-section accent newsletter-bar-section">
-    <div class="section-container">
-        <div class="newsletter-bar">
-            <div class="newsletter-content">
-                <h2 class="newsletter-title">
-                    {{ section.get_config_value('title', 'Stay Updated') }}
-                </h2>
-                <p class="newsletter-subtitle">
-                    {{ section.get_config_value('subtitle', 'Subscribe to our newsletter for the latest Islamic books and exclusive offers') }}
+<!-- Professional Newsletter Section -->
+<section class="newsletter-section-professional">
+    <div class="container">
+        <div class="newsletter-content-professional">
+            <div class="newsletter-text">
+                <h3 class="newsletter-heading">
+                    {{ section.get_config_value('title', 'Stay Informed') }}
+                </h3>
+                <p class="newsletter-description">
+                    {{ section.get_config_value('subtitle', 'Get updates on new arrivals, exclusive offers, and Islamic literature recommendations.') }}
                 </p>
             </div>
             
-            <form class="newsletter-form" onsubmit="return handleNewsletterSubmit(event)">
-                <div class="newsletter-input-group">
+            <form class="newsletter-form-professional" onsubmit="return handleNewsletterSubmit(event)">
+                <div class="newsletter-input-wrapper">
                     <input type="email" 
                            name="email" 
-                           class="newsletter-input" 
+                           class="newsletter-input-professional" 
                            placeholder="{{ section.get_config_value('placeholder_text', 'Enter your email address') }}"
-                           required
-                           aria-label="Email address for newsletter subscription">
+                           required>
                     
-                    <button type="submit" class="newsletter-submit">
-                        <i class="fas fa-paper-plane"></i>
+                    <button type="submit" class="newsletter-btn-professional">
                         {{ section.get_config_value('submit_label', 'Subscribe') }}
                     </button>
                 </div>
                 
-                <div class="newsletter-privacy">
-                    <small>
-                        <i class="fas fa-lock"></i>
-                        We respect your privacy. Unsubscribe at any time.
-                    </small>
-                </div>
+                <p class="newsletter-disclaimer">
+                    <i class="fas fa-shield-alt"></i>
+                    No spam, unsubscribe anytime
+                </p>
             </form>
         </div>
     </div>
-    
-    <!-- Background pattern -->
-    <div class="arabesque-pattern pattern-overlay pattern-light"></div>
 </section>
 
 <style>
-.newsletter-bar-section {
-    position: relative;
-    overflow: hidden;
+.newsletter-section-professional {
+    background: #f8f9fa;
+    padding: 40px 0;
+    border-top: 1px solid #e9ecef;
+    margin-top: 50px;
 }
 
-.newsletter-bar {
-    text-align: center;
-    max-width: 600px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 2;
-}
-
-.newsletter-title {
-    font-family: 'Merriweather', serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: white;
-}
-
-.newsletter-subtitle {
-    font-size: 1.125rem;
-    margin-bottom: 2rem;
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.6;
-}
-
-.newsletter-form {
-    margin-top: 2rem;
-}
-
-.newsletter-input-group {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.newsletter-input {
-    flex: 1;
-    padding: 1rem;
-    border: none;
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    background: rgba(255, 255, 255, 0.95);
-    color: var(--ink);
-}
-
-.newsletter-input:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-    background: white;
-}
-
-.newsletter-submit {
-    background: white;
-    color: var(--orange-600);
-    border: none;
-    padding: 1rem 1.5rem;
-    border-radius: var(--border-radius);
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
+.newsletter-content-professional {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: space-between;
+    gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
-.newsletter-submit:hover {
-    background: var(--cream-100);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-medium);
+.newsletter-text {
+    flex: 1;
 }
 
-.newsletter-privacy {
-    color: rgba(255, 255, 255, 0.8);
-    margin-top: 1rem;
+.newsletter-heading {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #3B2A22;
+    margin-bottom: 8px;
+    font-family: 'Inter', sans-serif;
 }
 
-.newsletter-privacy i {
-    margin-right: 0.5rem;
-    color: var(--success);
+.newsletter-description {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.newsletter-form-professional {
+    flex: 1;
+    max-width: 400px;
+}
+
+.newsletter-input-wrapper {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.newsletter-input-professional {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    background: transparent;
+}
+
+.newsletter-input-professional::placeholder {
+    color: #999;
+}
+
+.newsletter-btn-professional {
+    background: #E86A17;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.newsletter-btn-professional:hover {
+    background: #d55a0e;
+}
+
+.newsletter-disclaimer {
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.newsletter-disclaimer i {
+    color: #28a745;
 }
 
 .newsletter-message {
-    margin-top: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: var(--border-radius);
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 0.9rem;
     text-align: center;
-    font-weight: 500;
 }
 
 .newsletter-message.success {
-    background: rgba(47, 125, 50, 0.2);
-    color: white;
-    border: 1px solid rgba(47, 125, 50, 0.5);
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
 }
 
 .newsletter-message.error {
-    background: rgba(176, 0, 32, 0.2);
-    color: white;
-    border: 1px solid rgba(176, 0, 32, 0.5);
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 
 @media (max-width: 768px) {
-    .newsletter-title {
-        font-size: 2rem;
+    .newsletter-content-professional {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
     }
     
-    .newsletter-input-group {
+    .newsletter-form-professional {
+        max-width: 100%;
+    }
+    
+    .newsletter-input-wrapper {
         flex-direction: column;
     }
     
-    .newsletter-submit {
-        justify-content: center;
+    .newsletter-btn-professional {
+        border-radius: 0 0 6px 6px;
+    }
+    
+    .newsletter-input-professional {
+        border-radius: 6px 6px 0 0;
     }
 }
 </style>
