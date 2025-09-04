@@ -49,10 +49,10 @@ class Carousel {
     }
     
     init() {
-        this.slides = Array.from(this.element.querySelectorAll('.slide, .carousel-item, .hero-slide'));
+        this.slides = Array.from(this.element.querySelectorAll('.hero-slide-link'));
         
         if (this.slides.length === 0) {
-            console.warn('No slides found in carousel');
+            console.log('No slides found in legacy carousel - using main slider');
             return;
         }
         
