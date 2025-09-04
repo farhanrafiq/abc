@@ -129,9 +129,29 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     margin: 0 !important;
 }
 
-/* Fix Footer Issues */
-.modern-footer * {
+/* FORCE ALL FOOTER ELEMENTS TO HAVE PROPER STYLING */
+.modern-footer *,
+.modern-footer .container,
+.modern-footer .row,
+.modern-footer .col-lg-4,
+.modern-footer .col-lg-2,
+.modern-footer .col-lg-3,
+.modern-footer .col-md-6,
+.modern-footer .footer-main,
+.modern-footer .footer-secondary,
+.modern-footer .footer-bottom,
+.modern-footer .islamic-decoration,
+.modern-footer .footer-brand-section,
+.modern-footer .footer-section,
+.modern-footer .contact-info,
+.modern-footer .payment-methods,
+.modern-footer .security-badges,
+.modern-footer .payment-icons,
+.modern-footer .copyright,
+.modern-footer .footer-legal,
+.modern-footer .arabic-calligraphy {
     color: white !important;
+    background-color: transparent !important;
     background: transparent !important;
 }
 
@@ -193,15 +213,28 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     margin: 0 !important;
 }
 
-/* Remove light rectangles */
-.trust-badge {
+/* FORCE TRUST BADGES AND ALL ELEMENTS */
+.modern-footer .trust-badge,
+.modern-footer .security-badge,
+.modern-footer .payment-icon {
     background: rgba(255,255,255,0.1) !important;
     color: white !important;
     border: none !important;
 }
 
-.container, .row, .col-lg-4, .col-lg-2 {
+/* FORCE ALL BOOTSTRAP GRID ELEMENTS */
+.modern-footer .container,
+.modern-footer .row,
+.modern-footer .col-lg-4,
+.modern-footer .col-lg-2,
+.modern-footer .col-lg-3,
+.modern-footer .col-lg-6,
+.modern-footer .col-md-6,
+.modern-footer .g-5 {
+    background-color: transparent !important;
     background: transparent !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
 }
 
 /* Fix footer bottom spacing */
