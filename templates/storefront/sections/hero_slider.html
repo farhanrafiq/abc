@@ -48,7 +48,6 @@
 .simple-hero-slider {
     position: relative;
     margin-bottom: 0;
-    overflow: hidden;
     margin: 0;
     width: 100%;
 }
@@ -79,7 +78,6 @@
 
 .hero-slide-image {
     width: 100%;
-    overflow: hidden;
 }
 
 .hero-slide-image img {
@@ -89,9 +87,7 @@
     transition: transform 0.3s ease;
 }
 
-.hero-slide-link:hover .hero-slide-image img {
-    transform: scale(1.05);
-}
+/* Removed hover scale to prevent any distortion */
 
 .hero-dots {
     position: absolute;
@@ -125,23 +121,5 @@
     background: rgba(255, 255, 255, 0.8);
 }
 
-@media (max-width: 768px) {
-    .simple-hero-slider {
-        height: 200px;
-        margin: 0;
-        width: 100%;
-    }
-}
-
-@media (min-width: 769px) and (max-width: 1200px) {
-    .simple-hero-slider {
-        height: 350px;
-    }
-}
-
-@media (min-width: 1201px) {
-    .simple-hero-slider {
-        height: 500px;
-    }
-}
+/* No height restrictions - image displays at natural dimensions */
 </style>
