@@ -16,12 +16,17 @@ document.addEventListener('DOMContentLoaded', function() {
 // Hero Slider functionality
 function initializeHeroSlider() {
     const heroSlider = document.querySelector('.simple-hero-slider');
-    if (!heroSlider) return;
+    if (!heroSlider) {
+        console.log('Hero slider container not found');
+        return;
+    }
     
     const slides = heroSlider.querySelectorAll('.hero-slide-link');
     const dots = heroSlider.querySelectorAll('.hero-dot');
     let currentSlide = 0;
     let slideInterval;
+    
+    console.log('Found', slides.length, 'slides');
     
     if (slides.length === 0) {
         console.warn('No slides found in carousel');
