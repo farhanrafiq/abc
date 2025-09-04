@@ -30,7 +30,7 @@
         <div class="d-flex align-items-center gap-3">
             <!-- Cart with professional styling -->
             <a href="{{ url_for('cart.view_cart') }}" class="cart-link position-relative">
-                <i class="fas fa-shopping-cart" style="font-size: 1.3rem; color: #3B2A22;"></i>
+                <i class="fas fa-shopping-cart" style="font-size: 1.1rem; color: #3B2A22;"></i>
                 <span class="cart-count position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                     <span id="cart-count">{{ session.get('cart_count', 0) }}</span>
                 </span>
