@@ -1,11 +1,13 @@
-/* FORCE FOOTER VISIBILITY - OVERRIDE ALL */
+/* FORCE FOOTER VISIBILITY - FULL WIDTH */
 .modern-footer {
     background-color: #3B2A22 !important;
     background: #3B2A22 !important;
     color: white !important;
     padding: 40px 0 20px 0 !important;
     margin-top: 50px !important;
-    width: 100% !important;
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
     display: block !important;
     position: static !important;
     clear: both !important;
@@ -85,14 +87,16 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     text-decoration: none !important;
 }
 
-/* FORCE FOOTER BOTTOM BACKGROUND */
+/* FORCE FOOTER BOTTOM BACKGROUND - FULL WIDTH */
 .footer-bottom {
     background-color: #3B2A22 !important;
     background: #3B2A22 !important;
     padding: 20px 0 !important;
     border-top: 1px solid rgba(255,255,255,0.1) !important;
     color: white !important;
-    width: 100% !important;
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
     display: block !important;
 }
 
@@ -131,13 +135,16 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     background: transparent !important;
 }
 
-/* FORCE ISLAMIC DECORATION BACKGROUND */
+/* FORCE ISLAMIC DECORATION BACKGROUND - FULL WIDTH */
 .islamic-decoration {
     background-color: #3B2A22 !important;
     background: #3B2A22 !important;
     color: white !important;
     padding: 15px 0 !important;
     border-top: 1px solid rgba(255,255,255,0.05) !important;
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
 }
 
 .islamic-decoration .bismillah,
