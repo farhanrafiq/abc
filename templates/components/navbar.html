@@ -79,8 +79,8 @@
 <!-- Responsive Horizontal Navigation Bar - directly below header -->
 <div class="desktop-header-nav bg-light border-bottom">
     <div class="container">
-        <!-- Mobile Menu Toggle and Action Buttons -->
-        <div class="mobile-menu-toggle d-lg-none d-flex justify-content-between align-items-center w-100">
+        <!-- Mobile Menu Toggle and Action Buttons (only on mobile) -->
+        <div class="mobile-menu-toggle d-none d-flex justify-content-between align-items-center w-100">
             <button class="btn btn-outline-primary d-flex align-items-center flex-grow-1 me-2" onclick="toggleMobileMenu()">
                 <i class="fas fa-bars me-2"></i>Menu
             </button>
@@ -103,8 +103,8 @@
             </a>
         </div>
         
-        <!-- Mobile Search Bar (hidden by default) -->
-        <div class="mobile-search-bar d-lg-none" id="mobileSearchBar" style="display: none;">
+        <!-- Mobile Search Bar (hidden by default, only on mobile) -->
+        <div class="mobile-search-bar d-none" id="mobileSearchBar" style="display: none;">
             <div class="p-3 border-bottom">
                 <form action="{{ url_for('web.search') }}" method="GET" class="d-flex">
                     <input type="text" 
@@ -725,10 +725,15 @@
 }
 
 @media (max-width: 768px) {
-    /* Mobile menu toggle button styling */
+    /* Show mobile buttons only when desktop nav is hidden */
     .mobile-menu-toggle {
+        display: flex !important;
         padding: 15px 20px;
         border-bottom: 1px solid #dee2e6;
+    }
+    
+    .mobile-search-bar {
+        display: block !important;
     }
     
     .mobile-menu-toggle .btn {
