@@ -129,30 +129,32 @@ def password_reset(token):
 @auth_bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    """User profile management"""
-    if request.method == 'POST':
-        # Update profile
-        current_user.name = request.form.get('name', current_user.name)
-        current_user.phone = request.form.get('phone', current_user.phone)
+    """Enhanced user profile management with proper form validation"""
+    from forms import ProfileForm
+    
+    form = ProfileForm()
+    
+    if form.validate_on_submit():
+        # Update basic profile info
+        current_user.name = form.name.data
+        current_user.phone = form.phone.data
         
-        # Change password if provided
-        current_password = request.form.get('current_password')
-        new_password = request.form.get('new_password')
-        confirm_password = request.form.get('confirm_password')
-        
-        if current_password and new_password:
-            if current_user.check_password(current_password):
-                if new_password == confirm_password:
-                    current_user.set_password(new_password)
-                    flash('Password updated successfully.', 'success')
-                else:
-                    flash('New passwords do not match.', 'error')
-                    return render_template('auth/profile.html')
+        # Handle password change if provided
+        if form.current_password.data and form.new_password.data:
+            if current_user.check_password(form.current_password.data):
+                current_user.set_password(form.new_password.data)
+                flash('Password updated successfully!', 'success')
             else:
                 flash('Current password is incorrect.', 'error')
-                return render_template('auth/profile.html')
+                return render_template('auth/profile.html', form=form)
         
         db.session.commit()
-        flash('Profile updated successfully.', 'success')
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('auth.profile'))
     
-    return render_template('auth/profile.html')
+    # Pre-populate form with current user data
+    if request.method == 'GET':
+        form.name.data = current_user.name
+        form.phone.data = current_user.phone
+    
+    return render_template('auth/profile.html', form=form)
