@@ -1,2 +1,2 @@
 # Admin app package
-from .routes_new import admin_bp
+from .routes import admin_bp
