@@ -18,7 +18,7 @@ def login():
     form = LoginForm()
     
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower()).first()
+        user = User.query.filter_by(email=form.email.data.lower() if form.email.data else '').first()
         
         if user and user.check_password(form.password.data) and user.is_active:
             login_user(user, remember=form.remember_me.data)
@@ -48,18 +48,17 @@ def register():
     
     if form.validate_on_submit():
         # Check if user already exists
-        existing_user = User.query.filter_by(email=form.email.data.lower()).first()
+        existing_user = User.query.filter_by(email=form.email.data.lower() if form.email.data else '').first()
         if existing_user:
             flash('An account with this email already exists.', 'error')
             return render_template('auth/register.html', form=form)
         
         # Create new user
-        user = User(
-            name=form.name.data,
-            email=form.email.data.lower(),
-            phone=form.phone.data,
-            role=UserRole.CUSTOMER
-        )
+        user = User()
+        user.name = form.name.data
+        user.email = form.email.data.lower() if form.email.data else ''
+        user.phone = form.phone.data
+        user.role = UserRole.CUSTOMER
         user.set_password(form.password.data)
         
         db.session.add(user)
@@ -90,7 +89,7 @@ def password_reset_request():
     form = PasswordResetRequestForm()
     
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data.lower()).first()
+        user = User.query.filter_by(email=form.email.data.lower() if form.email.data else '').first()
         if user:
             try:
                 send_password_reset_email(user)

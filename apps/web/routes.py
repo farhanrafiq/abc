@@ -181,9 +181,9 @@ def catalog(category_slug=None):
     publishers = Publisher.query.all()
     
     # Populate form choices
-    form.category.choices = [('', 'All Categories')] + [(str(c.id), c.name) for c in categories]
-    form.author.choices = [('', 'All Authors')] + [(str(a.id), a.name) for a in authors]
-    form.publisher.choices = [('', 'All Publishers')] + [(str(p.id), p.name) for p in publishers]
+    form.category.choices = [('', 'All Categories')] + [(c.id, c.name) for c in categories]
+    form.author.choices = [('', 'All Authors')] + [(a.id, a.name) for a in authors]
+    form.publisher.choices = [('', 'All Publishers')] + [(p.id, p.name) for p in publishers]
     
     return render_template('web/catalog.html',
                          products=products,
@@ -261,7 +261,7 @@ def search():
     
     # Get filter options
     categories = Category.query.all()
-    form.category.choices = [('', 'All Categories')] + [(str(c.id), c.name) for c in categories]
+    form.category.choices = [('', 'All Categories')] + [(c.id, c.name) for c in categories]
     
     return render_template('web/search.html',
                          products=products,
@@ -285,14 +285,13 @@ def add_review(product_id):
         if existing_review:
             flash('You have already reviewed this product.', 'warning')
         else:
-            review = Review(
-                product_id=product_id,
-                user_id=current_user.id,
-                rating=form.rating.data,
-                title=form.title.data,
-                body=form.body.data,
-                is_approved=False  # Requires admin approval
-            )
+            review = Review()
+            review.product_id = product_id
+            review.user_id = current_user.id
+            review.rating = form.rating.data
+            review.title = form.title.data
+            review.body = form.body.data
+            review.is_approved = False
             db.session.add(review)
             db.session.commit()
             flash('Your review has been submitted and is pending approval.', 'success')
@@ -340,14 +339,13 @@ def contact():
             return redirect(url_for('web.content_page', slug='contact'))
         
         # Create contact form record
-        contact_form = ContactForm(
-            name=name,
-            email=email,
-            phone=phone if phone else None,
-            subject=subject,
-            message=message,
-            status='unread'
-        )
+        contact_form = ContactForm()
+        contact_form.name = name
+        contact_form.email = email
+        contact_form.phone = phone if phone else None
+        contact_form.subject = subject
+        contact_form.message = message
+        contact_form.status = 'unread'
         
         try:
             db.session.add(contact_form)
@@ -387,7 +385,9 @@ def newsletter_subscribe():
             message = 'Welcome back! Your newsletter subscription has been reactivated.'
     else:
         # Create new subscription
-        subscriber = NewsletterSubscriber(email=email, is_active=True)
+        subscriber = NewsletterSubscriber()
+        subscriber.email = email
+        subscriber.is_active = True
         try:
             db.session.add(subscriber)
             db.session.commit()

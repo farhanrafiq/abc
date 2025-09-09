@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation - ABC Publishing Kashmir{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Success Message -->
+            <div class="text-center mb-5">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                </div>
+                <h1 class="h2 text-success mb-3">Order Confirmed!</h1>
+                <p class="lead text-muted">Thank you for your order. We'll send you a confirmation email shortly.</p>
+            </div>
+            
+            <!-- Order Details -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-0">
+                                <i class="fas fa-shopping-bag me-2"></i>
+                                Order #{{ order.id }}
+                            </h5>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <small class="text-muted">
+                                Order Date: {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Order Items -->
+                    <div class="table-responsive mb-4">
+                        <table class="table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Qty</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if item.product.cover_image %}
+                                            <img src="{{ url_for('static', filename='uploads/' + item.product.cover_image) }}" 
+                                                 alt="{{ item.product.title }}" 
+                                                 class="me-3" style="width: 60px; height: 75px; object-fit: cover;">
+                                            {% endif %}
+                                            <div>
+                                                <h6 class="mb-1">{{ item.product.title }}</h6>
+                                                <small class="text-muted">{{ item.product.isbn or '' }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ format_currency(item.unit_price_inr) }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td class="text-end">{{ format_currency(item.total_price_inr) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Order Summary -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Shipping Address -->
+                            <div class="mb-4">
+                                <h6 class="border-bottom pb-2">Shipping Address</h6>
+                                {% if order.shipping_address %}
+                                <address class="mb-0">
+                                    <strong>{{ order.shipping_address.name }}</strong><br>
+                                    {{ order.shipping_address.line1 }}<br>
+                                    {% if order.shipping_address.line2 %}
+                                    {{ order.shipping_address.line2 }}<br>
+                                    {% endif %}
+                                    {{ order.shipping_address.city }}, {{ order.shipping_address.district }}<br>
+                                    {{ order.shipping_address.state }} - {{ order.shipping_address.pincode }}<br>
+                                    {{ order.shipping_address.country }}
+                                </address>
+                                {% else %}
+                                <p class="text-muted mb-0">Address information not available</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Order Totals -->
+                            <div class="border rounded p-3 bg-light">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>{{ format_currency(order.subtotal_inr) }}</span>
+                                </div>
+                                {% if order.discount_inr > 0 %}
+                                <div class="d-flex justify-content-between mb-2 text-success">
+                                    <span>Discount:</span>
+                                    <span>-{{ format_currency(order.discount_inr) }}</span>
+                                </div>
+                                {% endif %}
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Shipping:</span>
+                                    <span>
+                                        {% if order.shipping_inr == 0 %}
+                                        <span class="text-success">Free</span>
+                                        {% else %}
+                                        {{ format_currency(order.shipping_inr) }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                {% if order.tax_inr > 0 %}
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Tax:</span>
+                                    <span>{{ format_currency(order.tax_inr) }}</span>
+                                </div>
+                                {% endif %}
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>Total:</span>
+                                    <span>{{ format_currency(order.grand_total_inr) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Status -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Order Status & Next Steps
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Payment Status:</strong> 
+                                <span class="badge bg-{{ 'success' if order.payment_status.value == 'PAID' else 'warning' }}">
+                                    {{ order.payment_status.value.title() }}
+                                </span>
+                            </p>
+                            <p><strong>Order Status:</strong> 
+                                <span class="badge bg-info">{{ order.status.value.title() }}</span>
+                            </p>
+                            <p><strong>Payment Method:</strong> {{ order.payment_method.value if order.payment_method else 'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>What happens next?</h6>
+                            <ol class="list-unstyled">
+                                <li><i class="fas fa-check text-success me-2"></i>Order confirmation email sent</li>
+                                <li><i class="fas fa-clock text-muted me-2"></i>Order being processed</li>
+                                <li><i class="fas fa-truck text-muted me-2"></i>Package shipped</li>
+                                <li><i class="fas fa-home text-muted me-2"></i>Delivered to you</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="text-center">
+                <div class="btn-group" role="group">
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('web.account') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user me-2"></i>View All Orders
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('web.catalog') }}" class="btn btn-primary">
+                        <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                    </a>
+                    <a href="{{ url_for('cart.order_detail', order_id=order.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-receipt me-2"></i>Order Details
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Customer Support -->
+            <div class="text-center mt-5">
+                <p class="text-muted">
+                    Need help with your order? 
+                    <a href="mailto:info@abcpublishingkashmir.com" class="text-decoration-none">Contact us</a> 
+                    or call <a href="tel:+91194XXXXXX" class="text-decoration-none">+91-194-XXXXXX</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -64,11 +64,10 @@ def add_to_cart(product_id):
             db.session.commit()
             flash(f'Updated quantity of "{product.title}" in cart.', 'success')
     else:
-        cart_item = CartItem(
-            cart_id=cart.id,
-            product_id=product_id,
-            quantity=quantity
-        )
+        cart_item = CartItem()
+        cart_item.cart_id = cart.id
+        cart_item.product_id = product_id
+        cart_item.quantity = quantity
         db.session.add(cart_item)
         db.session.commit()
         flash(f'"{product.title}" added to cart.', 'success')
@@ -170,20 +169,19 @@ def checkout():
         grand_total = subtotal - discount + shipping + tax
         
         # Create order
-        order = Order(
-            user_id=current_user.id if current_user.is_authenticated else None,
-            email=form.guest_email.data if form.guest_email.data else current_user.email,
-            phone=form.guest_phone.data if form.guest_phone.data else current_user.phone,
-            billing_address_id=form.billing_address_id.data if form.billing_address_id.data else None,
-            shipping_address_id=form.shipping_address_id.data if form.shipping_address_id.data else None,
-            subtotal_inr=subtotal,
-            discount_inr=discount,
-            shipping_inr=shipping,
-            tax_inr=tax,
-            grand_total_inr=grand_total,
-            payment_method=PaymentMethod(form.payment_method.data.upper()),
-            notes=form.notes.data
-        )
+        order = Order()
+        order.user_id = current_user.id if current_user.is_authenticated else None
+        order.email = form.guest_email.data if form.guest_email.data else current_user.email
+        order.phone = form.guest_phone.data if form.guest_phone.data else current_user.phone
+        order.billing_address_id = form.billing_address_id.data if form.billing_address_id.data else None
+        order.shipping_address_id = form.shipping_address_id.data if form.shipping_address_id.data else None
+        order.subtotal_inr = subtotal
+        order.discount_inr = discount
+        order.shipping_inr = shipping
+        order.tax_inr = tax
+        order.grand_total_inr = grand_total
+        order.payment_method = PaymentMethod(form.payment_method.data.upper())
+        order.notes = form.notes.data
         
         db.session.add(order)
         db.session.flush()  # To get order.id
@@ -191,15 +189,14 @@ def checkout():
         # Create order items
         for item in cart_items:
             price = item.product.price.sale_inr or item.product.price.mrp_inr
-            order_item = OrderItem(
-                order_id=order.id,
-                product_id=item.product_id,
-                title_snapshot=item.product.title,
-                sku_snapshot=item.product.inventory.sku if item.product.inventory else '',
-                unit_price_inr=price,
-                quantity=item.quantity,
-                line_total_inr=price * item.quantity
-            )
+            order_item = OrderItem()
+            order_item.order_id = order.id
+            order_item.product_id = item.product_id
+            order_item.title_snapshot = item.product.title
+            order_item.sku_snapshot = item.product.inventory.sku if item.product.inventory else ''
+            order_item.unit_price_inr = price
+            order_item.quantity = item.quantity
+            order_item.line_total_inr = price * item.quantity
             db.session.add(order_item)
         
         # Handle payment
@@ -370,11 +367,10 @@ def ajax_add_to_cart():
             })
         existing_item.quantity = new_quantity
     else:
-        cart_item = CartItem(
-            cart_id=cart.id,
-            product_id=product_id,
-            quantity=quantity
-        )
+        cart_item = CartItem()
+        cart_item.cart_id = cart.id
+        cart_item.product_id = product_id
+        cart_item.quantity = quantity
         db.session.add(cart_item)
     
     db.session.commit()
