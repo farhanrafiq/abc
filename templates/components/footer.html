@@ -1,165 +1,177 @@
-<footer class="modern-footer" style="background-color: #3B2A22 !important; color: white !important; padding: 40px 0 20px 0 !important; margin: 50px 0 0 0 !important; width: 100vw !important; margin-left: calc(-50vw + 50%) !important; margin-right: calc(-50vw + 50%) !important; display: block !important; position: static !important; clear: both !important; min-height: 300px !important; opacity: 1 !important; visibility: visible !important; z-index: 1 !important;">
+<!-- NEW FOOTER - SOLID BROWN FOUNDATION -->
+<footer class="new-footer" style="background: #3B2A22; background-color: #3B2A22; width: 100vw; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); padding: 0; margin-top: 50px;">
+    
     <!-- Main Footer Content -->
-    <div class="footer-main" style="background: transparent !important;">
-        <div class="container" style="background: transparent !important;">
-            <div class="row g-5" style="background: transparent !important;">
-                <!-- Brand Section -->
-                <div class="col-lg-4" style="background: transparent !important;">
-                    <div class="footer-brand-section" style="background: transparent !important;">
-                        <div class="brand-logo-section" style="background: transparent !important;">
-                            <img src="{{ url_for('static', filename='uploads/abc_logo.png') }}" alt="ABC Publishing Kashmir" class="footer-logo">
+    <div class="footer-main" style="background: #3B2A22; background-color: #3B2A22; padding: 40px 0; color: white;">
+        <div class="container" style="background: #3B2A22; background-color: #3B2A22;">
+            <div class="row" style="background: #3B2A22; background-color: #3B2A22;">
+                
+                <!-- Company Info Column -->
+                <div class="col-lg-3 col-md-6 mb-4" style="background: #3B2A22; background-color: #3B2A22;">
+                    <h5 style="background: #3B2A22; color: white; margin-bottom: 20px;">ABC Publishing Kashmir</h5>
+                    <p style="background: #3B2A22; color: white; line-height: 1.6;">
+                        Kashmir's premier destination for authentic Islamic literature. 
+                        Serving readers across India with carefully curated books since 1975.
+                    </p>
+                    
+                    <!-- Trust Badges -->
+                    <div class="trust-section" style="background: #3B2A22; background-color: #3B2A22; margin-top: 20px;">
+                        <div class="trust-item" style="background: #3B2A22; background-color: #3B2A22; color: white; padding: 8px 12px; margin: 5px 0; border-radius: 15px; display: inline-block; margin-right: 10px;">
+                            <i class="fas fa-certificate" style="background: #3B2A22; color: white; margin-right: 5px;"></i>
+                            <span style="background: #3B2A22; color: white;">Licensed Retailer</span>
                         </div>
-                        <p class="brand-description" style="background: transparent !important; color: white !important;">
-                            Kashmir's premier destination for authentic Islamic literature. 
-                            Serving readers across India with carefully curated books since 1975.
+                        <div class="trust-item" style="background: #3B2A22; background-color: #3B2A22; color: white; padding: 8px 12px; margin: 5px 0; border-radius: 15px; display: inline-block; margin-right: 10px;">
+                            <i class="fas fa-shipping-fast" style="background: #3B2A22; color: white; margin-right: 5px;"></i>
+                            <span style="background: #3B2A22; color: white;">Free Shipping ₹500+</span>
+                        </div>
+                        <div class="trust-item" style="background: #3B2A22; background-color: #3B2A22; color: white; padding: 8px 12px; margin: 5px 0; border-radius: 15px; display: inline-block;">
+                            <i class="fas fa-shield-alt" style="background: #3B2A22; color: white; margin-right: 5px;"></i>
+                            <span style="background: #3B2A22; color: white;">Secure Payments</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Links Column -->
+                <div class="col-lg-2 col-md-6 mb-4" style="background: #3B2A22; background-color: #3B2A22;">
+                    <h6 style="background: #3B2A22; color: white; margin-bottom: 20px;">Quick Links</h6>
+                    <ul style="background: #3B2A22; list-style: none; padding: 0;">
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.index') }}" style="background: #3B2A22; color: white; text-decoration: none;">Home</a>
+                        </li>
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.catalog') }}" style="background: #3B2A22; color: white; text-decoration: none;">All Books</a>
+                        </li>
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.content_page', slug='about') }}" style="background: #3B2A22; color: white; text-decoration: none;">About Us</a>
+                        </li>
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.content_page', slug='contact') }}" style="background: #3B2A22; color: white; text-decoration: none;">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Categories Column -->
+                <div class="col-lg-2 col-md-6 mb-4" style="background: #3B2A22; background-color: #3B2A22;">
+                    <h6 style="background: #3B2A22; color: white; margin-bottom: 20px;">Categories</h6>
+                    <ul style="background: #3B2A22; list-style: none; padding: 0;">
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.catalog', category='quran-studies') }}" style="background: #3B2A22; color: white; text-decoration: none;">Quran Studies</a>
+                        </li>
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.catalog', category='hadith-collection') }}" style="background: #3B2A22; color: white; text-decoration: none;">Hadith Collection</a>
+                        </li>
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.catalog', category='islamic-history') }}" style="background: #3B2A22; color: white; text-decoration: none;">Islamic History</a>
+                        </li>
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.catalog', category='islamic-philosophy') }}" style="background: #3B2A22; color: white; text-decoration: none;">Philosophy</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Customer Care Column -->
+                <div class="col-lg-2 col-md-6 mb-4" style="background: #3B2A22; background-color: #3B2A22;">
+                    <h6 style="background: #3B2A22; color: white; margin-bottom: 20px;">Customer Care</h6>
+                    <ul style="background: #3B2A22; list-style: none; padding: 0;">
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.content_page', slug='shipping') }}" style="background: #3B2A22; color: white; text-decoration: none;">Shipping & Returns</a>
+                        </li>
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.content_page', slug='faq') }}" style="background: #3B2A22; color: white; text-decoration: none;">Help & FAQ</a>
+                        </li>
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.content_page', slug='track-order') }}" style="background: #3B2A22; color: white; text-decoration: none;">Track Your Order</a>
+                        </li>
+                        <li style="background: #3B2A22; margin-bottom: 8px;">
+                            <a href="{{ url_for('web.content_page', slug='bulk-orders') }}" style="background: #3B2A22; color: white; text-decoration: none;">Bulk Orders</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Contact Info Column -->
+                <div class="col-lg-3 col-md-6 mb-4" style="background: #3B2A22; background-color: #3B2A22;">
+                    <h6 style="background: #3B2A22; color: white; margin-bottom: 20px;">Get In Touch</h6>
+                    <div class="contact-info" style="background: #3B2A22; background-color: #3B2A22;">
+                        <p style="background: #3B2A22; color: white; margin-bottom: 10px;">
+                            <i class="fas fa-map-marker-alt" style="background: #3B2A22; color: white; width: 20px;"></i>
+                            <span style="background: #3B2A22; color: white;">Address Srinagar, Kashmir</span><br>
+                            <span style="background: #3B2A22; color: white; margin-left: 20px;">Jammu & Kashmir, India</span>
                         </p>
-                        
-                        <!-- Trust Badges -->
-                        <div class="trust-badges" style="background: #3B2A22 !important; background-color: #3B2A22 !important; padding: 10px !important; border-radius: 8px !important; border: none !important; box-shadow: none !important;">
-                            <div class="trust-badge" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important; box-shadow: none !important;">
-                                <i class="fas fa-certificate" style="color: white !important; background: #3B2A22 !important;"></i>
-                                <span style="color: white !important; background: #3B2A22 !important;">Licensed Retailer</span>
-                            </div>
-                            <div class="trust-badge" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important; box-shadow: none !important;">
-                                <i class="fas fa-shipping-fast" style="color: white !important; background: #3B2A22 !important;"></i>
-                                <span style="color: white !important; background: #3B2A22 !important;">Free Shipping ₹500+</span>
-                            </div>
-                            <div class="trust-badge" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important; box-shadow: none !important;">
-                                <i class="fas fa-shield-alt" style="color: white !important; background: #3B2A22 !important;"></i>
-                                <span style="color: white !important; background: #3B2A22 !important;">Secure Payments</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Social Media -->
-                        <div class="social-media" style="background: transparent !important;">
-                            <h6 class="social-title" style="background: transparent !important; color: white !important;">Follow Us</h6>
-                            <div class="social-links" style="background: transparent !important;">
-                                <a href="#" class="social-link facebook" aria-label="Facebook" style="background: #3B2A22 !important; color: white !important;">
-                                    <i class="fab fa-facebook-f" style="color: white !important;"></i>
-                                </a>
-                                <a href="#" class="social-link instagram" aria-label="Instagram" style="background: #3B2A22 !important; color: white !important;">
-                                    <i class="fab fa-instagram" style="color: white !important;"></i>
-                                </a>
-                                <a href="https://wa.me/+919419012345" class="social-link whatsapp" aria-label="WhatsApp" style="background: #3B2A22 !important; color: white !important;">
-                                    <i class="fab fa-whatsapp" style="color: white !important;"></i>
-                                </a>
-                                <a href="mailto:info@abcpublishingkashmir.com" class="social-link email" aria-label="Email" style="background: #3B2A22 !important; color: white !important;">
-                                    <i class="fas fa-envelope" style="color: white !important;"></i>
-                                </a>
-                            </div>
-                        </div>
+                        <p style="background: #3B2A22; color: white; margin-bottom: 10px;">
+                            <i class="fas fa-phone" style="background: #3B2A22; color: white; width: 20px;"></i>
+                            <a href="tel:+919419012345" style="background: #3B2A22; color: white; text-decoration: none;">+91-9419-012345</a>
+                        </p>
+                        <p style="background: #3B2A22; color: white; margin-bottom: 10px;">
+                            <i class="fas fa-envelope" style="background: #3B2A22; color: white; width: 20px;"></i>
+                            <a href="mailto:info@abcpublishingkashmir.com" style="background: #3B2A22; color: white; text-decoration: none;">info@abcpublishingkashmir.com</a>
+                        </p>
+                        <p style="background: #3B2A22; color: white;">
+                            <i class="fas fa-clock" style="background: #3B2A22; color: white; width: 20px;"></i>
+                            <span style="background: #3B2A22; color: white;">Mon-Sat: 9AM-6PM</span>
+                        </p>
                     </div>
-                </div>
-                
-                <!-- Quick Navigation -->
-                <div class="col-lg-2 col-md-6" style="background: transparent !important;">
-                    <div class="footer-section" style="background: transparent !important;">
-                        <h6 class="section-title" style="background: transparent !important; color: white !important;">Explore</h6>
-                        <ul class="footer-nav" style="background: transparent !important; list-style: none !important; padding: 0 !important;">
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.index') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Home</a></li>
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.catalog') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">All Books</a></li>
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.catalog', category_slug='quran-studies') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Quran Studies</a></li>
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.catalog', category_slug='hadith') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Hadith Collection</a></li>
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.catalog', category_slug='fiqh') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Islamic Jurisprudence</a></li>
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.content_page', slug='about') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">About Us</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Customer Care -->
-                <div class="col-lg-3 col-md-6" style="background: transparent !important;">
-                    <div class="footer-section" style="background: transparent !important;">
-                        <h6 class="section-title" style="background: transparent !important; color: white !important;">Customer Care</h6>
-                        <ul class="footer-nav" style="background: transparent !important; list-style: none !important; padding: 0 !important;">
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.content_page', slug='shipping') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Shipping & Returns</a></li>
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.content_page', slug='faq') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Help & FAQ</a></li>
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.content_page', slug='track-order') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Track Your Order</a></li>
-                            <li style="background: transparent !important;"><a href="https://wa.me/+919419012345" target="_blank" style="background: transparent !important; color: white !important; text-decoration: none !important;">Live Support</a></li>
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.content_page', slug='terms') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Terms & Conditions</a></li>
-                            <li style="background: transparent !important;"><a href="{{ url_for('web.content_page', slug='privacy') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Privacy Policy</a></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <!-- Contact & Info -->
-                <div class="col-lg-3" style="background: transparent !important;">
-                    <div class="footer-section" style="background: transparent !important;">
-                        <h6 class="section-title" style="background: transparent !important; color: white !important;">Get in Touch</h6>
-                        <div class="contact-info" style="background: transparent !important;">
-                            <div class="contact-item" style="background: transparent !important;">
-                                <i class="fas fa-map-marker-alt" style="color: white !important;"></i>
-                                <div class="contact-details" style="background: transparent !important;">
-                                    <span class="contact-label" style="background: transparent !important; color: white !important;">Address</span>
-                                    <span class="contact-value" style="background: transparent !important; color: white !important;">Srinagar, Kashmir<br>Jammu & Kashmir, India</span>
-                                </div>
-                            </div>
-                            <div class="contact-item" style="background: transparent !important;">
-                                <i class="fas fa-phone" style="color: white !important;"></i>
-                                <div class="contact-details" style="background: transparent !important;">
-                                    <span class="contact-label" style="background: transparent !important; color: white !important;">Phone</span>
-                                    <a href="tel:+919419012345" class="contact-value" style="background: transparent !important; color: white !important; text-decoration: none !important;">+91-9419-012345</a>
-                                </div>
-                            </div>
-                            <div class="contact-item" style="background: transparent !important;">
-                                <i class="fas fa-envelope" style="color: white !important;"></i>
-                                <div class="contact-details" style="background: transparent !important;">
-                                    <span class="contact-label" style="background: transparent !important; color: white !important;">Email</span>
-                                    <a href="mailto:info@abcpublishingkashmir.com" class="contact-value" style="background: transparent !important; color: white !important; text-decoration: none !important;">info@abcpublishingkashmir.com</a>
-                                </div>
-                            </div>
-                            <div class="contact-item" style="background: transparent !important;">
-                                <i class="fas fa-clock" style="color: white !important;"></i>
-                                <div class="contact-details" style="background: transparent !important;">
-                                    <span class="contact-label" style="background: transparent !important; color: white !important;">Hours</span>
-                                    <span class="contact-value" style="background: transparent !important; color: white !important;">Mon-Sat: 9AM-6PM</span>
-                                </div>
-                            </div>
+                    
+                    <!-- Social Media -->
+                    <div class="social-media" style="background: #3B2A22; background-color: #3B2A22; margin-top: 20px;">
+                        <h6 style="background: #3B2A22; color: white; margin-bottom: 15px;">Follow Us</h6>
+                        <div class="social-icons" style="background: #3B2A22; background-color: #3B2A22;">
+                            <a href="#" class="social-icon" style="background: #3B2A22; color: white; padding: 8px; margin-right: 10px; border-radius: 50%; display: inline-block;">
+                                <i class="fab fa-facebook-f" style="background: #3B2A22; color: white;"></i>
+                            </a>
+                            <a href="#" class="social-icon" style="background: #3B2A22; color: white; padding: 8px; margin-right: 10px; border-radius: 50%; display: inline-block;">
+                                <i class="fab fa-instagram" style="background: #3B2A22; color: white;"></i>
+                            </a>
+                            <a href="#" class="social-icon" style="background: #3B2A22; color: white; padding: 8px; margin-right: 10px; border-radius: 50%; display: inline-block;">
+                                <i class="fab fa-whatsapp" style="background: #3B2A22; color: white;"></i>
+                            </a>
+                            <a href="#" class="social-icon" style="background: #3B2A22; color: white; padding: 8px; border-radius: 50%; display: inline-block;">
+                                <i class="fas fa-envelope" style="background: #3B2A22; color: white;"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     
     <!-- Payment & Security Section -->
-    <div class="footer-secondary" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; padding: 20px 0 !important; width: 100vw !important; margin-left: calc(-50vw + 50%) !important; margin-right: calc(-50vw + 50%) !important; border: none !important; box-shadow: none !important;">
-        <div class="container" style="background: #3B2A22 !important; background-color: #3B2A22 !important;">
-            <div class="row align-items-center" style="background: #3B2A22 !important; background-color: #3B2A22 !important;">
-                <div class="col-lg-6" style="background: #3B2A22 !important; background-color: #3B2A22 !important;">
-                    <div class="payment-methods" style="background: #3B2A22 !important; background-color: #3B2A22 !important;">
-                        <span class="payment-label" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important;">We Accept:</span>
-                        <div class="payment-icons" style="background: #3B2A22 !important; background-color: #3B2A22 !important;">
-                            <div class="payment-icon visa" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important;">
-                                <i class="fab fa-cc-visa" style="color: white !important; background: #3B2A22 !important;"></i>
+    <div class="footer-payment" style="background: #3B2A22; background-color: #3B2A22; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div class="container" style="background: #3B2A22; background-color: #3B2A22;">
+            <div class="row align-items-center" style="background: #3B2A22; background-color: #3B2A22;">
+                <div class="col-lg-6" style="background: #3B2A22; background-color: #3B2A22;">
+                    <div class="payment-methods" style="background: #3B2A22; background-color: #3B2A22;">
+                        <span style="background: #3B2A22; color: white; font-weight: bold; margin-right: 15px;">We Accept:</span>
+                        <div class="payment-icons" style="background: #3B2A22; background-color: #3B2A22; display: inline-flex; gap: 10px;">
+                            <div class="payment-icon" style="background: #3B2A22; background-color: #3B2A22; color: white; padding: 5px 10px; border-radius: 5px;">
+                                <i class="fab fa-cc-visa" style="background: #3B2A22; color: white;"></i>
                             </div>
-                            <div class="payment-icon mastercard" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important;">
-                                <i class="fab fa-cc-mastercard" style="color: white !important; background: #3B2A22 !important;"></i>
+                            <div class="payment-icon" style="background: #3B2A22; background-color: #3B2A22; color: white; padding: 5px 10px; border-radius: 5px;">
+                                <i class="fab fa-cc-mastercard" style="background: #3B2A22; color: white;"></i>
                             </div>
-                            <div class="payment-icon upi" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important;">
-                                <i class="fas fa-mobile-alt" style="color: white !important; background: #3B2A22 !important;"></i>
-                                <span style="color: white !important; background: #3B2A22 !important;">UPI</span>
+                            <div class="payment-icon" style="background: #3B2A22; background-color: #3B2A22; color: white; padding: 5px 10px; border-radius: 5px;">
+                                <i class="fas fa-mobile-alt" style="background: #3B2A22; color: white; margin-right: 3px;"></i>
+                                <span style="background: #3B2A22; color: white; font-size: 0.9rem;">UPI</span>
                             </div>
-                            <div class="payment-icon cod" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important;">
-                                <i class="fas fa-money-bill-wave" style="color: white !important; background: #3B2A22 !important;"></i>
-                                <span style="color: white !important; background: #3B2A22 !important;">COD</span>
+                            <div class="payment-icon" style="background: #3B2A22; background-color: #3B2A22; color: white; padding: 5px 10px; border-radius: 5px;">
+                                <i class="fas fa-money-bill-wave" style="background: #3B2A22; color: white; margin-right: 3px;"></i>
+                                <span style="background: #3B2A22; color: white; font-size: 0.9rem;">COD</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6" style="background: #3B2A22 !important; background-color: #3B2A22 !important;">
-                    <div class="security-badges" style="background: #3B2A22 !important; background-color: #3B2A22 !important;">
-                        <div class="security-badge" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important;">
-                            <i class="fas fa-shield-alt" style="color: white !important; background: #3B2A22 !important;"></i>
-                            <span style="color: white !important; background: #3B2A22 !important;">SSL Secured</span>
+                <div class="col-lg-6" style="background: #3B2A22; background-color: #3B2A22;">
+                    <div class="security-badges" style="background: #3B2A22; background-color: #3B2A22; text-align: right;">
+                        <div class="security-item" style="background: #3B2A22; background-color: #3B2A22; color: white; display: inline-block; margin-left: 15px;">
+                            <i class="fas fa-shield-alt" style="background: #3B2A22; color: white; margin-right: 5px;"></i>
+                            <span style="background: #3B2A22; color: white;">SSL Secured</span>
                         </div>
-                        <div class="security-badge" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important;">
-                            <i class="fas fa-lock" style="color: white !important; background: #3B2A22 !important;"></i>
-                            <span style="color: white !important; background: #3B2A22 !important;">Safe Payments</span>
+                        <div class="security-item" style="background: #3B2A22; background-color: #3B2A22; color: white; display: inline-block; margin-left: 15px;">
+                            <i class="fas fa-lock" style="background: #3B2A22; color: white; margin-right: 5px;"></i>
+                            <span style="background: #3B2A22; color: white;">Safe Payments</span>
                         </div>
-                        <div class="security-badge" style="background: #3B2A22 !important; background-color: #3B2A22 !important; color: white !important; border: none !important;">
-                            <i class="fas fa-truck" style="color: white !important; background: #3B2A22 !important;"></i>
-                            <span style="color: white !important; background: #3B2A22 !important;">Reliable Delivery</span>
+                        <div class="security-item" style="background: #3B2A22; background-color: #3B2A22; color: white; display: inline-block; margin-left: 15px;">
+                            <i class="fas fa-truck" style="background: #3B2A22; color: white; margin-right: 5px;"></i>
+                            <span style="background: #3B2A22; color: white;">Reliable Delivery</span>
                         </div>
                     </div>
                 </div>
@@ -167,36 +179,24 @@
         </div>
     </div>
     
-    <!-- Footer Bottom -->
-    <div class="footer-bottom" style="background-color: #3B2A22 !important; color: white !important; padding: 20px 0 !important; width: 100vw !important; margin-left: calc(-50vw + 50%) !important; margin-right: calc(-50vw + 50%) !important;">
-        <div class="container" style="background: transparent !important;">
-            <div class="row align-items-center" style="background: transparent !important;">
-                <div class="col-lg-6" style="background: transparent !important;">
-                    <div class="copyright" style="background: transparent !important;">
-                        <p style="background: transparent !important; color: white !important; margin: 0 !important;">&copy; {{ current_year or 2024 }} ABC Publishing Kashmir. All rights reserved.</p>
-                        <p class="tagline" style="background: transparent !important; color: white !important; margin: 0 !important;">Made with <i class="fas fa-heart" style="color: white !important;"></i> for the Kashmir community • Celebrating 50 Years of Islamic Literature</p>
+    <!-- Copyright Section -->
+    <div class="footer-bottom" style="background: #3B2A22; background-color: #3B2A22; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div class="container" style="background: #3B2A22; background-color: #3B2A22;">
+            <div class="row align-items-center" style="background: #3B2A22; background-color: #3B2A22;">
+                <div class="col-lg-6" style="background: #3B2A22; background-color: #3B2A22;">
+                    <div class="copyright" style="background: #3B2A22; background-color: #3B2A22;">
+                        <p style="background: #3B2A22; color: white; margin: 0; margin-bottom: 5px;">&copy; {{ current_year or 2024 }} ABC Publishing Kashmir. All rights reserved.</p>
+                        <p style="background: #3B2A22; color: white; margin: 0; font-size: 0.9rem;">Made with <i class="fas fa-heart" style="background: #3B2A22; color: #E86A17;"></i> for the Kashmir community • Celebrating 50 Years of Islamic Literature</p>
                     </div>
                 </div>
-                <div class="col-lg-6" style="background: transparent !important;">
-                    <div class="footer-legal" style="background: transparent !important;">
-                        <a href="{{ url_for('web.content_page', slug='privacy') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Privacy Policy</a>
-                        <a href="{{ url_for('web.content_page', slug='terms') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Terms of Service</a>
-                        <a href="{{ url_for('web.content_page', slug='sitemap') }}" style="background: transparent !important; color: white !important; text-decoration: none !important;">Sitemap</a>
+                <div class="col-lg-6" style="background: #3B2A22; background-color: #3B2A22;">
+                    <div class="footer-legal" style="background: #3B2A22; background-color: #3B2A22; text-align: right;">
+                        <a href="{{ url_for('web.content_page', slug='privacy') }}" style="background: #3B2A22; color: white; text-decoration: none; margin-left: 20px;">Privacy Policy</a>
+                        <a href="{{ url_for('web.content_page', slug='terms') }}" style="background: #3B2A22; color: white; text-decoration: none; margin-left: 20px;">Terms of Service</a>
+                        <a href="{{ url_for('web.content_page', slug='sitemap') }}" style="background: #3B2A22; color: white; text-decoration: none; margin-left: 20px;">Sitemap</a>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Islamic Decoration -->
-    <div class="islamic-decoration" style="background-color: #3B2A22 !important; color: white !important; padding: 15px 0 !important; width: 100vw !important; margin-left: calc(-50vw + 50%) !important; margin-right: calc(-50vw + 50%) !important;">
-        <div class="container" style="background: transparent !important;">
-            <div class="arabic-calligraphy" style="background: transparent !important;">
-                <span class="bismillah" style="background: transparent !important; color: white !important;">بِسْمِ اللهِ الرَّحْمٰنِ الرَّحِيْمِ</span>
-                <span class="translation" style="background: transparent !important; color: white !important;">"In the name of Allah, the Most Gracious, the Most Merciful"</span>
             </div>
         </div>
     </div>
 </footer>
-
-

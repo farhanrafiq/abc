@@ -1,332 +1,99 @@
-/* ABSOLUTE NUCLEAR OVERRIDE - NO WHITE ANYWHERE */
-* {
-    background: none !important;
-}
-
-.modern-footer * {
+/* NEW FOOTER - SOLID BROWN FOUNDATION */
+.new-footer {
     background: #3B2A22 !important;
     background-color: #3B2A22 !important;
     color: white !important;
+    font-family: 'Inter', sans-serif;
 }
 
-/* FORCE FOOTER VISIBILITY - FULL WIDTH */
-.modern-footer {
-    background-color: #3B2A22 !important;
-    background: #3B2A22 !important;
-    color: white !important;
-    padding: 40px 0 20px 0 !important;
-    margin-top: 50px !important;
-    width: 100vw !important;
-    margin-left: calc(-50vw + 50%) !important;
-    margin-right: calc(-50vw + 50%) !important;
-    display: block !important;
-    position: static !important;
-    clear: both !important;
-    min-height: 300px !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    z-index: 1 !important;
-    transform: none !important;
-    overflow: visible !important;
-    margin-bottom: 0 !important;
-}
-
-/* Override ANY footer class */
-footer, .footer, footer.modern-footer, .footer.modern-footer {
-    background-color: #3B2A22 !important;
-    background: #3B2A22 !important;
-    color: white !important;
-    padding: 40px 0 !important;
-    margin-top: 50px !important;
-    width: 100% !important;
-    display: block !important;
-    position: static !important;
-    clear: both !important;
-    min-height: 300px !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-.footer-main {
-    padding: 40px 0 !important;
-    display: block !important;
-}
-
-.footer-brand-section {
-    color: white !important;
-}
-
-.footer-logo {
-    max-height: 50px !important;
-    margin-bottom: 20px !important;
-}
-
-.brand-description {
-    color: #F5F5F5 !important;
-    margin-bottom: 20px !important;
-}
-
-/* NUCLEAR OVERRIDE - TRUST BADGES */
-.trust-badges, .trust-badges *, .modern-footer .trust-badges, .modern-footer .trust-badges * {
+/* Ensure all footer elements stay brown */
+.new-footer * {
     background: #3B2A22 !important;
     background-color: #3B2A22 !important;
-    color: white !important;
-    border: none !important;
-    box-shadow: none !important;
 }
 
-.trust-badges {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 15px !important;
-    margin-bottom: 20px !important;
+/* Footer text colors */
+.new-footer h5,
+.new-footer h6,
+.new-footer p,
+.new-footer span,
+.new-footer li,
+.new-footer a {
+    color: white !important;
+}
+
+/* Hover effects for links */
+.new-footer a:hover {
+    color: #E86A17 !important;
+    text-decoration: underline !important;
+}
+
+/* Trust badges styling */
+.trust-item {
+    font-size: 0.9rem;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+/* Social icons hover */
+.social-icon:hover {
+    background: #E86A17 !important;
+    background-color: #E86A17 !important;
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+/* Payment and security badges */
+.payment-icon,
+.security-item {
+    font-size: 0.9rem;
+}
+
+/* Footer responsive */
+@media (max-width: 768px) {
+    .new-footer .col-lg-3,
+    .new-footer .col-lg-2,
+    .new-footer .col-lg-6 {
+        text-align: center !important;
+        margin-bottom: 30px;
+    }
+    
+    .footer-legal {
+        text-align: center !important;
+    }
+    
+    .security-badges {
+        text-align: center !important;
+    }
+}
+
+/* Override any Bootstrap defaults */
+.new-footer .container,
+.new-footer .row,
+.new-footer .col-lg-3,
+.new-footer .col-lg-2,
+.new-footer .col-lg-6,
+.new-footer .col-md-6 {
     background: #3B2A22 !important;
     background-color: #3B2A22 !important;
-    padding: 10px !important;
-    border-radius: 8px !important;
 }
 
-.trust-badge, .trust-badge *, .modern-footer .trust-badge, .modern-footer .trust-badge * {
-    background: #3B2A22 !important;
-    background-color: #3B2A22 !important;
-    padding: 8px 15px !important;
-    border-radius: 20px !important;
-    font-size: 0.9rem !important;
-    color: white !important;
-    border: none !important;
-    box-shadow: none !important;
+/* WhatsApp icon special color */
+.new-footer .fa-whatsapp {
+    color: #25D366 !important;
 }
 
-.social-links {
-    display: flex !important;
-    gap: 15px !important;
+/* Heart icon special color */
+.new-footer .fa-heart {
+    color: #E86A17 !important;
 }
 
-.social-link {
-    width: 40px !important;
-    height: 40px !important;
-    background: #3B2A22 !important;
-    color: white !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 50% !important;
-    text-decoration: none !important;
-}
-
-.modern-footer .social-link:hover {
-    background: #2C1810 !important;
-    color: white !important;
-}
-
-/* Force all footer icons to brown */
-.modern-footer .payment-icon,
-.modern-footer .security-badge,
-.modern-footer .trust-badge {
-    background: rgba(59, 42, 34, 0.4) !important;
-    color: white !important;
-    border: none !important;
-}
-
-/* ABSOLUTE NUCLEAR OVERRIDE - NO WHITE ANYWHERE IN FOOTER */
-.modern-footer, .modern-footer *, 
-.footer, .footer *,
-.trust-badges, .trust-badges *,
-.trust-badge, .trust-badge *,
-.payment-icons, .payment-icons *,
-.security-badges, .security-badges *,
-.security-badge, .security-badge *,
-.payment-icon, .payment-icon *,
-.footer-main, .footer-main *,
-.footer-bottom, .footer-bottom * {
-    background: #3B2A22 !important;
-    background-color: #3B2A22 !important;
-    color: white !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-.modern-footer .fas,
-.modern-footer .fab {
-    color: white !important;
-}
-
-/* FORCE FOOTER SECONDARY (PAYMENT) SECTION - FULL WIDTH */
-.footer-secondary {
-    background-color: #3B2A22 !important;
-    background: #3B2A22 !important;
-    padding: 20px 0 !important;
-    color: white !important;
-    width: 100vw !important;
-    margin-left: calc(-50vw + 50%) !important;
-    margin-right: calc(-50vw + 50%) !important;
-    display: block !important;
-}
-
-.footer-secondary * {
-    background: #3B2A22 !important;
-    background-color: #3B2A22 !important;
-    color: white !important;
-}
-
-/* FORCE FOOTER BOTTOM BACKGROUND - FULL WIDTH */
-.footer-bottom {
-    background-color: #3B2A22 !important;
-    background: #3B2A22 !important;
-    padding: 20px 0 !important;
-    border-top: 1px solid rgba(255,255,255,0.1) !important;
-    color: white !important;
-    width: 100vw !important;
-    margin-left: calc(-50vw + 50%) !important;
-    margin-right: calc(-50vw + 50%) !important;
-    display: block !important;
-}
-
-.modern-footer .footer-bottom {
-    background-color: #3B2A22 !important;
-    background: #3B2A22 !important;
-    color: white !important;
-}
-
-/* Force all footer bottom elements to have dark background */
-.footer-bottom .container,
-.footer-bottom .row,
-.footer-bottom .col-lg-6,
-.footer-bottom .copyright,
-.footer-bottom .footer-legal {
-    background: transparent !important;
-    color: white !important;
-}
-
-/* Force copyright and legal text colors */
-.footer-bottom p,
-.footer-bottom a,
-.footer-bottom .tagline {
-    color: white !important;
-    background: transparent !important;
-}
-
-.footer-copyright {
-    color: #F5F5F5 !important;
+/* No margins or padding issues */
+.new-footer ul {
     margin: 0 !important;
+    padding: 0 !important;
 }
 
-/* FORCE ALL FOOTER ELEMENTS TO HAVE PROPER STYLING */
-.modern-footer *,
-.modern-footer .container,
-.modern-footer .row,
-.modern-footer .col-lg-4,
-.modern-footer .col-lg-2,
-.modern-footer .col-lg-3,
-.modern-footer .col-md-6,
-.modern-footer .footer-main,
-.modern-footer .footer-secondary,
-.modern-footer .footer-bottom,
-.modern-footer .islamic-decoration,
-.modern-footer .footer-brand-section,
-.modern-footer .footer-section,
-.modern-footer .contact-info,
-.modern-footer .payment-methods,
-.modern-footer .security-badges,
-.modern-footer .payment-icons,
-.modern-footer .copyright,
-.modern-footer .footer-legal,
-.modern-footer .arabic-calligraphy {
-    color: white !important;
-    background-color: transparent !important;
-    background: transparent !important;
-}
-
-/* FORCE FOOTER SECONDARY BACKGROUND - FULL WIDTH */
-.footer-secondary {
-    background-color: #3B2A22 !important;
-    background: #3B2A22 !important;
-    color: white !important;
-    padding: 20px 0 !important;
-    border-top: 1px solid rgba(255,255,255,0.05) !important;
-    width: 100vw !important;
-    margin-left: calc(-50vw + 50%) !important;
-    margin-right: calc(-50vw + 50%) !important;
-}
-
-.modern-footer .footer-secondary {
-    background-color: #3B2A22 !important;
-    background: #3B2A22 !important;
-    color: white !important;
-}
-
-/* FORCE ISLAMIC DECORATION BACKGROUND - FULL WIDTH */
-.islamic-decoration {
-    background-color: #3B2A22 !important;
-    background: #3B2A22 !important;
-    color: white !important;
-    padding: 15px 0 !important;
-    border-top: 1px solid rgba(255,255,255,0.05) !important;
-    width: 100vw !important;
-    margin-left: calc(-50vw + 50%) !important;
-    margin-right: calc(-50vw + 50%) !important;
-}
-
-.islamic-decoration .bismillah,
-.islamic-decoration .translation {
-    color: white !important;
-    background: transparent !important;
-}
-
-.modern-footer a {
-    color: white !important;
-    text-decoration: none !important;
-}
-
-.modern-footer a:hover {
-    color: #3B2A22 !important;
-    text-decoration: none !important;
-}
-
-.modern-footer ul {
+.new-footer li {
     list-style: none !important;
-    padding-left: 0 !important;
-    margin: 0 !important;
-}
-
-.modern-footer li {
-    list-style: none !important;
-    padding: 5px 0 !important;
-    margin: 0 !important;
-}
-
-/* FORCE TRUST BADGES AND ALL ELEMENTS */
-.modern-footer .trust-badge,
-.modern-footer .security-badge,
-.modern-footer .payment-icon {
-    background: rgba(255,255,255,0.1) !important;
-    color: white !important;
-    border: none !important;
-}
-
-/* FORCE ALL BOOTSTRAP GRID ELEMENTS */
-.modern-footer .container,
-.modern-footer .row,
-.modern-footer .col-lg-4,
-.modern-footer .col-lg-2,
-.modern-footer .col-lg-3,
-.modern-footer .col-lg-6,
-.modern-footer .col-md-6,
-.modern-footer .g-5 {
-    background-color: transparent !important;
-    background: transparent !important;
-    padding-left: 15px !important;
-    padding-right: 15px !important;
-}
-
-/* Fix footer bottom spacing */
-body {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
-}
-
-html {
-    margin-bottom: 0 !important;
-    padding-bottom: 0 !important;
+    margin-bottom: 8px !important;
 }
