@@ -39,10 +39,18 @@ def format_currency(amount_paisa):
 @admin_bp.context_processor
 def inject_admin_vars():
     """Inject template variables for admin"""
+    # Get unread contacts count
+    unread_contacts = 0
+    try:
+        unread_contacts = ContactForm.query.filter_by(status='unread').count()
+    except:
+        pass
+    
     return {
         'format_currency': format_currency,
         'datetime': datetime,
-        'current_user': current_user
+        'current_user': current_user,
+        'unread_contacts': unread_contacts
     }
 
 # Dashboard Route
@@ -208,7 +216,6 @@ def orders():
         query = query.filter(
             or_(
                 Order.email.ilike(f'%{search}%'),
-                Order.name.ilike(f'%{search}%'),
                 Order.id.like(f'%{search}%')
             )
         )
@@ -246,7 +253,7 @@ def update_order_status(order_id):
     try:
         order.status = OrderStatus(new_status)
         db.session.commit()
-        flash(f'Order #{order.id} status updated to {new_status.title()}', 'success')
+        flash(f'Order #{order.id} status updated to {new_status.value.title() if new_status else "Unknown"}', 'success')
     except Exception as e:
         db.session.rollback()
         flash('Error updating order status', 'error')
