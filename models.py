@@ -501,3 +501,56 @@ class NewsletterSubscriber(db.Model):
     
     def __repr__(self):
         return f'<NewsletterSubscriber {self.email}>'
+
+# Admin-specific models
+class ContactForm(db.Model):
+    __tablename__ = 'contact_forms'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    phone = db.Column(db.String(20))
+    subject = db.Column(db.String(200), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='unread')  # unread, read, resolved
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    admin_response = db.Column(db.Text)
+    responded_at = db.Column(db.DateTime)
+    responded_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+    responder = db.relationship('User', backref='contact_responses')
+    
+    def __repr__(self):
+        return f'<ContactForm {self.name} - {self.subject}>'
+
+class AdminLog(db.Model):
+    __tablename__ = 'admin_logs'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    action = db.Column(db.String(100), nullable=False)
+    resource_type = db.Column(db.String(50), nullable=False)
+    resource_id = db.Column(db.Integer)
+    details = db.Column(db.Text)
+    ip_address = db.Column(db.String(45))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    admin = db.relationship('User', backref='admin_logs')
+    
+    def __repr__(self):
+        return f'<AdminLog {self.admin_id} - {self.action}>'
+
+class ContentBlock(db.Model):
+    __tablename__ = 'content_blocks'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(100), unique=True, nullable=False)
+    title = db.Column(db.String(200))
+    content = db.Column(db.Text)
+    content_type = db.Column(db.String(50), default='html')  # html, text, markdown
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    def __repr__(self):
+        return f'<ContentBlock {self.key}>'

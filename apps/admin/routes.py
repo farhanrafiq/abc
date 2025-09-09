@@ -4,7 +4,8 @@ from functools import wraps
 from sqlalchemy import func, desc, and_, or_
 from models import (Product, Category, Author, Publisher, Price, Inventory, Order, OrderItem, 
                    User, Review, Coupon, Setting, UserRole, OrderStatus, PaymentStatus, ProductStatus,
-                   Banner, FeaturedCategory, BannerType)
+                   Banner, FeaturedCategory, BannerType, ContactForm, AdminLog, ContentBlock, NewsletterSubscriber,
+                   Language, Format)
 from forms import (ProductForm, AuthorForm, PublisherForm, CategoryForm, CouponForm, UserForm)
 from utils.helpers import format_currency, save_uploaded_file, generate_slug, paginate_query
 from utils.pdf import generate_invoice_pdf
@@ -667,3 +668,289 @@ def remove_featured_category(featured_id):
     db.session.commit()
     flash('Category removed from featured list!', 'success')
     return redirect(url_for('admin.featured_categories'))
+
+# Contact Form Management
+@admin_bp.route('/contacts')
+@admin_required
+def contacts():
+    """Contact form management"""
+    page = request.args.get('page', 1, type=int)
+    status = request.args.get('status', '')
+    search = request.args.get('search', '')
+    
+    query = ContactForm.query
+    
+    # Status filter
+    if status:
+        query = query.filter(ContactForm.status == status)
+    
+    # Search filter
+    if search:
+        query = query.filter(or_(
+            ContactForm.name.ilike(f'%{search}%'),
+            ContactForm.email.ilike(f'%{search}%'),
+            ContactForm.subject.ilike(f'%{search}%')
+        ))
+    
+    query = query.order_by(desc(ContactForm.created_at))
+    contacts = paginate_query(query, page, 20)
+    
+    return render_template('admin/contacts.html',
+                         contacts=contacts,
+                         search=search,
+                         selected_status=status)
+
+@admin_bp.route('/contacts/<int:contact_id>')
+@admin_required
+def contact_detail(contact_id):
+    """View contact form details"""
+    contact = ContactForm.query.get_or_404(contact_id)
+    
+    # Mark as read
+    if contact.status == 'unread':
+        contact.status = 'read'
+        db.session.commit()
+    
+    return render_template('admin/contact_detail.html', contact=contact)
+
+@admin_bp.route('/contacts/<int:contact_id>/respond', methods=['POST'])
+@admin_required
+def respond_to_contact(contact_id):
+    """Respond to contact form"""
+    contact = ContactForm.query.get_or_404(contact_id)
+    response = request.form.get('response')
+    
+    if response:
+        contact.admin_response = response
+        contact.responded_at = datetime.utcnow()
+        contact.responded_by = current_user.id
+        contact.status = 'resolved'
+        db.session.commit()
+        
+        # Log admin action
+        log_admin_action('respond_contact', 'ContactForm', contact.id, 
+                        f'Responded to contact from {contact.email}')
+        
+        flash('Response sent successfully!', 'success')
+    else:
+        flash('Response cannot be empty!', 'error')
+    
+    return redirect(url_for('admin.contact_detail', contact_id=contact_id))
+
+@admin_bp.route('/contacts/<int:contact_id>/delete', methods=['POST'])
+@admin_required
+def delete_contact(contact_id):
+    """Delete contact form"""
+    contact = ContactForm.query.get_or_404(contact_id)
+    contact_email = contact.email
+    
+    db.session.delete(contact)
+    db.session.commit()
+    
+    # Log admin action
+    log_admin_action('delete_contact', 'ContactForm', contact_id, 
+                    f'Deleted contact from {contact_email}')
+    
+    flash('Contact deleted successfully!', 'success')
+    return redirect(url_for('admin.contacts'))
+
+# Content Management
+@admin_bp.route('/content')
+@admin_required
+def content_blocks():
+    """Content block management"""
+    blocks = ContentBlock.query.order_by(ContentBlock.key).all()
+    return render_template('admin/content_blocks.html', blocks=blocks)
+
+@admin_bp.route('/content/new', methods=['GET', 'POST'])
+@admin_required
+def content_block_new():
+    """Create new content block"""
+    if request.method == 'POST':
+        block = ContentBlock(
+            key=request.form['key'],
+            title=request.form.get('title'),
+            content=request.form.get('content'),
+            content_type=request.form.get('content_type', 'html'),
+            active=bool(request.form.get('active'))
+        )
+        
+        try:
+            db.session.add(block)
+            db.session.commit()
+            log_admin_action('create_content_block', 'ContentBlock', block.id, f'Created content block: {block.key}')
+            flash('Content block created successfully!', 'success')
+            return redirect(url_for('admin.content_blocks'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error creating content block: {str(e)}', 'error')
+    
+    return render_template('admin/content_block_form.html', block=None)
+
+@admin_bp.route('/content/<int:block_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def content_block_edit(block_id):
+    """Edit content block"""
+    block = ContentBlock.query.get_or_404(block_id)
+    
+    if request.method == 'POST':
+        block.key = request.form['key']
+        block.title = request.form.get('title')
+        block.content = request.form.get('content')
+        block.content_type = request.form.get('content_type', 'html')
+        block.active = bool(request.form.get('active'))
+        block.updated_at = datetime.utcnow()
+        
+        try:
+            db.session.commit()
+            log_admin_action('update_content_block', 'ContentBlock', block.id, f'Updated content block: {block.key}')
+            flash('Content block updated successfully!', 'success')
+            return redirect(url_for('admin.content_blocks'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating content block: {str(e)}', 'error')
+    
+    return render_template('admin/content_block_form.html', block=block)
+
+# Newsletter Management
+@admin_bp.route('/newsletter')
+@admin_required
+def newsletter():
+    """Newsletter subscriber management"""
+    page = request.args.get('page', 1, type=int)
+    search = request.args.get('search', '')
+    active_only = request.args.get('active_only', type=bool)
+    
+    query = NewsletterSubscriber.query
+    
+    if search:
+        query = query.filter(NewsletterSubscriber.email.ilike(f'%{search}%'))
+    
+    if active_only:
+        query = query.filter(NewsletterSubscriber.is_active == True)
+    
+    query = query.order_by(desc(NewsletterSubscriber.created_at))
+    subscribers = paginate_query(query, page, 50)
+    
+    return render_template('admin/newsletter.html', 
+                         subscribers=subscribers,
+                         search=search,
+                         active_only=active_only)
+
+@admin_bp.route('/newsletter/export')
+@admin_required
+def export_newsletter():
+    """Export newsletter subscribers to CSV"""
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    writer.writerow(['Email', 'Active', 'Subscribed Date'])
+    
+    subscribers = NewsletterSubscriber.query.all()
+    for subscriber in subscribers:
+        writer.writerow([
+            subscriber.email,
+            'Yes' if subscriber.is_active else 'No',
+            subscriber.created_at.strftime('%Y-%m-%d %H:%M:%S')
+        ])
+    
+    output.seek(0)
+    
+    return send_file(
+        io.BytesIO(output.getvalue().encode()),
+        as_attachment=True,
+        download_name='newsletter_subscribers.csv',
+        mimetype='text/csv'
+    )
+
+# Admin Logging Helper
+def log_admin_action(action, resource_type, resource_id=None, details=None):
+    """Helper function to log admin actions"""
+    log = AdminLog(
+        admin_id=current_user.id,
+        action=action,
+        resource_type=resource_type,
+        resource_id=resource_id,
+        details=details,
+        ip_address=request.remote_addr
+    )
+    db.session.add(log)
+    try:
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+# Analytics Routes
+@admin_bp.route('/analytics')
+@admin_required
+def analytics():
+    """Analytics dashboard"""
+    # Date ranges
+    today = datetime.utcnow().date()
+    week_start = today - timedelta(days=7)
+    month_start = today.replace(day=1)
+    year_start = today.replace(month=1, day=1)
+    
+    # Sales analytics
+    total_sales = db.session.query(func.sum(Order.grand_total_inr)).filter(
+        Order.payment_status == PaymentStatus.PAID
+    ).scalar() or 0
+    
+    monthly_sales = db.session.query(func.sum(Order.grand_total_inr)).filter(
+        Order.payment_status == PaymentStatus.PAID,
+        Order.created_at >= month_start
+    ).scalar() or 0
+    
+    # Order analytics
+    total_orders = Order.query.count()
+    monthly_orders = Order.query.filter(Order.created_at >= month_start).count()
+    
+    # Product analytics
+    total_products = Product.query.count()
+    active_products = Product.query.filter(Product.status == ProductStatus.ACTIVE).count()
+    
+    # Customer analytics
+    total_customers = User.query.filter(User.role == UserRole.CUSTOMER).count()
+    new_customers_month = User.query.filter(
+        User.role == UserRole.CUSTOMER,
+        User.created_at >= month_start
+    ).count()
+    
+    return render_template('admin/analytics.html',
+                         total_sales=total_sales,
+                         monthly_sales=monthly_sales,
+                         total_orders=total_orders,
+                         monthly_orders=monthly_orders,
+                         total_products=total_products,
+                         active_products=active_products,
+                         total_customers=total_customers,
+                         new_customers_month=new_customers_month,
+                         format_currency=format_currency)
+
+@admin_bp.route('/logs')
+@admin_required
+def admin_logs():
+    """View admin activity logs"""
+    page = request.args.get('page', 1, type=int)
+    admin_id = request.args.get('admin_id', type=int)
+    action = request.args.get('action')
+    
+    query = AdminLog.query.join(User)
+    
+    if admin_id:
+        query = query.filter(AdminLog.admin_id == admin_id)
+    
+    if action:
+        query = query.filter(AdminLog.action.ilike(f'%{action}%'))
+    
+    query = query.order_by(desc(AdminLog.created_at))
+    logs = paginate_query(query, page, 50)
+    
+    # Get admin users for filter
+    admins = User.query.filter(User.role.in_([UserRole.ADMIN, UserRole.STAFF])).all()
+    
+    return render_template('admin/logs.html', 
+                         logs=logs,
+                         admins=admins,
+                         selected_admin=admin_id,
+                         selected_action=action)
