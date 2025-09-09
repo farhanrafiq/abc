@@ -152,6 +152,24 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     color: white !important;
 }
 
+/* FORCE FOOTER SECONDARY (PAYMENT) SECTION - FULL WIDTH */
+.footer-secondary {
+    background-color: #3B2A22 !important;
+    background: #3B2A22 !important;
+    padding: 20px 0 !important;
+    color: white !important;
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+    margin-right: calc(-50vw + 50%) !important;
+    display: block !important;
+}
+
+.footer-secondary * {
+    background: #3B2A22 !important;
+    background-color: #3B2A22 !important;
+    color: white !important;
+}
+
 /* FORCE FOOTER BOTTOM BACKGROUND - FULL WIDTH */
 .footer-bottom {
     background-color: #3B2A22 !important;
