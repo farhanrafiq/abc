@@ -106,3 +106,29 @@
     list-style: none !important;
     margin-bottom: 8px !important;
 }
+
+/* Designer Credit Section */
+.designer-credit {
+    background: #3B2A22 !important;
+    background-color: #3B2A22 !important;
+    font-family: 'Inter', sans-serif;
+}
+
+.designer-credit * {
+    background: #3B2A22 !important;
+    background-color: #3B2A22 !important;
+}
+
+.designer-credit a:hover {
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.designer-credit img {
+    background: transparent !important;
+    filter: brightness(1);
+}
+
+.designer-credit a:hover span {
+    color: #E86A17 !important;
+}
