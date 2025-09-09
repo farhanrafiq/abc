@@ -1,3 +1,14 @@
+/* ABSOLUTE NUCLEAR OVERRIDE - NO WHITE ANYWHERE */
+* {
+    background: none !important;
+}
+
+.modern-footer * {
+    background: #3B2A22 !important;
+    background-color: #3B2A22 !important;
+    color: white !important;
+}
+
 /* FORCE FOOTER VISIBILITY - FULL WIDTH */
 .modern-footer {
     background-color: #3B2A22 !important;
@@ -55,23 +66,35 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     margin-bottom: 20px !important;
 }
 
+/* NUCLEAR OVERRIDE - TRUST BADGES */
+.trust-badges, .trust-badges *, .modern-footer .trust-badges, .modern-footer .trust-badges * {
+    background: #3B2A22 !important;
+    background-color: #3B2A22 !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
 .trust-badges {
     display: flex !important;
     flex-wrap: wrap !important;
     gap: 15px !important;
     margin-bottom: 20px !important;
     background: #3B2A22 !important;
+    background-color: #3B2A22 !important;
     padding: 10px !important;
     border-radius: 8px !important;
 }
 
-.trust-badge {
-    background: rgba(59, 42, 34, 0.3) !important;
+.trust-badge, .trust-badge *, .modern-footer .trust-badge, .modern-footer .trust-badge * {
+    background: #3B2A22 !important;
+    background-color: #3B2A22 !important;
     padding: 8px 15px !important;
     border-radius: 20px !important;
     font-size: 0.9rem !important;
     color: white !important;
     border: none !important;
+    box-shadow: none !important;
 }
 
 .social-links {
@@ -105,11 +128,23 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     border: none !important;
 }
 
-/* Absolute override for trust badges */
-.trust-badges, .trust-badge, .modern-footer .trust-badges, .modern-footer .trust-badge {
-    background: rgba(59, 42, 34, 0.4) !important;
+/* ABSOLUTE NUCLEAR OVERRIDE - NO WHITE ANYWHERE IN FOOTER */
+.modern-footer, .modern-footer *, 
+.footer, .footer *,
+.trust-badges, .trust-badges *,
+.trust-badge, .trust-badge *,
+.payment-icons, .payment-icons *,
+.security-badges, .security-badges *,
+.security-badge, .security-badge *,
+.payment-icon, .payment-icon *,
+.footer-main, .footer-main *,
+.footer-bottom, .footer-bottom * {
+    background: #3B2A22 !important;
+    background-color: #3B2A22 !important;
     color: white !important;
     border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 .modern-footer .fas,
