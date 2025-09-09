@@ -109,7 +109,7 @@ def dashboard():
         # Contact forms
         unread_contacts = ContactForm.query.filter(ContactForm.status == 'unread').count()
         
-        return render_template('admin/dashboard_new.html',
+        return render_template('admin/dashboard.html',
             total_products=total_products,
             total_customers=total_customers,
             total_orders=total_orders,
@@ -129,7 +129,7 @@ def dashboard():
     except Exception as e:
         logging.error(f"Dashboard error: {str(e)}")
         flash('Error loading dashboard. Some data may be unavailable.', 'warning')
-        return render_template('admin/dashboard_new.html',
+        return render_template('admin/dashboard.html',
             total_products=0,
             total_customers=0,
             total_orders=0,
