@@ -69,7 +69,7 @@ def create_app():
     
     # Register blueprints
     from apps.web.routes import web_bp
-    from apps.admin.routes import admin_bp
+    from apps.admin.routes_new import admin_bp
     from apps.auth.routes import auth_bp
     from apps.cart.routes import cart_bp
     from blueprints.admin.home_sections import admin_home_bp

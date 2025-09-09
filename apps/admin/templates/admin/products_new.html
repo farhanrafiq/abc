@@ -1,0 +1,153 @@
+{% extends 'admin/dashboard_new.html' %}
+
+{% block title %}Products - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Products Management</h2>
+    <button class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New Product
+    </button>
+</div>
+
+<!-- Filter Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="search" 
+                       placeholder="Search products..." value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {{ 'selected' if category.id == selected_category }}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="active" {{ 'selected' if selected_status == 'active' }}>Active</option>
+                    <option value="draft" {{ 'selected' if selected_status == 'draft' }}>Draft</option>
+                    <option value="archived" {{ 'selected' if selected_status == 'archived' }}>Archived</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products.items %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ product.cover_image_url or '/static/images/placeholder-book.jpg' }}" 
+                                 alt="{{ product.title }}" class="me-3" 
+                                 style="width: 50px; height: 60px; object-fit: cover; border-radius: 4px;">
+                            <div>
+                                <h6 class="mb-1">{{ product.title }}</h6>
+                                <small class="text-muted">{{ product.isbn or 'No ISBN' }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% for category in product.categories %}
+                        <span class="badge bg-secondary me-1">{{ category.name }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if product.price %}
+                        {{ format_currency(product.price.sale_inr or product.price.mrp_inr) }}
+                        {% else %}
+                        <span class="text-muted">No price</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if product.inventory %}
+                        <span class="badge {{ 'bg-danger' if product.inventory.stock_on_hand <= product.inventory.low_stock_threshold else 'bg-success' }}">
+                            {{ product.inventory.stock_on_hand }}
+                        </span>
+                        {% else %}
+                        <span class="text-muted">No inventory</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if product.status.value == 'active' else 'warning' if product.status.value == 'draft' else 'secondary' }}">
+                            {{ product.status.value.title() }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        No products found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if products.pages > 1 %}
+    <div class="card-footer">
+        <nav aria-label="Products pagination">
+            <ul class="pagination justify-content-center mb-0">
+                {% for page_num in products.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != products.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.products', page=page_num, search=search, category=selected_category, status=selected_status) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

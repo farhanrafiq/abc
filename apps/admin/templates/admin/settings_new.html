@@ -1,0 +1,221 @@
+{% extends 'admin/dashboard_new.html' %}
+
+{% block title %}Settings - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>System Settings</h2>
+    <button class="btn btn-primary">
+        <i class="fas fa-save me-2"></i>Save All Changes
+    </button>
+</div>
+
+<div class="row">
+    <!-- General Settings -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>General Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="siteName" class="form-label">Site Name</label>
+                            <input type="text" class="form-control" id="siteName" 
+                                   value="ABC Publishing Kashmir">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="siteEmail" class="form-label">Site Email</label>
+                            <input type="email" class="form-control" id="siteEmail" 
+                                   value="info@abcpublishing.com">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="sitePhone" class="form-label">Contact Phone</label>
+                            <input type="tel" class="form-control" id="sitePhone" 
+                                   value="+91-XXXXXXXXXX">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="timezone" class="form-label">Timezone</label>
+                            <select class="form-select" id="timezone">
+                                <option selected>Asia/Kolkata</option>
+                                <option>UTC</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="siteDescription" class="form-label">Site Description</label>
+                            <textarea class="form-control" id="siteDescription" rows="3">Your trusted source for Islamic literature and academic books</textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Settings -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-credit-card me-2"></i>Payment Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="razorpayKey" class="form-label">Razorpay Key ID</label>
+                        <input type="text" class="form-control" id="razorpayKey" 
+                               placeholder="rzp_test_xxxxxx">
+                    </div>
+                    <div class="mb-3">
+                        <label for="codEnabled" class="form-label">Cash on Delivery</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="codEnabled" checked>
+                            <label class="form-check-label" for="codEnabled">
+                                Enable COD
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="minOrderAmount" class="form-label">Minimum Order Amount (₹)</label>
+                        <input type="number" class="form-control" id="minOrderAmount" 
+                               value="99">
+                    </div>
+                    <div class="mb-3">
+                        <label for="freeShippingThreshold" class="form-label">Free Shipping Above (₹)</label>
+                        <input type="number" class="form-control" id="freeShippingThreshold" 
+                               value="499">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Shipping Settings -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-shipping-fast me-2"></i>Shipping Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="shippingKashmir" class="form-label">Kashmir Shipping (₹)</label>
+                        <input type="number" class="form-control" id="shippingKashmir" 
+                               value="50">
+                    </div>
+                    <div class="mb-3">
+                        <label for="shippingIndia" class="form-label">Rest of India Shipping (₹)</label>
+                        <input type="number" class="form-control" id="shippingIndia" 
+                               value="99">
+                    </div>
+                    <div class="mb-3">
+                        <label for="processingDays" class="form-label">Processing Time (Days)</label>
+                        <input type="number" class="form-control" id="processingDays" 
+                               value="1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="deliveryDays" class="form-label">Estimated Delivery (Days)</label>
+                        <input type="number" class="form-control" id="deliveryDays" 
+                               value="7">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Email Settings -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-envelope me-2"></i>Email Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="smtpHost" class="form-label">SMTP Host</label>
+                        <input type="text" class="form-control" id="smtpHost" 
+                               value="smtp.gmail.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="smtpPort" class="form-label">SMTP Port</label>
+                        <input type="number" class="form-control" id="smtpPort" 
+                               value="587">
+                    </div>
+                    <div class="mb-3">
+                        <label for="smtpUsername" class="form-label">SMTP Username</label>
+                        <input type="email" class="form-control" id="smtpUsername" 
+                               placeholder="your-email@gmail.com">
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                            <label class="form-check-label" for="emailNotifications">
+                                Enable Email Notifications
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Inventory Settings -->
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-boxes me-2"></i>Inventory Settings
+                </h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="mb-3">
+                        <label for="lowStockThreshold" class="form-label">Low Stock Threshold</label>
+                        <input type="number" class="form-control" id="lowStockThreshold" 
+                               value="5">
+                    </div>
+                    <div class="mb-3">
+                        <label for="outOfStockBehavior" class="form-label">Out of Stock Behavior</label>
+                        <select class="form-select" id="outOfStockBehavior">
+                            <option selected>Hide Product</option>
+                            <option>Show "Out of Stock"</option>
+                            <option>Allow Backorders</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="trackInventory" checked>
+                            <label class="form-check-label" for="trackInventory">
+                                Track Inventory
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="lowStockNotifications" checked>
+                            <label class="form-check-label" for="lowStockNotifications">
+                                Low Stock Notifications
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="d-flex justify-content-end gap-3">
+    <button type="button" class="btn btn-outline-secondary">Reset to Defaults</button>
+    <button type="button" class="btn btn-primary">
+        <i class="fas fa-save me-2"></i>Save Changes
+    </button>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends 'admin/dashboard_new.html' %}
+
+{% block title %}Contact Forms - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Contact Forms</h2>
+    <div class="btn-group">
+        <button class="btn btn-outline-primary">
+            <i class="fas fa-download me-2"></i>Export
+        </button>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="search" 
+                       placeholder="Search by name, email, or subject..." value="{{ search }}">
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="unread" {{ 'selected' if selected_status == 'unread' }}>Unread</option>
+                    <option value="read" {{ 'selected' if selected_status == 'read' }}>Read</option>
+                    <option value="resolved" {{ 'selected' if selected_status == 'resolved' }}>Resolved</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Contacts Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Contact Info</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contact in contacts.items %}
+                <tr class="{{ 'table-info' if contact.status == 'unread' }}">
+                    <td>
+                        <div>
+                            <div class="fw-medium">{{ contact.name }}</div>
+                            <small class="text-muted">{{ contact.email }}</small>
+                            {% if contact.phone %}
+                            <br><small class="text-muted">{{ contact.phone }}</small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="text-truncate" style="max-width: 300px;">
+                            {{ contact.subject }}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ 'warning' if contact.status == 'unread' else 'success' if contact.status == 'resolved' else 'info' }}">
+                            {{ contact.status.title() }}
+                        </span>
+                    </td>
+                    <td>
+                        <div>{{ contact.created_at.strftime('%d %b %Y') }}</div>
+                        <small class="text-muted">{{ contact.created_at.strftime('%H:%M') }}</small>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('admin.contact_detail', contact_id=contact.id) }}" 
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>View
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        No contact forms found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if contacts.pages > 1 %}
+    <div class="card-footer">
+        <nav aria-label="Contacts pagination">
+            <ul class="pagination justify-content-center mb-0">
+                {% for page_num in contacts.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != contacts.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.contacts', page=page_num, search=search, status=selected_status) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

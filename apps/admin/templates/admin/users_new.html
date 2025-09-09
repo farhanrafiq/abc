@@ -1,0 +1,150 @@
+{% extends 'admin/dashboard_new.html' %}
+
+{% block title %}Users - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Users Management</h2>
+    <button class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New User
+    </button>
+</div>
+
+<!-- Filter Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-5">
+                <input type="text" class="form-control" name="search" 
+                       placeholder="Search by name or email..." value="{{ search }}">
+            </div>
+            <div class="col-md-4">
+                <select name="role" class="form-select">
+                    <option value="">All Roles</option>
+                    {% for role in user_roles %}
+                    <option value="{{ role.value }}" {{ 'selected' if role.value == selected_role }}>
+                        {{ role.value.title() }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>User</th>
+                    <th>Role</th>
+                    <th>Orders</th>
+                    <th>Registration Date</th>
+                    <th>Last Login</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-3">
+                                {{ user.name[0].upper() }}
+                            </div>
+                            <div>
+                                <div class="fw-medium">{{ user.name }}</div>
+                                <small class="text-muted">{{ user.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ 'danger' if user.role.value == 'admin' else 'warning' if user.role.value == 'staff' else 'primary' }}">
+                            {{ user.role.value.title() }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">{{ user.orders.count() if user.orders else 0 }}</span>
+                    </td>
+                    <td>
+                        {{ user.created_at.strftime('%d %b %Y') if user.created_at else 'N/A' }}
+                    </td>
+                    <td>
+                        <span class="text-muted">{{ user.last_login.strftime('%d %b %Y') if user.last_login else 'Never' }}</span>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% if user.role.value != 'admin' %}
+                            <button class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                        No users found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if users.pages > 1 %}
+    <div class="card-footer">
+        <nav aria-label="Users pagination">
+            <ul class="pagination justify-content-center mb-0">
+                {% for page_num in users.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != users.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.users', page=page_num, search=search, role=selected_role) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+</style>
+{% endblock %}

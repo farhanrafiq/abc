@@ -1,0 +1,152 @@
+{% extends 'admin/dashboard_new.html' %}
+
+{% block title %}Newsletter - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Newsletter Subscribers</h2>
+    <div class="btn-group">
+        <button class="btn btn-primary">
+            <i class="fas fa-paper-plane me-2"></i>Send Newsletter
+        </button>
+        <button class="btn btn-outline-primary">
+            <i class="fas fa-download me-2"></i>Export
+        </button>
+    </div>
+</div>
+
+<!-- Search Bar -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-9">
+                <input type="text" class="form-control" name="search" 
+                       placeholder="Search by email..." value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Subscribers Table -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>
+                        <input type="checkbox" class="form-check-input" id="selectAll">
+                    </th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Subscription Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subscriber in subscribers.items %}
+                <tr>
+                    <td>
+                        <input type="checkbox" class="form-check-input subscriber-checkbox" 
+                               value="{{ subscriber.id }}">
+                    </td>
+                    <td>
+                        <div class="fw-medium">{{ subscriber.email }}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-{{ 'success' if subscriber.is_active else 'secondary' }}">
+                            {{ 'Active' if subscriber.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        {{ subscriber.created_at.strftime('%d %b %Y') if subscriber.created_at else 'N/A' }}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            {% if subscriber.is_active %}
+                            <button class="btn btn-sm btn-outline-warning" 
+                                    onclick="toggleSubscriber({{ subscriber.id }}, false)">
+                                <i class="fas fa-pause"></i>
+                            </button>
+                            {% else %}
+                            <button class="btn btn-sm btn-outline-success" 
+                                    onclick="toggleSubscriber({{ subscriber.id }}, true)">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-danger" 
+                                    onclick="deleteSubscriber({{ subscriber.id }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                        No subscribers found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if subscribers.pages > 1 %}
+    <div class="card-footer">
+        <nav aria-label="Subscribers pagination">
+            <ul class="pagination justify-content-center mb-0">
+                {% for page_num in subscribers.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != subscribers.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.newsletter', page=page_num, search=search) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Select all functionality
+document.getElementById('selectAll').addEventListener('change', function() {
+    const checkboxes = document.querySelectorAll('.subscriber-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+    });
+});
+
+function toggleSubscriber(id, activate) {
+    if (confirm(`Are you sure you want to ${activate ? 'activate' : 'deactivate'} this subscriber?`)) {
+        // Implementation for toggling subscriber status
+        alert('Subscriber status toggle functionality to be implemented');
+    }
+}
+
+function deleteSubscriber(id) {
+    if (confirm('Are you sure you want to permanently delete this subscriber?')) {
+        // Implementation for deleting subscriber
+        alert('Subscriber deletion functionality to be implemented');
+    }
+}
+</script>
+{% endblock %}
