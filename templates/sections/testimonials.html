@@ -1,0 +1,164 @@
+{% if section.is_active %}
+<section class="testimonials-section py-5" id="section-{{ section.id }}" style="background-color: {{ section.background_color or '#f8f9fa' }};">
+    <div class="container">
+        {% if section.title %}
+        <div class="row mb-5">
+            <div class="col-12 text-{{ section.text_alignment or 'center' }}">
+                <h2 class="section-title h1 fw-bold" style="color: {{ section.text_color or '#3B2A22' }};">
+                    {{ section.title }}
+                </h2>
+                {% if section.subtitle %}
+                <p class="section-subtitle lead mt-3" style="color: {{ section.text_color or '#666666' }}; opacity: 0.8;">
+                    {{ section.subtitle }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Testimonials Carousel -->
+        <div id="testimonials-carousel-{{ section.id }}" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% set testimonials = get_testimonials() or [
+                    {
+                        'name': 'Dr. Sarah Ahmed',
+                        'role': 'Islamic Studies Professor',
+                        'content': 'ABC Publishing Kashmir provides an exceptional collection of Islamic literature. The quality of their books and service is outstanding.',
+                        'rating': 5,
+                        'location': 'Srinagar, Kashmir'
+                    },
+                    {
+                        'name': 'Mohammad Ali Khan',
+                        'role': 'Book Enthusiast',
+                        'content': 'I have been a regular customer for years. Their authentic Islamic books and prompt delivery make them my go-to bookstore.',
+                        'rating': 5,
+                        'location': 'Delhi, India'
+                    },
+                    {
+                        'name': 'Fatima Begum',
+                        'role': 'Student',
+                        'content': 'The collection of academic books is impressive. Found all my required texts for Islamic studies here.',
+                        'rating': 4,
+                        'location': 'Mumbai, India'
+                    }
+                ] %}
+                
+                {% for testimonial in testimonials %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="testimonial-card text-center p-5 bg-white rounded shadow-sm">
+                                <div class="testimonial-rating mb-3">
+                                    {% for i in range(1, 6) %}
+                                    {% if i <= (testimonial.rating or 5) %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-muted"></i>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                
+                                <blockquote class="testimonial-content mb-4">
+                                    <p class="h5 fst-italic" style="color: {{ section.text_color or '#333333' }}; line-height: 1.6;">
+                                        "{{ testimonial.content }}"
+                                    </p>
+                                </blockquote>
+                                
+                                <div class="testimonial-author">
+                                    {% if testimonial.avatar %}
+                                    <img src="{{ testimonial.avatar }}" 
+                                         class="testimonial-avatar rounded-circle mb-3 shadow-sm" 
+                                         alt="{{ testimonial.name }}"
+                                         style="width: 80px; height: 80px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="testimonial-avatar-placeholder rounded-circle d-flex align-items-center justify-content-center bg-light mx-auto mb-3 shadow-sm"
+                                         style="width: 80px; height: 80px;">
+                                        <i class="fas fa-user fa-2x text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                    
+                                    <h6 class="testimonial-name fw-bold mb-1" style="color: {{ section.text_color or '#3B2A22' }};">
+                                        {{ testimonial.name }}
+                                    </h6>
+                                    <p class="testimonial-role text-muted mb-1 small">{{ testimonial.role }}</p>
+                                    {% if testimonial.location %}
+                                    <p class="testimonial-location text-muted small">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ testimonial.location }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Carousel controls -->
+            {% if testimonials|length > 1 %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#testimonials-carousel-{{ section.id }}" data-bs-slide="prev">
+                <div class="carousel-control-icon bg-dark rounded-circle p-2">
+                    <i class="fas fa-chevron-left text-white"></i>
+                </div>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#testimonials-carousel-{{ section.id }}" data-bs-slide="next">
+                <div class="carousel-control-icon bg-dark rounded-circle p-2">
+                    <i class="fas fa-chevron-right text-white"></i>
+                </div>
+                <span class="visually-hidden">Next</span>
+            </button>
+            
+            <!-- Indicators -->
+            <div class="carousel-indicators position-relative mt-4">
+                {% for testimonial in testimonials %}
+                <button type="button" 
+                        data-bs-target="#testimonials-carousel-{{ section.id }}" 
+                        data-bs-slide-to="{{ loop.index0 }}" 
+                        class="{% if loop.first %}active{% endif %}"
+                        aria-current="{% if loop.first %}true{% endif %}" 
+                        aria-label="Slide {{ loop.index }}">
+                </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        {% if section.button_text and section.button_url %}
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="{{ section.button_url }}" 
+                   class="btn btn-lg px-4"
+                   style="background-color: {{ section.button_color or '#E86A17' }}; border-color: {{ section.button_color or '#E86A17' }}; color: white;">
+                    {{ section.button_text }}
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.carousel-control-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.carousel-control-prev, .carousel-control-next {
+    width: 5%;
+}
+.carousel-indicators button {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: none;
+    background-color: #ccc;
+}
+.carousel-indicators button.active {
+    background-color: {{ section.button_color or '#E86A17' }};
+}
+</style>
+{% endif %}

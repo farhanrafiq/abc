@@ -1,0 +1,53 @@
+{% if section.is_active %}
+<section class="hero-section" id="section-{{ section.id }}" style="background-color: {{ section.background_color or '#ffffff' }};">
+    {% if section.background_image %}
+    <div class="hero-bg" style="background-image: url('{{ url_for('static', filename='uploads/' + section.background_image) }}'); background-size: cover; background-position: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.8;"></div>
+    {% endif %}
+    
+    <div class="container position-relative" style="z-index: 2;">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <div class="hero-content text-{{ section.text_alignment or 'left' }}" style="color: {{ section.text_color or '#333333' }};">
+                    {% if section.title %}
+                    <h1 class="hero-title display-4 fw-bold mb-4" style="color: inherit;">
+                        {{ section.title }}
+                    </h1>
+                    {% endif %}
+                    
+                    {% if section.subtitle %}
+                    <p class="hero-subtitle lead mb-4" style="color: inherit; opacity: 0.9;">
+                        {{ section.subtitle }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if section.button_text and section.button_url %}
+                    <div class="hero-actions">
+                        <a href="{{ section.button_url }}" 
+                           class="btn btn-lg px-5 py-3"
+                           style="background-color: {{ section.button_color or '#E86A17' }}; border-color: {{ section.button_color or '#E86A17' }}; color: white; border-radius: 50px;">
+                            {{ section.button_text }}
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if section.image_url %}
+            <div class="col-lg-6">
+                <div class="hero-image text-center">
+                    <img src="{{ section.image_url }}" 
+                         alt="{{ section.title or 'Hero Image' }}" 
+                         class="img-fluid rounded shadow-lg"
+                         style="max-height: 500px; object-fit: contain;">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if section.background_image %}
+    <div class="hero-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(59,42,34,0.8) 0%, rgba(232,106,23,0.6) 100%); z-index: 1;"></div>
+    {% endif %}
+</section>
+{% endif %}

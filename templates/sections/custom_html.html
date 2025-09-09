@@ -1,0 +1,45 @@
+{% if section.is_active %}
+<section class="custom-html-section" id="section-{{ section.id }}" {% if section.background_color %}style="background-color: {{ section.background_color }};"{% endif %}>
+    {% if section.content %}
+    <!-- Custom HTML Content -->
+    {{ section.content | safe }}
+    {% else %}
+    <!-- Default placeholder for custom HTML section -->
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-12 text-{{ section.text_alignment or 'center' }}">
+                {% if section.title %}
+                <h2 class="h1 fw-bold mb-4" style="color: {{ section.text_color or '#3B2A22' }};">
+                    {{ section.title }}
+                </h2>
+                {% endif %}
+                
+                {% if section.subtitle %}
+                <p class="lead" style="color: {{ section.text_color or '#666666' }};">
+                    {{ section.subtitle }}
+                </p>
+                {% endif %}
+                
+                {% if not section.title and not section.subtitle %}
+                <div class="py-5">
+                    <i class="fas fa-code fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Custom HTML content will appear here</p>
+                </div>
+                {% endif %}
+                
+                {% if section.button_text and section.button_url %}
+                <div class="mt-4">
+                    <a href="{{ section.button_url }}" 
+                       class="btn btn-lg px-4"
+                       style="background-color: {{ section.button_color or '#E86A17' }}; border-color: {{ section.button_color or '#E86A17' }}; color: white;">
+                        {{ section.button_text }}
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endif %}

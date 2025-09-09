@@ -1,0 +1,124 @@
+{% if section.is_active %}
+<section class="newsletter-section py-5" id="section-{{ section.id }}" style="background-color: {{ section.background_color or '#3B2A22' }};">
+    {% if section.background_image %}
+    <div class="newsletter-bg position-absolute w-100 h-100" style="background-image: url('{{ url_for('static', filename='uploads/' + section.background_image) }}'); background-size: cover; background-position: center; opacity: 0.1; top: 0; left: 0;"></div>
+    {% endif %}
+    
+    <div class="container position-relative">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-{{ section.text_alignment or 'center' }}">
+                {% if section.title %}
+                <h2 class="newsletter-title h1 fw-bold mb-4" style="color: {{ section.text_color or '#ffffff' }};">
+                    {{ section.title }}
+                </h2>
+                {% endif %}
+                
+                {% if section.subtitle %}
+                <p class="newsletter-subtitle lead mb-4" style="color: {{ section.text_color or '#ffffff' }}; opacity: 0.9;">
+                    {{ section.subtitle }}
+                </p>
+                {% endif %}
+                
+                <!-- Newsletter Signup Form -->
+                <form id="newsletter-form-{{ section.id }}" class="newsletter-form" method="post" action="{{ url_for('web.newsletter_signup') }}">
+                    {{ csrf_token() }}
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="input-group input-group-lg shadow-sm">
+                                <input type="email" 
+                                       name="email" 
+                                       class="form-control border-0" 
+                                       placeholder="Enter your email address" 
+                                       required
+                                       style="border-radius: 50px 0 0 50px;">
+                                <button class="btn fw-bold px-4" 
+                                        type="submit"
+                                        style="background-color: {{ section.button_color or '#E86A17' }}; border-color: {{ section.button_color or '#E86A17' }}; color: white; border-radius: 0 50px 50px 0;">
+                                    {{ section.button_text or 'Subscribe' }}
+                                    <i class="fas fa-paper-plane ms-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="newsletter-benefits mt-4">
+                    <p class="mb-2" style="color: {{ section.text_color or '#ffffff' }}; opacity: 0.8; font-size: 0.9rem;">
+                        <i class="fas fa-check me-2"></i>Get notified about new book arrivals
+                    </p>
+                    <p class="mb-2" style="color: {{ section.text_color or '#ffffff' }}; opacity: 0.8; font-size: 0.9rem;">
+                        <i class="fas fa-check me-2"></i>Exclusive discounts and offers
+                    </p>
+                    <p class="mb-0" style="color: {{ section.text_color or '#ffffff' }}; opacity: 0.8; font-size: 0.9rem;">
+                        <i class="fas fa-check me-2"></i>Islamic literature recommendations
+                    </p>
+                </div>
+                
+                <div class="newsletter-privacy mt-3">
+                    <p class="small mb-0" style="color: {{ section.text_color or '#ffffff' }}; opacity: 0.7;">
+                        We respect your privacy. Unsubscribe at any time.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Success/Error Messages -->
+        <div class="row justify-content-center mt-3">
+            <div class="col-lg-8">
+                <div id="newsletter-message-{{ section.id }}" class="alert d-none" role="alert"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('newsletter-form-{{ section.id }}');
+    const messageDiv = document.getElementById('newsletter-message-{{ section.id }}');
+    
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const button = form.querySelector('button[type="submit"]');
+            const originalText = button.innerHTML;
+            
+            // Show loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Subscribing...';
+            button.disabled = true;
+            
+            fetch('{{ url_for("web.newsletter_signup") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                messageDiv.className = 'alert ' + (data.success ? 'alert-success' : 'alert-danger');
+                messageDiv.textContent = data.message;
+                messageDiv.classList.remove('d-none');
+                
+                if (data.success) {
+                    form.reset();
+                }
+            })
+            .catch(error => {
+                messageDiv.className = 'alert alert-danger';
+                messageDiv.textContent = 'An error occurred. Please try again.';
+                messageDiv.classList.remove('d-none');
+            })
+            .finally(() => {
+                // Restore button state
+                button.innerHTML = originalText;
+                button.disabled = false;
+                
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    messageDiv.classList.add('d-none');
+                }, 5000);
+            });
+        });
+    }
+});
+</script>
+{% endif %}

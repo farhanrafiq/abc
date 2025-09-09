@@ -1,0 +1,100 @@
+{% if section.is_active %}
+<section class="category-showcase-section py-5" id="section-{{ section.id }}" style="background-color: {{ section.background_color or '#f8f9fa' }};">
+    <div class="container">
+        {% if section.title %}
+        <div class="row mb-5">
+            <div class="col-12 text-{{ section.text_alignment or 'center' }}">
+                <h2 class="section-title h1 fw-bold" style="color: {{ section.text_color or '#3B2A22' }};">
+                    {{ section.title }}
+                </h2>
+                {% if section.subtitle %}
+                <p class="section-subtitle lead mt-3" style="color: {{ section.text_color or '#666666' }}; opacity: 0.8;">
+                    {{ section.subtitle }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            {% set featured_categories = get_featured_categories() or [] %}
+            {% if featured_categories %}
+            {% for category in featured_categories[:8] %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="category-card position-relative overflow-hidden rounded shadow-sm">
+                    <a href="{{ url_for('web.catalog', category=category.id) }}" 
+                       class="text-decoration-none">
+                        <div class="category-image position-relative" style="height: 250px;">
+                            {% if category.image %}
+                            <img src="{{ url_for('static', filename='uploads/' + category.image) }}" 
+                                 class="w-100 h-100" 
+                                 alt="{{ category.name }}"
+                                 style="object-fit: cover;">
+                            {% else %}
+                            <div class="category-placeholder w-100 h-100 d-flex align-items-center justify-content-center"
+                                 style="background: linear-gradient(135deg, {{ section.button_color or '#E86A17' }}, {{ section.text_color or '#3B2A22' }});">
+                                <i class="fas fa-{{ get_category_icon(category.slug) or 'book' }} fa-3x text-white"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Overlay -->
+                            <div class="category-overlay position-absolute w-100 h-100 d-flex align-items-end"
+                                 style="top: 0; left: 0; background: linear-gradient(transparent 0%, rgba(0,0,0,0.7) 100%);">
+                                <div class="category-info p-3 text-white w-100">
+                                    <h5 class="category-name fw-bold mb-1">{{ category.name }}</h5>
+                                    <p class="category-count mb-0 small opacity-75">
+                                        {{ category.products|length }} books available
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Hover Overlay -->
+                            <div class="category-hover-overlay position-absolute w-100 h-100 d-flex align-items-center justify-content-center"
+                                 style="top: 0; left: 0; background: rgba(232, 106, 23, 0.9); opacity: 0; transition: opacity 0.3s;">
+                                <div class="text-center text-white">
+                                    <i class="fas fa-arrow-right fa-2x mb-2"></i>
+                                    <p class="mb-0 fw-bold">Explore {{ category.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-th-large fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No categories available at the moment.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if section.button_text and section.button_url %}
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="{{ section.button_url }}" 
+                   class="btn btn-lg px-4"
+                   style="background-color: {{ section.button_color or '#E86A17' }}; border-color: {{ section.button_color or '#E86A17' }}; color: white;">
+                    {{ section.button_text }}
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.category-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+.category-card:hover .category-hover-overlay {
+    opacity: 1 !important;
+}
+</style>
+{% endif %}

@@ -1,0 +1,161 @@
+{% if section.is_active %}
+<section class="featured-books-section py-5" id="section-{{ section.id }}" style="background-color: {{ section.background_color or '#f8f9fa' }};">
+    <div class="container">
+        {% if section.title %}
+        <div class="row mb-5">
+            <div class="col-12 text-{{ section.text_alignment or 'center' }}">
+                <h2 class="section-title h1 fw-bold" style="color: {{ section.text_color or '#3B2A22' }};">
+                    {{ section.title }}
+                </h2>
+                {% if section.subtitle %}
+                <p class="section-subtitle lead mt-3" style="color: {{ section.text_color or '#666666' }}; opacity: 0.8;">
+                    {{ section.subtitle }}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            {% set featured_books = featured_products or [] %}
+            {% if featured_books %}
+            {% for book in featured_books[:8] %}
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+                <div class="book-card card h-100 shadow-sm border-0 position-relative">
+                    {% if book.is_featured %}
+                    <div class="featured-badge position-absolute" style="top: 10px; right: 10px; z-index: 3;">
+                        <span class="badge bg-danger">
+                            <i class="fas fa-star me-1"></i>Featured
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="book-image-container position-relative">
+                        <a href="{{ url_for('web.product_detail', slug=book.slug) }}" class="text-decoration-none">
+                            {% if book.cover_image %}
+                            <img src="{{ url_for('static', filename='uploads/' + book.cover_image) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ book.title }}"
+                                 style="height: 280px; object-fit: cover;">
+                            {% else %}
+                            <div class="placeholder-cover d-flex align-items-center justify-content-center bg-light"
+                                 style="height: 280px;">
+                                <i class="fas fa-book fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Quick Action Overlay -->
+                            <div class="book-overlay position-absolute w-100 h-100 d-flex align-items-center justify-content-center"
+                                 style="top: 0; left: 0; background: rgba(0,0,0,0.7); opacity: 0; transition: opacity 0.3s;">
+                                <div class="text-center">
+                                    <button class="btn btn-primary btn-sm add-to-cart-btn" data-product-id="{{ book.id }}">
+                                        <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                                    </button>
+                                    <div class="mt-2">
+                                        <a href="{{ url_for('web.product_detail', slug=book.slug) }}" 
+                                           class="btn btn-outline-light btn-sm">
+                                            <i class="fas fa-eye me-1"></i>Quick View
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="card-body d-flex flex-column">
+                        <div class="book-meta mb-2">
+                            {% if book.category %}
+                            <span class="badge bg-secondary small">{{ book.category.name }}</span>
+                            {% endif %}
+                            {% if book.language %}
+                            <span class="badge bg-info small ms-1">{{ book.language.name }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <h6 class="book-title card-title fw-bold mb-2" style="line-height: 1.3;">
+                            <a href="{{ url_for('web.product_detail', slug=book.slug) }}" 
+                               class="text-decoration-none text-dark">
+                                {{ book.title[:60] }}{% if book.title|length > 60 %}...{% endif %}
+                            </a>
+                        </h6>
+                        
+                        {% if book.authors %}
+                        <p class="book-author text-muted small mb-2">
+                            by {{ book.authors[0].name }}{% if book.authors|length > 1 %} & others{% endif %}
+                        </p>
+                        {% endif %}
+                        
+                        <div class="book-price mt-auto">
+                            {% if book.price %}
+                            <div class="price-display">
+                                {% if book.price.sale_inr and book.price.sale_inr < book.price.mrp_inr %}
+                                <span class="current-price h6 text-success fw-bold">
+                                    {{ format_currency(book.price.sale_inr) }}
+                                </span>
+                                <span class="original-price small text-muted text-decoration-line-through ms-1">
+                                    {{ format_currency(book.price.mrp_inr) }}
+                                </span>
+                                <span class="discount-percent small text-danger ms-1">
+                                    ({{ ((book.price.mrp_inr - book.price.sale_inr) * 100 / book.price.mrp_inr)|round|int }}% off)
+                                </span>
+                                {% else %}
+                                <span class="current-price h6 fw-bold">
+                                    {{ format_currency(book.price.mrp_inr) }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Stock Status -->
+                        {% if book.inventory %}
+                        <div class="stock-status mt-2">
+                            {% if book.inventory.stock_on_hand > 10 %}
+                            <small class="text-success"><i class="fas fa-check-circle me-1"></i>In Stock</small>
+                            {% elif book.inventory.stock_on_hand > 0 %}
+                            <small class="text-warning"><i class="fas fa-exclamation-circle me-1"></i>Limited Stock ({{ book.inventory.stock_on_hand }} left)</small>
+                            {% else %}
+                            <small class="text-danger"><i class="fas fa-times-circle me-1"></i>Out of Stock</small>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                <p class="text-muted">No featured books available at the moment.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if section.button_text and section.button_url %}
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="{{ section.button_url }}" 
+                   class="btn btn-lg px-4"
+                   style="background-color: {{ section.button_color or '#E86A17' }}; border-color: {{ section.button_color or '#E86A17' }}; color: white;">
+                    {{ section.button_text }}
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+.book-card:hover .book-overlay {
+    opacity: 1 !important;
+}
+.book-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+</style>
+{% endif %}
