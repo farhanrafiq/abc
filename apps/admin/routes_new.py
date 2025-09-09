@@ -424,12 +424,12 @@ def settings():
     """Admin settings page"""
     return render_template('admin/settings_new.html')
 
-# Error handlers
+# Error handlers - simplified to avoid template issues
 @admin_bp.errorhandler(404)
 def admin_not_found(error):
-    return render_template('admin/404.html'), 404
+    return "Admin page not found", 404
 
 @admin_bp.errorhandler(500)
 def admin_internal_error(error):
     db.session.rollback()
-    return render_template('admin/500.html'), 500
+    return f"Admin internal error: {str(error)}", 500
