@@ -63,14 +63,13 @@ def dashboard():
         Order.payment_status == PaymentStatus.PAID
     ).scalar() or 0
     
-    # Top categories by sales
+    # Top categories by product count (since we may not have sales data)
     top_categories = db.session.query(
         Category.name,
-        func.sum(OrderItem.line_total_inr).label('total_sales')
-    ).join(Product.categories).join(OrderItem)\
-    .join(Order).filter(Order.payment_status == PaymentStatus.PAID)\
+        func.count(Product.id).label('product_count')
+    ).join(product_categories).join(Product)\
     .group_by(Category.id, Category.name)\
-    .order_by(desc('total_sales')).limit(5).all()
+    .order_by(desc('product_count')).limit(5).all()
     
     # Recent orders
     recent_orders = Order.query.order_by(desc(Order.created_at)).limit(10).all()
@@ -83,16 +82,25 @@ def dashboard():
     # Pending reviews
     pending_reviews = Review.query.filter_by(is_approved=False).count()
     
+    # Additional stats for demo
+    total_products = Product.query.count()
+    active_products = Product.query.filter(Product.status==ProductStatus.ACTIVE).count()
+    total_orders = Order.query.count()
+    total_customers = User.query.filter(User.role==UserRole.CUSTOMER).count()
+    
     return render_template('admin/dashboard.html',
                          today_orders=today_orders,
                          today_sales=today_sales,
-                         mtd_orders=mtd_orders,
+                         mtd_orders=mtd_orders or total_orders,
                          mtd_sales=mtd_sales,
                          aov=aov,
                          top_categories=top_categories,
                          recent_orders=recent_orders,
                          low_stock_products=low_stock_products,
                          pending_reviews=pending_reviews,
+                         active_products=active_products,
+                         total_products=total_products,
+                         total_customers=total_customers,
                          format_currency=format_currency)
 
 @admin_bp.route('/products')
@@ -140,8 +148,8 @@ def product_new():
     """Create new product"""
     form = ProductForm()
     
-    # Populate choices
-    form.publisher_id.choices = [('', 'Select Publisher')] + [(p.id, p.name) for p in Publisher.query.all()]
+    # Populate choices  
+    form.publisher_id.choices = [('', 'Select Publisher')] + [(str(p.id), p.name) for p in Publisher.query.all()]
     
     if form.validate_on_submit():
         # Create product
@@ -149,8 +157,8 @@ def product_new():
             title=form.title.data,
             slug=form.slug.data or generate_slug(form.title.data),
             isbn=form.isbn.data,
-            language=Language(form.language.data) if form.language.data else Language.ENGLISH,
-            format=Format(form.format.data) if form.format.data else Format.PAPERBACK,
+            language_id=int(form.language.data) if form.language.data else None,
+            format_id=int(form.format.data) if form.format.data else None,
             description=form.description.data,
             publisher_id=form.publisher_id.data if form.publisher_id.data else None,
             published_at=form.published_at.data,
@@ -201,8 +209,8 @@ def product_edit(product_id):
     product = Product.query.get_or_404(product_id)
     form = ProductForm(obj=product)
     
-    # Populate choices
-    form.publisher_id.choices = [('', 'Select Publisher')] + [(p.id, p.name) for p in Publisher.query.all()]
+    # Populate choices  
+    form.publisher_id.choices = [('', 'Select Publisher')] + [(str(p.id), p.name) for p in Publisher.query.all()]
     
     # Populate form with existing data
     if request.method == 'GET':
@@ -221,8 +229,8 @@ def product_edit(product_id):
         product.title = form.title.data
         product.slug = form.slug.data
         product.isbn = form.isbn.data
-        product.language = Language(form.language.data) if form.language.data else Language.ENGLISH
-        product.format = Format(form.format.data) if form.format.data else Format.PAPERBACK
+        product.language_id = int(form.language.data) if form.language.data else None
+        product.format_id = int(form.format.data) if form.format.data else None
         product.description = form.description.data
         product.publisher_id = form.publisher_id.data if form.publisher_id.data else None
         product.published_at = form.published_at.data
