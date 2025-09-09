@@ -311,16 +311,54 @@ def content_page(slug):
 @web_bp.route('/account')
 @login_required
 def account():
-    """User account dashboard"""
+    """Enhanced user account dashboard with comprehensive statistics"""
+    from models import OrderStatus, PaymentStatus
+    
     # Get user's recent orders
-    recent_orders = current_user.orders.order_by(desc('created_at')).limit(5).all()
+    recent_orders = current_user.orders.order_by(desc('created_at')).limit(10).all()
     
     # Get user's addresses
     addresses = current_user.addresses.all()
     
+    # Calculate account statistics
+    total_orders = current_user.orders.count()
+    completed_orders = current_user.orders.filter_by(status=OrderStatus.DELIVERED).count()
+    total_spent = db.session.query(func.sum(Order.grand_total_inr)).filter(
+        Order.user_id == current_user.id,
+        Order.payment_status == PaymentStatus.PAID
+    ).scalar() or 0
+    
+    # Get favorite products (most reviewed)
+    from models import Review
+    favorite_products_query = db.session.query(Product).join(Review).filter(
+        Review.user_id == current_user.id
+    ).group_by(Product.id).order_by(func.count(Review.id).desc()).limit(5)
+    favorite_products = favorite_products_query.all()
+    
+    # Get pending reviews (purchased but not reviewed)
+    purchased_product_ids = db.session.query(OrderItem.product_id).join(Order).filter(
+        Order.user_id == current_user.id,
+        Order.status == OrderStatus.DELIVERED
+    ).distinct().subquery()
+    
+    reviewed_product_ids = db.session.query(Review.product_id).filter(
+        Review.user_id == current_user.id
+    ).distinct().subquery()
+    
+    pending_reviews_query = db.session.query(Product).filter(
+        Product.id.in_(purchased_product_ids),
+        ~Product.id.in_(reviewed_product_ids)
+    ).limit(5)
+    pending_reviews = pending_reviews_query.all()
+    
     return render_template('web/account.html',
                          recent_orders=recent_orders,
-                         addresses=addresses)
+                         addresses=addresses,
+                         total_orders=total_orders,
+                         completed_orders=completed_orders,
+                         total_spent=total_spent,
+                         favorite_products=favorite_products,
+                         pending_reviews=pending_reviews)
 
 @web_bp.route('/contact', methods=['GET', 'POST'])
 def contact():

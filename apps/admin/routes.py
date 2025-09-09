@@ -1,118 +1,164 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app, jsonify, send_file
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, send_file
 from flask_login import login_required, current_user
 from functools import wraps
-from sqlalchemy import func, desc, and_, or_
-from models import (Product, Category, Author, Publisher, Price, Inventory, Order, OrderItem, 
-                   User, Review, Coupon, Setting, UserRole, OrderStatus, PaymentStatus, ProductStatus,
-                   Banner, FeaturedCategory, BannerType, ContactForm, AdminLog, ContentBlock, NewsletterSubscriber,
-                   Language, Format, CouponType, product_categories, product_authors)
+from sqlalchemy import func, desc, and_, or_, text
 from datetime import datetime, timedelta
-import io
-import csv
-from forms import (ProductForm, AuthorForm, PublisherForm, CategoryForm, CouponForm, UserForm)
-from utils.helpers import format_currency, save_uploaded_file, generate_slug, paginate_query
-from utils.pdf import generate_invoice_pdf
 from app import db
-from datetime import datetime, timedelta
-import csv
-import io
+from models import (
+    Product, Category, Author, Publisher, Price, Inventory, Order, OrderItem,
+    User, Review, UserRole, OrderStatus, PaymentStatus, ProductStatus,
+    ContactForm, NewsletterSubscriber, product_categories
+)
 import logging
 
-admin_bp = Blueprint('admin', __name__)
+# Professional Admin Blueprint
+admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 def admin_required(f):
-    """Decorator to require admin or staff role"""
+    """Decorator to require admin or staff privileges"""
     @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role not in [UserRole.ADMIN, UserRole.STAFF]:
+        if not current_user.is_authenticated:
+            flash('Please log in to access the admin panel.', 'error')
+            return redirect(url_for('auth.login'))
+        
+        if current_user.role not in [UserRole.ADMIN, UserRole.STAFF]:
             flash('Access denied. Admin privileges required.', 'error')
             return redirect(url_for('web.index'))
+        
         return f(*args, **kwargs)
     return decorated_function
 
+def format_currency(amount_paisa):
+    """Format currency from paisa to rupees"""
+    if amount_paisa is None:
+        return "₹0.00"
+    return f"₹{amount_paisa / 100:,.2f}"
+
+@admin_bp.context_processor
+def inject_admin_vars():
+    """Inject template variables for admin"""
+    # Get unread contacts count
+    unread_contacts = 0
+    try:
+        unread_contacts = ContactForm.query.filter_by(status='unread').count()
+    except:
+        pass
+    
+    return {
+        'format_currency': format_currency,
+        'datetime': datetime,
+        'current_user': current_user,
+        'unread_contacts': unread_contacts
+    }
+
+# Dashboard Route
 @admin_bp.route('/')
 @admin_required
 def dashboard():
-    """Admin dashboard with KPIs and analytics"""
-    today = datetime.utcnow().date()
-    month_start = today.replace(day=1)
-    
-    # Today's stats
-    today_orders = Order.query.filter(
-        func.date(Order.created_at) == today
-    ).count()
-    
-    today_sales = db.session.query(func.sum(Order.grand_total_inr)).filter(
-        func.date(Order.created_at) == today,
-        Order.payment_status == PaymentStatus.PAID
-    ).scalar() or 0
-    
-    # Month-to-date stats
-    mtd_orders = Order.query.filter(
-        Order.created_at >= month_start
-    ).count()
-    
-    mtd_sales = db.session.query(func.sum(Order.grand_total_inr)).filter(
-        Order.created_at >= month_start,
-        Order.payment_status == PaymentStatus.PAID
-    ).scalar() or 0
-    
-    # Average order value
-    aov = db.session.query(func.avg(Order.grand_total_inr)).filter(
-        Order.payment_status == PaymentStatus.PAID
-    ).scalar() or 0
-    
-    # Top categories by product count - simplified query
+    """Professional admin dashboard with comprehensive analytics"""
     try:
-        top_categories = db.session.query(
-            Category.name,
-            func.count(Product.id).label('product_count')
-        ).select_from(Category)\
-        .join(product_categories, Category.id == product_categories.c.category_id)\
-        .join(Product, Product.id == product_categories.c.product_id)\
-        .group_by(Category.id, Category.name)\
-        .order_by(desc('product_count')).limit(5).all()
+        # Basic counts
+        total_products = Product.query.count()
+        total_customers = User.query.filter(User.role == UserRole.CUSTOMER).count()
+        total_orders = Order.query.count()
+        total_revenue = db.session.query(func.sum(Order.grand_total_inr)).filter(
+            Order.payment_status == PaymentStatus.PAID
+        ).scalar() or 0
+        
+        # Today's stats
+        today = datetime.utcnow().date()
+        today_orders = Order.query.filter(
+            func.date(Order.created_at) == today
+        ).count()
+        
+        today_revenue = db.session.query(func.sum(Order.grand_total_inr)).filter(
+            func.date(Order.created_at) == today,
+            Order.payment_status == PaymentStatus.PAID
+        ).scalar() or 0
+        
+        # Monthly stats
+        month_start = today.replace(day=1)
+        monthly_orders = Order.query.filter(
+            Order.created_at >= month_start
+        ).count()
+        
+        monthly_revenue = db.session.query(func.sum(Order.grand_total_inr)).filter(
+            Order.created_at >= month_start,
+            Order.payment_status == PaymentStatus.PAID
+        ).scalar() or 0
+        
+        # Recent orders
+        recent_orders = Order.query.order_by(desc(Order.created_at)).limit(10).all()
+        
+        # Low stock products
+        low_stock_products = db.session.query(Product, Inventory).join(Inventory).filter(
+            Inventory.stock_on_hand <= Inventory.low_stock_threshold
+        ).limit(10).all()
+        
+        # Top categories (simplified query)
+        top_categories = db.session.query(Category.name, func.count(Product.id).label('count')).join(
+            product_categories, Category.id == product_categories.c.category_id
+        ).join(Product, Product.id == product_categories.c.product_id).group_by(
+            Category.id, Category.name
+        ).order_by(desc('count')).limit(5).all()
+        
+        # Recent reviews
+        recent_reviews = Review.query.filter(Review.is_approved == False).order_by(
+            desc(Review.created_at)
+        ).limit(5).all()
+        
+        # Newsletter stats
+        newsletter_count = NewsletterSubscriber.query.filter(
+            NewsletterSubscriber.is_active == True
+        ).count()
+        
+        # Contact forms
+        unread_contacts = ContactForm.query.filter(ContactForm.status == 'unread').count()
+        
+        return render_template('admin/dashboard.html',
+            total_products=total_products,
+            total_customers=total_customers,
+            total_orders=total_orders,
+            total_revenue=total_revenue,
+            today_orders=today_orders,
+            today_revenue=today_revenue,
+            monthly_orders=monthly_orders,
+            monthly_revenue=monthly_revenue,
+            recent_orders=recent_orders,
+            low_stock_products=low_stock_products,
+            top_categories=top_categories,
+            recent_reviews=recent_reviews,
+            newsletter_count=newsletter_count,
+            unread_contacts=unread_contacts
+        )
+        
     except Exception as e:
-        # Fallback to simple category list if query fails
-        top_categories = [(cat.name, 0) for cat in Category.query.limit(5).all()]
-    
-    # Recent orders
-    recent_orders = Order.query.order_by(desc(Order.created_at)).limit(10).all()
-    
-    # Low stock products
-    low_stock_products = db.session.query(Product).join(Inventory)\
-        .filter(Inventory.stock_on_hand <= Inventory.low_stock_threshold)\
-        .limit(10).all()
-    
-    # Pending reviews
-    pending_reviews = Review.query.filter_by(is_approved=False).count()
-    
-    # Additional stats for demo
-    total_products = Product.query.count()
-    active_products = Product.query.filter(Product.status==ProductStatus.ACTIVE).count()
-    total_orders = Order.query.count()
-    total_customers = User.query.filter(User.role==UserRole.CUSTOMER).count()
-    
-    return render_template('admin/dashboard.html',
-                         today_orders=today_orders,
-                         today_sales=today_sales,
-                         mtd_orders=mtd_orders or total_orders,
-                         mtd_sales=mtd_sales,
-                         aov=aov,
-                         top_categories=top_categories,
-                         recent_orders=recent_orders,
-                         low_stock_products=low_stock_products,
-                         pending_reviews=pending_reviews,
-                         active_products=active_products,
-                         total_products=total_products,
-                         total_customers=total_customers,
-                         format_currency=format_currency)
+        logging.error(f"Dashboard error: {str(e)}")
+        flash('Error loading dashboard. Some data may be unavailable.', 'warning')
+        return render_template('admin/dashboard.html',
+            total_products=0,
+            total_customers=0,
+            total_orders=0,
+            total_revenue=0,
+            today_orders=0,
+            today_revenue=0,
+            monthly_orders=0,
+            monthly_revenue=0,
+            recent_orders=[],
+            low_stock_products=[],
+            top_categories=[],
+            recent_reviews=[],
+            newsletter_count=0,
+            unread_contacts=0
+        )
 
+# Products Management
 @admin_bp.route('/products')
 @admin_required
 def products():
-    """Product management listing"""
+    """Products management with search and filtering"""
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
     category_id = request.args.get('category', type=int)
@@ -120,801 +166,102 @@ def products():
     
     query = Product.query
     
-    # Search filter
     if search:
-        query = query.filter(or_(
-            Product.title.ilike(f'%{search}%'),
-            Product.isbn.ilike(f'%{search}%')
-        ))
+        query = query.filter(
+            or_(
+                Product.title.ilike(f'%{search}%'),
+                Product.isbn.ilike(f'%{search}%')
+            )
+        )
     
-    # Category filter
     if category_id:
-        query = query.join(Product.categories).filter(Category.id == category_id)
+        query = query.join(product_categories).filter(
+            product_categories.c.category_id == category_id
+        )
     
-    # Status filter
     if status:
-        query = query.filter(Product.status == status)
+        if status == 'active':
+            query = query.filter(Product.status == ProductStatus.ACTIVE)
+        elif status == 'draft':
+            query = query.filter(Product.status == ProductStatus.DRAFT)
+        elif status == 'archived':
+            query = query.filter(Product.status == ProductStatus.ARCHIVED)
     
-    query = query.order_by(desc(Product.created_at))
-    products = paginate_query(query, page, 20)
+    products = query.paginate(
+        page=page, per_page=20, error_out=False
+    )
     
-    # Get filter options
     categories = Category.query.all()
     
-    return render_template('admin/products.html',
-                         products=products,
-                         categories=categories,
-                         search=search,
-                         selected_category=category_id,
-                         selected_status=status)
+    return render_template('admin/products_new.html',
+        products=products,
+        categories=categories,
+        search=search,
+        selected_category=category_id,
+        selected_status=status
+    )
 
-@admin_bp.route('/products/new', methods=['GET', 'POST'])
-@admin_required
-def product_new():
-    """Create new product"""
-    form = ProductForm()
-    
-    # Populate choices  
-    form.publisher_id.choices = [('', 'Select Publisher')] + [(str(p.id), p.name) for p in Publisher.query.all()]
-    
-    if form.validate_on_submit():
-        # Create product
-        product = Product(
-            title=form.title.data,
-            slug=form.slug.data or generate_slug(form.title.data),
-            isbn=form.isbn.data,
-            language_id=int(form.language.data) if form.language.data else None,
-            format_id=int(form.format.data) if form.format.data else None,
-            description=form.description.data,
-            publisher_id=form.publisher_id.data if form.publisher_id.data else None,
-            published_at=form.published_at.data,
-            weight_grams=form.weight_grams.data,
-            dimensions_l=form.dimensions_l.data,
-            dimensions_w=form.dimensions_w.data,
-            dimensions_h=form.dimensions_h.data,
-            status=ProductStatus(form.status.data)
-        )
-        
-        # Handle cover image upload
-        if form.cover_image.data:
-            filename = save_uploaded_file(form.cover_image.data, 'products')
-            if filename:
-                product.cover_image = filename
-        
-        db.session.add(product)
-        db.session.flush()  # To get product.id
-        
-        # Create price
-        price = Price(
-            product_id=product.id,
-            mrp_inr=int(form.mrp_inr.data * 100),  # Convert to paisa
-            sale_inr=int(form.sale_inr.data * 100) if form.sale_inr.data else None,
-            tax_rate_pct=form.tax_rate_pct.data or 0.0
-        )
-        db.session.add(price)
-        
-        # Create inventory
-        inventory = Inventory(
-            product_id=product.id,
-            sku=form.sku.data,
-            stock_on_hand=form.stock_on_hand.data,
-            low_stock_threshold=form.low_stock_threshold.data
-        )
-        db.session.add(inventory)
-        
-        db.session.commit()
-        flash('Product created successfully!', 'success')
-        return redirect(url_for('admin.products'))
-    
-    return render_template('admin/product_form.html', form=form, product=None)
-
-@admin_bp.route('/products/<int:product_id>/edit', methods=['GET', 'POST'])
-@admin_required
-def product_edit(product_id):
-    """Edit existing product"""
-    product = Product.query.get_or_404(product_id)
-    form = ProductForm(obj=product)
-    
-    # Populate choices  
-    form.publisher_id.choices = [('', 'Select Publisher')] + [(str(p.id), p.name) for p in Publisher.query.all()]
-    
-    # Populate form with existing data
-    if request.method == 'GET':
-        if product.price:
-            form.mrp_inr.data = product.price.mrp_inr / 100  # Convert from paisa
-            form.sale_inr.data = product.price.sale_inr / 100 if product.price.sale_inr else None
-            form.tax_rate_pct.data = product.price.tax_rate_pct
-        
-        if product.inventory:
-            form.sku.data = product.inventory.sku
-            form.stock_on_hand.data = product.inventory.stock_on_hand
-            form.low_stock_threshold.data = product.inventory.low_stock_threshold
-    
-    if form.validate_on_submit():
-        # Update product
-        product.title = form.title.data
-        product.slug = form.slug.data
-        product.isbn = form.isbn.data
-        product.language_id = int(form.language.data) if form.language.data else None
-        product.format_id = int(form.format.data) if form.format.data else None
-        product.description = form.description.data
-        product.publisher_id = form.publisher_id.data if form.publisher_id.data else None
-        product.published_at = form.published_at.data
-        product.weight_grams = form.weight_grams.data
-        product.dimensions_l = form.dimensions_l.data
-        product.dimensions_w = form.dimensions_w.data
-        product.dimensions_h = form.dimensions_h.data
-        product.status = ProductStatus(form.status.data)
-        
-        # Handle cover image upload
-        if form.cover_image.data:
-            filename = save_uploaded_file(form.cover_image.data, 'products')
-            if filename:
-                product.cover_image = filename
-        
-        # Update or create price
-        if product.price:
-            product.price.mrp_inr = int(form.mrp_inr.data * 100)
-            product.price.sale_inr = int(form.sale_inr.data * 100) if form.sale_inr.data else None
-            product.price.tax_rate_pct = form.tax_rate_pct.data or 0.0
-        else:
-            price = Price(
-                product_id=product.id,
-                mrp_inr=int(form.mrp_inr.data * 100),
-                sale_inr=int(form.sale_inr.data * 100) if form.sale_inr.data else None,
-                tax_rate_pct=form.tax_rate_pct.data or 0.0
-            )
-            db.session.add(price)
-        
-        # Update or create inventory
-        if product.inventory:
-            product.inventory.sku = form.sku.data
-            product.inventory.stock_on_hand = form.stock_on_hand.data
-            product.inventory.low_stock_threshold = form.low_stock_threshold.data
-        else:
-            inventory = Inventory(
-                product_id=product.id,
-                sku=form.sku.data,
-                stock_on_hand=form.stock_on_hand.data,
-                low_stock_threshold=form.low_stock_threshold.data
-            )
-            db.session.add(inventory)
-        
-        db.session.commit()
-        flash('Product updated successfully!', 'success')
-        return redirect(url_for('admin.products'))
-    
-    return render_template('admin/product_form.html', form=form, product=product)
-
+# Orders Management
 @admin_bp.route('/orders')
 @admin_required
 def orders():
-    """Order management listing"""
+    """Orders management with filtering and status updates"""
     page = request.args.get('page', 1, type=int)
-    search = request.args.get('search', '')
     status = request.args.get('status', '')
+    search = request.args.get('search', '')
     
     query = Order.query
     
-    # Search filter
     if search:
-        query = query.filter(or_(
-            Order.id.like(f'%{search}%'),
-            Order.email.ilike(f'%{search}%'),
-            Order.phone.ilike(f'%{search}%')
-        ))
+        query = query.filter(
+            or_(
+                Order.email.ilike(f'%{search}%'),
+                Order.id.like(f'%{search}%')
+            )
+        )
     
-    # Status filter
     if status:
-        query = query.filter(Order.status == status)
+        query = query.filter(Order.status == OrderStatus(status))
     
-    query = query.order_by(desc(Order.created_at))
-    orders = paginate_query(query, page, 20)
+    orders = query.order_by(desc(Order.created_at)).paginate(
+        page=page, per_page=20, error_out=False
+    )
     
-    return render_template('admin/orders.html',
-                         orders=orders,
-                         search=search,
-                         selected_status=status,
-                         OrderStatus=OrderStatus,
-                         format_currency=format_currency)
+    return render_template('admin/orders_new.html',
+        orders=orders,
+        search=search,
+        selected_status=status,
+        order_statuses=OrderStatus
+    )
 
+# Order Detail
 @admin_bp.route('/orders/<int:order_id>')
 @admin_required
 def order_detail(order_id):
-    """Order detail page"""
+    """Detailed order view with status management"""
     order = Order.query.get_or_404(order_id)
-    return render_template('admin/order_detail.html',
-                         order=order,
-                         format_currency=format_currency)
+    return render_template('admin/order_detail_new.html', order=order)
 
-@admin_bp.route('/orders/<int:order_id>/update_status', methods=['POST'])
+# Update Order Status
+@admin_bp.route('/orders/<int:order_id>/status', methods=['POST'])
 @admin_required
 def update_order_status(order_id):
     """Update order status"""
     order = Order.query.get_or_404(order_id)
     new_status = request.form.get('status')
     
-    if new_status in [status.value for status in OrderStatus]:
+    try:
         order.status = OrderStatus(new_status)
         db.session.commit()
-        flash(f'Order status updated to {new_status}', 'success')
-    else:
-        flash('Invalid status', 'error')
+        flash(f'Order #{order.id} status updated to {new_status.value.title() if new_status else "Unknown"}', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error updating order status', 'error')
+        logging.error(f"Order status update error: {str(e)}")
     
     return redirect(url_for('admin.order_detail', order_id=order_id))
 
-@admin_bp.route('/orders/<int:order_id>/invoice')
-@admin_required
-def order_invoice(order_id):
-    """Generate and download order invoice"""
-    order = Order.query.get_or_404(order_id)
-    
-    # Generate PDF
-    pdf_buffer = generate_invoice_pdf(order)
-    
-    return send_file(
-        pdf_buffer,
-        as_attachment=True,
-        download_name=f'invoice_{order.id}.pdf',
-        mimetype='application/pdf'
-    )
-
-@admin_bp.route('/authors')
-@admin_required
-def authors():
-    """Author management"""
-    page = request.args.get('page', 1, type=int)
-    search = request.args.get('search', '')
-    
-    query = Author.query
-    if search:
-        query = query.filter(Author.name.ilike(f'%{search}%'))
-    
-    query = query.order_by(Author.name)
-    authors = paginate_query(query, page, 20)
-    
-    return render_template('admin/authors.html', authors=authors, search=search)
-
-@admin_bp.route('/authors/new', methods=['GET', 'POST'])
-@admin_required
-def author_new():
-    """Create new author"""
-    form = AuthorForm()
-    
-    if form.validate_on_submit():
-        author = Author(
-            name=form.name.data,
-            slug=form.slug.data or generate_slug(form.name.data),
-            bio=form.bio.data
-        )
-        db.session.add(author)
-        db.session.commit()
-        flash('Author created successfully!', 'success')
-        return redirect(url_for('admin.authors'))
-    
-    return render_template('admin/author_form.html', form=form, author=None)
-
-@admin_bp.route('/authors/<int:author_id>/edit', methods=['GET', 'POST'])
-@admin_required
-def author_edit(author_id):
-    """Edit existing author"""
-    author = Author.query.get_or_404(author_id)
-    form = AuthorForm(obj=author)
-    
-    if form.validate_on_submit():
-        author.name = form.name.data
-        author.slug = form.slug.data
-        author.bio = form.bio.data
-        db.session.commit()
-        flash('Author updated successfully!', 'success')
-        return redirect(url_for('admin.authors'))
-    
-    return render_template('admin/author_form.html', form=form, author=author)
-
-@admin_bp.route('/authors/<int:author_id>/delete', methods=['POST'])
-@admin_required
-def author_delete(author_id):
-    """Delete author"""
-    author = Author.query.get_or_404(author_id)
-    
-    # Check if author has products
-    if author.products:
-        flash('Cannot delete author with existing products!', 'error')
-    else:
-        author_name = author.name
-        db.session.delete(author)
-        db.session.commit()
-        flash(f'Author "{author_name}" deleted successfully!', 'success')
-    
-    return redirect(url_for('admin.authors'))
-
-@admin_bp.route('/publishers')
-@admin_required
-def publishers():
-    """Publisher management"""
-    page = request.args.get('page', 1, type=int)
-    search = request.args.get('search', '')
-    
-    query = Publisher.query
-    if search:
-        query = query.filter(Publisher.name.ilike(f'%{search}%'))
-    
-    query = query.order_by(Publisher.name)
-    publishers = paginate_query(query, page, 20)
-    
-    return render_template('admin/publishers.html', publishers=publishers, search=search)
-
-@admin_bp.route('/publishers/new', methods=['GET', 'POST'])
-@admin_required
-def publisher_new():
-    """Create new publisher"""
-    form = PublisherForm()
-    
-    if form.validate_on_submit():
-        publisher = Publisher(
-            name=form.name.data,
-            slug=form.slug.data or generate_slug(form.name.data),
-            description=form.description.data
-        )
-        db.session.add(publisher)
-        db.session.commit()
-        flash('Publisher created successfully!', 'success')
-        return redirect(url_for('admin.publishers'))
-    
-    return render_template('admin/publisher_form.html', form=form, publisher=None)
-
-@admin_bp.route('/publishers/<int:publisher_id>/edit', methods=['GET', 'POST'])
-@admin_required
-def publisher_edit(publisher_id):
-    """Edit existing publisher"""
-    publisher = Publisher.query.get_or_404(publisher_id)
-    form = PublisherForm(obj=publisher)
-    
-    if form.validate_on_submit():
-        publisher.name = form.name.data
-        publisher.slug = form.slug.data
-        publisher.description = form.description.data
-        db.session.commit()
-        flash('Publisher updated successfully!', 'success')
-        return redirect(url_for('admin.publishers'))
-    
-    return render_template('admin/publisher_form.html', form=form, publisher=publisher)
-
-@admin_bp.route('/publishers/<int:publisher_id>/delete', methods=['POST'])
-@admin_required
-def publisher_delete(publisher_id):
-    """Delete publisher"""
-    publisher = Publisher.query.get_or_404(publisher_id)
-    
-    # Check if publisher has products
-    if publisher.products:
-        flash('Cannot delete publisher with existing products!', 'error')
-    else:
-        publisher_name = publisher.name
-        db.session.delete(publisher)
-        db.session.commit()
-        flash(f'Publisher "{publisher_name}" deleted successfully!', 'success')
-    
-    return redirect(url_for('admin.publishers'))
-
-@admin_bp.route('/categories')
-@admin_required
-def categories():
-    """Category management"""
-    categories = Category.query.order_by(Category.name).all()
-    return render_template('admin/categories.html', categories=categories)
-
-@admin_bp.route('/categories/new', methods=['GET', 'POST'])
-@admin_required
-def category_new():
-    """Create new category"""
-    form = CategoryForm()
-    
-    # Populate parent category choices
-    form.parent_id.choices = [('', 'No Parent')] + [(str(c.id), c.name) for c in Category.query.filter_by(parent_id=None).all()]
-    
-    if form.validate_on_submit():
-        category = Category(
-            name=form.name.data,
-            slug=form.slug.data or generate_slug(form.name.data),
-            parent_id=form.parent_id.data if form.parent_id.data else None
-        )
-        db.session.add(category)
-        db.session.commit()
-        flash('Category created successfully!', 'success')
-        return redirect(url_for('admin.categories'))
-    
-    return render_template('admin/category_form.html', form=form, category=None)
-
-@admin_bp.route('/categories/<int:category_id>/edit', methods=['GET', 'POST'])
-@admin_required
-def category_edit(category_id):
-    """Edit existing category"""
-    category = Category.query.get_or_404(category_id)
-    form = CategoryForm(obj=category)
-    
-    # Populate parent category choices (exclude self and children)
-    valid_parents = Category.query.filter(Category.id != category_id).filter_by(parent_id=None).all()
-    form.parent_id.choices = [('', 'No Parent')] + [(str(c.id), c.name) for c in valid_parents]
-    
-    if form.validate_on_submit():
-        category.name = form.name.data
-        category.slug = form.slug.data
-        category.parent_id = form.parent_id.data if form.parent_id.data else None
-        db.session.commit()
-        flash('Category updated successfully!', 'success')
-        return redirect(url_for('admin.categories'))
-    
-    return render_template('admin/category_form.html', form=form, category=category)
-
-@admin_bp.route('/categories/<int:category_id>/delete', methods=['POST'])
-@admin_required
-def category_delete(category_id):
-    """Delete category"""
-    category = Category.query.get_or_404(category_id)
-    
-    # Check if category has products or subcategories
-    if category.products or category.children:
-        flash('Cannot delete category with existing products or subcategories!', 'error')
-    else:
-        category_name = category.name
-        db.session.delete(category)
-        db.session.commit()
-        flash(f'Category "{category_name}" deleted successfully!', 'success')
-    
-    return redirect(url_for('admin.categories'))
-
-@admin_bp.route('/reviews')
-@admin_required
-def reviews():
-    """Review management"""
-    page = request.args.get('page', 1, type=int)
-    status = request.args.get('status', 'pending')
-    
-    query = Review.query.join(Product).join(User)
-    
-    if status == 'pending':
-        query = query.filter(Review.is_approved == False)
-    elif status == 'approved':
-        query = query.filter(Review.is_approved == True)
-    
-    query = query.order_by(desc(Review.created_at))
-    reviews = paginate_query(query, page, 20)
-    
-    return render_template('admin/reviews.html', reviews=reviews, status=status)
-
-@admin_bp.route('/reviews/<int:review_id>/approve', methods=['POST'])
-@admin_required
-def approve_review(review_id):
-    """Approve a review"""
-    review = Review.query.get_or_404(review_id)
-    review.is_approved = True
-    db.session.commit()
-    flash('Review approved successfully!', 'success')
-    return redirect(url_for('admin.reviews'))
-
-@admin_bp.route('/reviews/<int:review_id>/reject', methods=['POST'])
-@admin_required
-def reject_review(review_id):
-    """Reject a review"""
-    review = Review.query.get_or_404(review_id)
-    db.session.delete(review)
-    db.session.commit()
-    flash('Review rejected and deleted.', 'success')
-    return redirect(url_for('admin.reviews'))
-
-@admin_bp.route('/coupons')
-@admin_required
-def coupons():
-    """Coupon management"""
-    page = request.args.get('page', 1, type=int)
-    coupons = paginate_query(Coupon.query.order_by(desc(Coupon.created_at)), page, 20)
-    return render_template('admin/coupons.html', coupons=coupons)
-
-@admin_bp.route('/coupons/new', methods=['GET', 'POST'])
-@admin_required
-def coupon_new():
-    """Create new coupon"""
-    form = CouponForm()
-    
-    if form.validate_on_submit():
-        coupon = Coupon(
-            code=form.code.data.upper(),
-            type=CouponType(form.type.data),
-            value=form.value.data,
-            min_subtotal=int(form.min_subtotal.data * 100) if form.min_subtotal.data else None,
-            max_redemptions=form.max_redemptions.data,
-            per_user_limit=form.per_user_limit.data,
-            is_active=True
-        )
-        
-        try:
-            db.session.add(coupon)
-            db.session.commit()
-            flash('Coupon created successfully!', 'success')
-            return redirect(url_for('admin.coupons'))
-        except Exception as e:
-            db.session.rollback()
-            flash('Error creating coupon. Code may already exist.', 'error')
-    
-    return render_template('admin/coupon_form.html', form=form, coupon=None)
-
-@admin_bp.route('/coupons/<int:coupon_id>/edit', methods=['GET', 'POST'])
-@admin_required
-def coupon_edit(coupon_id):
-    """Edit existing coupon"""
-    coupon = Coupon.query.get_or_404(coupon_id)
-    form = CouponForm(obj=coupon)
-    
-    # Populate form with existing data
-    if request.method == 'GET':
-        form.min_subtotal.data = coupon.min_subtotal / 100 if coupon.min_subtotal else None
-    
-    if form.validate_on_submit():
-        coupon.code = form.code.data.upper()
-        coupon.type = CouponType(form.type.data)
-        coupon.value = form.value.data
-        coupon.min_subtotal = int(form.min_subtotal.data * 100) if form.min_subtotal.data else None
-        coupon.max_redemptions = form.max_redemptions.data
-        coupon.per_user_limit = form.per_user_limit.data
-        
-        try:
-            db.session.commit()
-            flash('Coupon updated successfully!', 'success')
-            return redirect(url_for('admin.coupons'))
-        except Exception as e:
-            db.session.rollback()
-            flash('Error updating coupon.', 'error')
-    
-    return render_template('admin/coupon_form.html', form=form, coupon=coupon)
-
-@admin_bp.route('/coupons/<int:coupon_id>/toggle', methods=['POST'])
-@admin_required
-def coupon_toggle(coupon_id):
-    """Toggle coupon status"""
-    coupon = Coupon.query.get_or_404(coupon_id)
-    coupon.is_active = not coupon.is_active
-    db.session.commit()
-    
-    status = 'activated' if coupon.is_active else 'deactivated'
-    flash(f'Coupon {status} successfully!', 'success')
-    return redirect(url_for('admin.coupons'))
-
-@admin_bp.route('/coupons/<int:coupon_id>/delete', methods=['POST'])
-@admin_required
-def coupon_delete(coupon_id):
-    """Delete coupon"""
-    coupon = Coupon.query.get_or_404(coupon_id)
-    coupon_code = coupon.code
-    
-    db.session.delete(coupon)
-    db.session.commit()
-    flash(f'Coupon "{coupon_code}" deleted successfully!', 'success')
-    return redirect(url_for('admin.coupons'))
-
-@admin_bp.route('/settings')
-@admin_required
-def settings():
-    """Store settings"""
-    # Get all settings
-    settings_dict = {}
-    settings = Setting.query.all()
-    for setting in settings:
-        settings_dict[setting.key] = setting.value
-    
-    return render_template('admin/settings.html', settings=settings_dict)
-
-@admin_bp.route('/settings/update', methods=['POST'])
-@admin_required
-def update_settings():
-    """Update store settings"""
-    for key, value in request.form.items():
-        if key.startswith('setting_'):
-            setting_key = key.replace('setting_', '')
-            setting = Setting.query.filter_by(key=setting_key).first()
-            if setting:
-                setting.value = value
-            else:
-                setting = Setting(key=setting_key, value=value)
-                db.session.add(setting)
-    
-    db.session.commit()
-    flash('Settings updated successfully!', 'success')
-    return redirect(url_for('admin.settings'))
-
-@admin_bp.route('/export/products')
-@admin_required
-def export_products():
-    """Export products to CSV"""
-    output = io.StringIO()
-    writer = csv.writer(output)
-    
-    # Write header
-    writer.writerow(['ID', 'Title', 'ISBN', 'Language', 'Format', 'Publisher', 'MRP', 'Sale Price', 'Stock', 'Status'])
-    
-    # Write products
-    products = db.session.query(Product).join(Price).join(Inventory).all()
-    for product in products:
-        writer.writerow([
-            product.id,
-            product.title,
-            product.isbn or '',
-            product.language.value if product.language else '',
-            product.format.value if product.format else '',
-            product.publisher.name if product.publisher else '',
-            product.price.mrp_inr / 100 if product.price else 0,
-            product.price.sale_inr / 100 if product.price and product.price.sale_inr else '',
-            product.inventory.stock_on_hand if product.inventory else 0,
-            product.status.value
-        ])
-    
-    output.seek(0)
-    
-    return send_file(
-        io.BytesIO(output.getvalue().encode()),
-        as_attachment=True,
-        download_name='products.csv',
-        mimetype='text/csv'
-    )
-
-# AJAX endpoints
-@admin_bp.route('/api/products/<int:product_id>/toggle_status', methods=['POST'])
-@admin_required
-def toggle_product_status(product_id):
-    """Toggle product status via AJAX"""
-    product = Product.query.get_or_404(product_id)
-    
-    if product.status == ProductStatus.ACTIVE:
-        product.status = ProductStatus.ARCHIVED
-    else:
-        product.status = ProductStatus.ACTIVE
-    
-    db.session.commit()
-    
-    return jsonify({
-        'success': True,
-        'new_status': product.status.value
-    })
-
-@admin_bp.route('/api/inventory/<int:product_id>/update', methods=['POST'])
-@admin_required
-def update_inventory(product_id):
-    """Update product inventory via AJAX"""
-    product = Product.query.get_or_404(product_id)
-    data = request.get_json()
-    
-    if product.inventory:
-        product.inventory.stock_on_hand = data.get('stock', 0)
-        db.session.commit()
-        
-        return jsonify({
-            'success': True,
-            'new_stock': product.inventory.stock_on_hand
-        })
-    
-    return jsonify({'success': False, 'error': 'No inventory record found'})
-
-# Banner Management Routes
-@admin_bp.route('/banners')
-@admin_required
-def banners():
-    """List all banners"""
-    page = request.args.get('page', 1, type=int)
-    query = Banner.query.order_by(Banner.sort_order, Banner.created_at.desc())
-    banners = paginate_query(query, page, per_page=20)
-    
-    return render_template('admin/banners/list.html', banners=banners)
-
-@admin_bp.route('/banners/create', methods=['GET', 'POST'])
-@admin_required
-def create_banner():
-    """Create new banner"""
-    if request.method == 'POST':
-        banner = Banner(
-            title=request.form['title'],
-            subtitle=request.form.get('subtitle'),
-            description=request.form.get('description'),
-            image_url=request.form.get('image_url'),
-            link_url=request.form.get('link_url'),
-            link_text=request.form.get('link_text'),
-            banner_type=BannerType(request.form.get('banner_type', 'hero')),
-            sort_order=request.form.get('sort_order', 0, type=int),
-            is_active=bool(request.form.get('is_active'))
-        )
-        
-        db.session.add(banner)
-        db.session.commit()
-        flash('Banner created successfully!', 'success')
-        return redirect(url_for('admin.banners'))
-    
-    return render_template('admin/banners/form.html', banner=None)
-
-@admin_bp.route('/banners/<int:banner_id>/edit', methods=['GET', 'POST'])
-@admin_required
-def edit_banner(banner_id):
-    """Edit existing banner"""
-    banner = Banner.query.get_or_404(banner_id)
-    
-    if request.method == 'POST':
-        banner.title = request.form['title']
-        banner.subtitle = request.form.get('subtitle')
-        banner.description = request.form.get('description')
-        banner.image_url = request.form.get('image_url')
-        banner.link_url = request.form.get('link_url')
-        banner.link_text = request.form.get('link_text')
-        banner.banner_type = BannerType(request.form.get('banner_type', 'hero'))
-        banner.sort_order = request.form.get('sort_order', 0, type=int)
-        banner.is_active = bool(request.form.get('is_active'))
-        banner.updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        flash('Banner updated successfully!', 'success')
-        return redirect(url_for('admin.banners'))
-    
-    return render_template('admin/banners/form.html', banner=banner)
-
-@admin_bp.route('/banners/<int:banner_id>/delete', methods=['POST'])
-@admin_required
-def delete_banner(banner_id):
-    """Delete banner"""
-    banner = Banner.query.get_or_404(banner_id)
-    db.session.delete(banner)
-    db.session.commit()
-    flash('Banner deleted successfully!', 'success')
-    return redirect(url_for('admin.banners'))
-
-# Featured Categories Management
-@admin_bp.route('/featured-categories')
-@admin_required
-def featured_categories():
-    """Manage featured categories for homepage"""
-    featured = db.session.query(FeaturedCategory, Category)\
-        .join(Category)\
-        .filter(FeaturedCategory.is_active == True)\
-        .order_by(FeaturedCategory.sort_order).all()
-    
-    available_categories = Category.query\
-        .filter(~Category.id.in_([f.category_id for f, c in featured]))\
-        .order_by(Category.name).all()
-    
-    return render_template('admin/featured_categories.html', 
-                         featured=featured, 
-                         available_categories=available_categories)
-
-@admin_bp.route('/featured-categories/add', methods=['POST'])
-@admin_required
-def add_featured_category():
-    """Add category to featured list"""
-    category_id = request.form.get('category_id', type=int)
-    sort_order = request.form.get('sort_order', 0, type=int)
-    
-    # Check if already featured
-    existing = FeaturedCategory.query.filter_by(category_id=category_id, is_active=True).first()
-    if existing:
-        flash('Category is already featured!', 'warning')
-    else:
-        featured = FeaturedCategory(
-            category_id=category_id,
-            sort_order=sort_order,
-            is_active=True
-        )
-        db.session.add(featured)
-        db.session.commit()
-        flash('Category added to featured list!', 'success')
-    
-    return redirect(url_for('admin.featured_categories'))
-
-@admin_bp.route('/featured-categories/<int:featured_id>/remove', methods=['POST'])
-@admin_required
-def remove_featured_category(featured_id):
-    """Remove category from featured list"""
-    featured = FeaturedCategory.query.get_or_404(featured_id)
-    featured.is_active = False
-    db.session.commit()
-    flash('Category removed from featured list!', 'success')
-    return redirect(url_for('admin.featured_categories'))
-
-# Contact Form Management
+# Contact Forms Management
 @admin_bp.route('/contacts')
 @admin_required
 def contacts():
@@ -925,30 +272,33 @@ def contacts():
     
     query = ContactForm.query
     
-    # Status filter
+    if search:
+        query = query.filter(
+            or_(
+                ContactForm.name.ilike(f'%{search}%'),
+                ContactForm.email.ilike(f'%{search}%'),
+                ContactForm.subject.ilike(f'%{search}%')
+            )
+        )
+    
     if status:
         query = query.filter(ContactForm.status == status)
     
-    # Search filter
-    if search:
-        query = query.filter(or_(
-            ContactForm.name.ilike(f'%{search}%'),
-            ContactForm.email.ilike(f'%{search}%'),
-            ContactForm.subject.ilike(f'%{search}%')
-        ))
+    contacts = query.order_by(desc(ContactForm.created_at)).paginate(
+        page=page, per_page=20, error_out=False
+    )
     
-    query = query.order_by(desc(ContactForm.created_at))
-    contacts = paginate_query(query, page, 20)
-    
-    return render_template('admin/contacts.html',
-                         contacts=contacts,
-                         search=search,
-                         selected_status=status)
+    return render_template('admin/contacts_new.html',
+        contacts=contacts,
+        search=search,
+        selected_status=status
+    )
 
+# Contact Detail
 @admin_bp.route('/contacts/<int:contact_id>')
 @admin_required
 def contact_detail(contact_id):
-    """View contact form details"""
+    """Contact form detail view"""
     contact = ContactForm.query.get_or_404(contact_id)
     
     # Mark as read
@@ -956,8 +306,9 @@ def contact_detail(contact_id):
         contact.status = 'read'
         db.session.commit()
     
-    return render_template('admin/contact_detail.html', contact=contact)
+    return render_template('admin/contact_detail_new.html', contact=contact)
 
+# Respond to Contact
 @admin_bp.route('/contacts/<int:contact_id>/respond', methods=['POST'])
 @admin_required
 def respond_to_contact(contact_id):
@@ -971,91 +322,44 @@ def respond_to_contact(contact_id):
         contact.responded_by = current_user.id
         contact.status = 'resolved'
         db.session.commit()
-        
-        # Log admin action
-        log_admin_action('respond_contact', 'ContactForm', contact.id, 
-                        f'Responded to contact from {contact.email}')
-        
-        flash('Response sent successfully!', 'success')
+        flash('Response saved successfully!', 'success')
     else:
         flash('Response cannot be empty!', 'error')
     
     return redirect(url_for('admin.contact_detail', contact_id=contact_id))
 
-@admin_bp.route('/contacts/<int:contact_id>/delete', methods=['POST'])
+# Users Management
+@admin_bp.route('/users')
 @admin_required
-def delete_contact(contact_id):
-    """Delete contact form"""
-    contact = ContactForm.query.get_or_404(contact_id)
-    contact_email = contact.email
+def users():
+    """User management"""
+    page = request.args.get('page', 1, type=int)
+    role = request.args.get('role', '')
+    search = request.args.get('search', '')
     
-    db.session.delete(contact)
-    db.session.commit()
+    query = User.query
     
-    # Log admin action
-    log_admin_action('delete_contact', 'ContactForm', contact_id, 
-                    f'Deleted contact from {contact_email}')
-    
-    flash('Contact deleted successfully!', 'success')
-    return redirect(url_for('admin.contacts'))
-
-# Content Management
-@admin_bp.route('/content')
-@admin_required
-def content_blocks():
-    """Content block management"""
-    blocks = ContentBlock.query.order_by(ContentBlock.key).all()
-    return render_template('admin/content_blocks.html', blocks=blocks)
-
-@admin_bp.route('/content/new', methods=['GET', 'POST'])
-@admin_required
-def content_block_new():
-    """Create new content block"""
-    if request.method == 'POST':
-        block = ContentBlock(
-            key=request.form['key'],
-            title=request.form.get('title'),
-            content=request.form.get('content'),
-            content_type=request.form.get('content_type', 'html'),
-            active=bool(request.form.get('active'))
+    if search:
+        query = query.filter(
+            or_(
+                User.name.ilike(f'%{search}%'),
+                User.email.ilike(f'%{search}%')
+            )
         )
-        
-        try:
-            db.session.add(block)
-            db.session.commit()
-            log_admin_action('create_content_block', 'ContentBlock', block.id, f'Created content block: {block.key}')
-            flash('Content block created successfully!', 'success')
-            return redirect(url_for('admin.content_blocks'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error creating content block: {str(e)}', 'error')
     
-    return render_template('admin/content_block_form.html', block=None)
-
-@admin_bp.route('/content/<int:block_id>/edit', methods=['GET', 'POST'])
-@admin_required
-def content_block_edit(block_id):
-    """Edit content block"""
-    block = ContentBlock.query.get_or_404(block_id)
+    if role:
+        query = query.filter(User.role == UserRole(role))
     
-    if request.method == 'POST':
-        block.key = request.form['key']
-        block.title = request.form.get('title')
-        block.content = request.form.get('content')
-        block.content_type = request.form.get('content_type', 'html')
-        block.active = bool(request.form.get('active'))
-        block.updated_at = datetime.utcnow()
-        
-        try:
-            db.session.commit()
-            log_admin_action('update_content_block', 'ContentBlock', block.id, f'Updated content block: {block.key}')
-            flash('Content block updated successfully!', 'success')
-            return redirect(url_for('admin.content_blocks'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating content block: {str(e)}', 'error')
+    users = query.order_by(desc(User.created_at)).paginate(
+        page=page, per_page=20, error_out=False
+    )
     
-    return render_template('admin/content_block_form.html', block=block)
+    return render_template('admin/users_new.html',
+        users=users,
+        search=search,
+        selected_role=role,
+        user_roles=UserRole
+    )
 
 # Newsletter Management
 @admin_bp.route('/newsletter')
@@ -1064,147 +368,75 @@ def newsletter():
     """Newsletter subscriber management"""
     page = request.args.get('page', 1, type=int)
     search = request.args.get('search', '')
-    active_only = request.args.get('active_only', type=bool)
     
     query = NewsletterSubscriber.query
     
     if search:
         query = query.filter(NewsletterSubscriber.email.ilike(f'%{search}%'))
     
-    if active_only:
-        query = query.filter(NewsletterSubscriber.is_active == True)
+    subscribers = query.order_by(desc(NewsletterSubscriber.created_at)).paginate(
+        page=page, per_page=50, error_out=False
+    )
     
-    query = query.order_by(desc(NewsletterSubscriber.created_at))
-    subscribers = paginate_query(query, page, 50)
-    
-    return render_template('admin/newsletter.html', 
-                         subscribers=subscribers,
-                         search=search,
-                         active_only=active_only)
+    return render_template('admin/newsletter_new.html',
+        subscribers=subscribers,
+        search=search
+    )
 
-@admin_bp.route('/newsletter/export')
+# Analytics API endpoints
+@admin_bp.route('/api/analytics/sales')
 @admin_required
-def export_newsletter():
-    """Export newsletter subscribers to CSV"""
-    output = io.StringIO()
-    writer = csv.writer(output)
-    
-    writer.writerow(['Email', 'Active', 'Subscribed Date'])
-    
-    subscribers = NewsletterSubscriber.query.all()
-    for subscriber in subscribers:
-        writer.writerow([
-            subscriber.email,
-            'Yes' if subscriber.is_active else 'No',
-            subscriber.created_at.strftime('%Y-%m-%d %H:%M:%S')
-        ])
-    
-    output.seek(0)
-    
-    return send_file(
-        io.BytesIO(output.getvalue().encode()),
-        as_attachment=True,
-        download_name='newsletter_subscribers.csv',
-        mimetype='text/csv'
-    )
-
-# Admin Logging Helper
-def log_admin_action(action, resource_type, resource_id=None, details=None):
-    """Helper function to log admin actions"""
-    log = AdminLog(
-        admin_id=current_user.id,
-        action=action,
-        resource_type=resource_type,
-        resource_id=resource_id,
-        details=details,
-        ip_address=request.remote_addr
-    )
-    db.session.add(log)
+def api_analytics_sales():
+    """API endpoint for sales chart data"""
     try:
-        db.session.commit()
-    except Exception:
-        db.session.rollback()
+        # Last 30 days sales data
+        end_date = datetime.utcnow().date()
+        start_date = end_date - timedelta(days=30)
+        
+        sales_data = db.session.query(
+            func.date(Order.created_at).label('date'),
+            func.sum(Order.grand_total_inr).label('total')
+        ).filter(
+            Order.created_at >= start_date,
+            Order.payment_status == PaymentStatus.PAID
+        ).group_by(func.date(Order.created_at)).all()
+        
+        result = [{'date': str(row.date), 'total': row.total or 0} for row in sales_data]
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"Sales analytics API error: {str(e)}")
+        return jsonify([])
 
-# Analytics Routes
-@admin_bp.route('/analytics')
+@admin_bp.route('/api/analytics/orders')
 @admin_required
-def analytics():
-    """Analytics dashboard"""
-    # Date ranges
-    today = datetime.utcnow().date()
-    week_start = today - timedelta(days=7)
-    month_start = today.replace(day=1)
-    year_start = today.replace(month=1, day=1)
-    
-    # Sales analytics
-    total_sales = db.session.query(func.sum(Order.grand_total_inr)).filter(
-        Order.payment_status == PaymentStatus.PAID
-    ).scalar() or 0
-    
-    monthly_sales = db.session.query(func.sum(Order.grand_total_inr)).filter(
-        Order.payment_status == PaymentStatus.PAID,
-        Order.created_at >= month_start
-    ).scalar() or 0
-    
-    # Order analytics
-    total_orders = Order.query.count()
-    monthly_orders = Order.query.filter(Order.created_at >= month_start).count()
-    
-    # Product analytics
-    total_products = Product.query.count()
-    active_products = Product.query.filter(Product.status == ProductStatus.ACTIVE).count()
-    
-    # Customer analytics
-    total_customers = User.query.filter(User.role == UserRole.CUSTOMER).count()
-    new_customers_month = User.query.filter(
-        User.role == UserRole.CUSTOMER,
-        User.created_at >= month_start
-    ).count()
-    
-    return render_template('admin/analytics.html',
-                         total_sales=total_sales,
-                         monthly_sales=monthly_sales,
-                         total_orders=total_orders,
-                         monthly_orders=monthly_orders,
-                         total_products=total_products,
-                         active_products=active_products,
-                         total_customers=total_customers,
-                         new_customers_month=new_customers_month,
-                         format_currency=format_currency)
+def api_analytics_orders():
+    """API endpoint for orders chart data"""
+    try:
+        # Orders by status
+        orders_by_status = db.session.query(
+            Order.status,
+            func.count(Order.id).label('count')
+        ).group_by(Order.status).all()
+        
+        result = [{'status': row.status.value, 'count': row.count} for row in orders_by_status]
+        return jsonify(result)
+    except Exception as e:
+        logging.error(f"Orders analytics API error: {str(e)}")
+        return jsonify([])
 
-@admin_bp.route('/logs')
+# Settings (placeholder)
+@admin_bp.route('/settings')
 @admin_required
-def admin_logs():
-    """View admin activity logs"""
-    page = request.args.get('page', 1, type=int)
-    admin_id = request.args.get('admin_id', type=int)
-    action = request.args.get('action')
-    
-    query = AdminLog.query.join(User)
-    
-    if admin_id:
-        query = query.filter(AdminLog.admin_id == admin_id)
-    
-    if action:
-        query = query.filter(AdminLog.action.ilike(f'%{action}%'))
-    
-    query = query.order_by(desc(AdminLog.created_at))
-    logs = paginate_query(query, page, 50)
-    
-    # Get admin users for filter
-    admins = User.query.filter(User.role.in_([UserRole.ADMIN, UserRole.STAFF])).all()
-    
-    return render_template('admin/logs.html', 
-                         logs=logs,
-                         admins=admins,
-                         selected_admin=admin_id,
-                         selected_action=action)
+def settings():
+    """Admin settings page"""
+    return render_template('admin/settings_new.html')
 
-@admin_bp.context_processor
-def inject_admin_vars():
-    """Inject admin template variables"""
-    return {
-        'format_currency': format_currency,
-        'datetime': datetime,
-        'moment': lambda x: x  # Simple moment replacement for now
-    }
+# Error handlers - simplified to avoid template issues
+@admin_bp.errorhandler(404)
+def admin_not_found(error):
+    return "Admin page not found", 404
+
+@admin_bp.errorhandler(500)
+def admin_internal_error(error):
+    db.session.rollback()
+    return f"Admin internal error: {str(error)}", 500
