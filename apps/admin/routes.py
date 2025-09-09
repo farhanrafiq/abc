@@ -63,13 +63,19 @@ def dashboard():
         Order.payment_status == PaymentStatus.PAID
     ).scalar() or 0
     
-    # Top categories by product count (since we may not have sales data)
-    top_categories = db.session.query(
-        Category.name,
-        func.count(Product.id).label('product_count')
-    ).join(product_categories).join(Product)\
-    .group_by(Category.id, Category.name)\
-    .order_by(desc('product_count')).limit(5).all() or []
+    # Top categories by product count - simplified query
+    try:
+        top_categories = db.session.query(
+            Category.name,
+            func.count(Product.id).label('product_count')
+        ).select_from(Category)\
+        .join(product_categories, Category.id == product_categories.c.category_id)\
+        .join(Product, Product.id == product_categories.c.product_id)\
+        .group_by(Category.id, Category.name)\
+        .order_by(desc('product_count')).limit(5).all()
+    except Exception as e:
+        # Fallback to simple category list if query fails
+        top_categories = [(cat.name, 0) for cat in Category.query.limit(5).all()]
     
     # Recent orders
     recent_orders = Order.query.order_by(desc(Order.created_at)).limit(10).all()
