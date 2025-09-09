@@ -1,0 +1,365 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ 'Edit Content Block' if block else 'Create Content Block' }} - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.content_blocks') }}">Content Blocks</a></li>
+        <li class="breadcrumb-item active">{{ 'Edit' if block else 'Create' }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block extra_css %}
+<!-- Include CodeMirror for syntax highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{{ 'Edit Content Block' if block else 'Create Content Block' }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="contentBlockForm">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.title.label(class="form-label") }}
+                                {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                                {% for error in form.title.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.identifier.label(class="form-label") }}
+                                {{ form.identifier(class="form-control font-monospace" + (" is-invalid" if form.identifier.errors else "")) }}
+                                {% for error in form.identifier.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">Unique identifier for embedding (a-z, 0-9, underscore, hyphen)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows="2") }}
+                        {% for error in form.description.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.type.label(class="form-label") }}
+                                {{ form.type(class="form-select" + (" is-invalid" if form.type.errors else ""), onchange="toggleContentEditor()") }}
+                                {% for error in form.type.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <div class="form-check form-switch">
+                                    {{ form.is_active(class="form-check-input") }}
+                                    <label class="form-check-label" for="{{ form.is_active.id }}">
+                                        Active (visible on website)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Editor -->
+                    <div class="mb-3">
+                        {{ form.content.label(class="form-label") }}
+                        <div id="contentHelp" class="form-text mb-2"></div>
+                        {{ form.content(class="form-control" + (" is-invalid" if form.content.errors else ""), rows="10", id="contentEditor") }}
+                        {% for error in form.content.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Image Upload (for image type) -->
+                    <div class="mb-3" id="imageUploadSection" style="display: none;">
+                        <label class="form-label">Block Image</label>
+                        <input type="file" class="form-control" name="block_image" accept="image/*">
+                        {% if block and block.image_url %}
+                        <div class="mt-2">
+                            <img src="{{ block.image_url }}" alt="Current image" class="img-thumbnail" style="max-width: 200px;">
+                            <div class="form-text">Current image</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.content_blocks') }}" class="btn btn-secondary">Cancel</a>
+                        <div>
+                            <button type="button" class="btn btn-outline-info me-2" onclick="previewBlock()">
+                                <i class="fas fa-eye me-2"></i>Preview
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>
+                                {{ 'Update Block' if block else 'Create Block' }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Block Guidelines -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Content Block Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <div id="guidelinesContent">
+                    <h6>General Guidelines:</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use descriptive titles</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Keep identifiers short and meaningful</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Add descriptions for team clarity</li>
+                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Test content before making active</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Usage Examples -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Usage Examples</h6>
+            </div>
+            <div class="card-body">
+                <h6>In Templates:</h6>
+                <pre class="bg-light p-2 rounded small"><code id="templateUsage">{% raw %}{{ render_content_block('block_id') }}{% endraw %}</code></pre>
+                
+                <h6>In Content:</h6>
+                <pre class="bg-light p-2 rounded small"><code id="contentUsage">[BLOCK:block_id]</code></pre>
+            </div>
+        </div>
+        
+        {% if block %}
+        <!-- Block Statistics -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Block Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="mb-2">
+                            <h5 class="text-primary mb-0">{{ block.created_at.strftime('%Y') }}</h5>
+                            <small class="text-muted">Created</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-2">
+                            <h5 class="text-success mb-0">{{ block.updated_at.strftime('%b %d') }}</h5>
+                            <small class="text-muted">Last Updated</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Block Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include CodeMirror for syntax highlighting -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/htmlmixed/htmlmixed.min.js"></script>
+
+<script>
+let editor;
+
+function initializeEditor() {
+    if (editor) {
+        editor.toTextArea();
+    }
+    
+    const textarea = document.getElementById('contentEditor');
+    const blockType = document.getElementById('{{ form.type.id }}').value;
+    
+    let mode = 'text/plain';
+    if (blockType === 'html') {
+        mode = 'text/html';
+    }
+    
+    editor = CodeMirror.fromTextArea(textarea, {
+        lineNumbers: true,
+        mode: mode,
+        theme: 'monokai',
+        lineWrapping: true,
+        autofocus: false
+    });
+}
+
+function toggleContentEditor() {
+    const blockType = document.getElementById('{{ form.type.id }}').value;
+    const contentHelp = document.getElementById('contentHelp');
+    const imageSection = document.getElementById('imageUploadSection');
+    const guidelinesContent = document.getElementById('guidelinesContent');
+    
+    // Update guidelines based on type
+    let guidelines = '';
+    switch (blockType) {
+        case 'html':
+            guidelines = `
+                <h6>HTML Block Guidelines:</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use semantic HTML tags</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include proper CSS classes</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Test responsiveness</li>
+                    <li class="mb-2"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Avoid inline styles when possible</li>
+                </ul>
+            `;
+            contentHelp.innerHTML = 'Enter HTML content with full formatting support';
+            imageSection.style.display = 'none';
+            break;
+        case 'text':
+            guidelines = `
+                <h6>Text Block Guidelines:</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use clear, concise language</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Break up long paragraphs</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Check spelling and grammar</li>
+                    <li class="mb-2"><i class="fas fa-info-circle text-info me-2"></i>HTML tags will be escaped</li>
+                </ul>
+            `;
+            contentHelp.innerHTML = 'Enter plain text content (HTML will be escaped)';
+            imageSection.style.display = 'none';
+            break;
+        case 'image':
+            guidelines = `
+                <h6>Image Block Guidelines:</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use high-quality images</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Optimize file size for web</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Include alt text for accessibility</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use descriptive captions</li>
+                </ul>
+            `;
+            contentHelp.innerHTML = 'Enter image caption or description (optional)';
+            imageSection.style.display = 'block';
+            break;
+        default:
+            guidelines = `
+                <h6>Custom Block Guidelines:</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><i class="fas fa-cog text-info me-2"></i>Custom rendering logic required</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Document custom parameters</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Test thoroughly before deployment</li>
+                </ul>
+            `;
+            contentHelp.innerHTML = 'Enter custom block configuration';
+            imageSection.style.display = 'none';
+    }
+    
+    guidelinesContent.innerHTML = guidelines;
+    
+    // Update usage examples
+    const identifier = document.getElementById('{{ form.identifier.id }}').value || 'block_id';
+    document.getElementById('templateUsage').textContent = `{% raw %}{{ render_content_block('${identifier}') }}{% endraw %}`;
+    document.getElementById('contentUsage').textContent = `[BLOCK:${identifier}]`;
+    
+    // Reinitialize editor
+    initializeEditor();
+}
+
+function previewBlock() {
+    const title = document.getElementById('{{ form.title.id }}').value;
+    const type = document.getElementById('{{ form.type.id }}').value;
+    const content = editor ? editor.getValue() : document.getElementById('contentEditor').value;
+    
+    const previewContent = document.getElementById('previewContent');
+    
+    if (!content.trim()) {
+        previewContent.innerHTML = '<div class="alert alert-warning">No content to preview</div>';
+    } else {
+        if (type === 'html') {
+            previewContent.innerHTML = content;
+        } else if (type === 'text') {
+            previewContent.innerHTML = '<pre class="text-wrap">' + content + '</pre>';
+        } else if (type === 'image') {
+            previewContent.innerHTML = '<div class="text-center"><p class="text-muted">Image block preview - upload image to see result</p><p>' + content + '</p></div>';
+        } else {
+            previewContent.innerHTML = '<div class="alert alert-info">Custom block type - preview not available</div>';
+        }
+    }
+    
+    new bootstrap.Modal(document.getElementById('previewModal')).show();
+}
+
+// Auto-generate identifier from title
+document.getElementById('{{ form.title.id }}').addEventListener('input', function() {
+    if (!document.getElementById('{{ form.identifier.id }}').value) {
+        const identifier = this.value.toLowerCase()
+            .replace(/[^a-z0-9\s-_]/g, '')
+            .replace(/\s+/g, '_')
+            .replace(/-+/g, '_')
+            .replace(/_+/g, '_')
+            .trim('_');
+        document.getElementById('{{ form.identifier.id }}').value = identifier;
+        toggleContentEditor(); // Update usage examples
+    }
+});
+
+// Initialize editor on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleContentEditor();
+    
+    // Update usage examples when identifier changes
+    document.getElementById('{{ form.identifier.id }}').addEventListener('input', function() {
+        const identifier = this.value || 'block_id';
+        document.getElementById('templateUsage').textContent = `{% raw %}{{ render_content_block('${identifier}') }}{% endraw %}`;
+        document.getElementById('contentUsage').textContent = `[BLOCK:${identifier}]`;
+    });
+    
+    // Save editor content before form submission
+    document.getElementById('contentBlockForm').addEventListener('submit', function() {
+        if (editor) {
+            editor.save();
+        }
+    });
+});
+</script>
+{% endblock %}

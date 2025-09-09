@@ -1,0 +1,470 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Order #{{ order.id }} - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.orders') }}">Orders</a></li>
+        <li class="breadcrumb-item active">Order #{{ order.id }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Order #{{ order.id }}</h4>
+        <p class="text-muted mb-0">{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-cog me-2"></i>Actions
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="updateOrderStatus()">
+                    <i class="fas fa-edit me-2"></i>Update Status
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="generateInvoice({{ order.id }})">
+                    <i class="fas fa-file-pdf me-2"></i>Generate Invoice
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="sendOrderUpdate({{ order.id }})">
+                    <i class="fas fa-envelope me-2"></i>Send Update
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="#" onclick="cancelOrder({{ order.id }})">
+                    <i class="fas fa-times me-2"></i>Cancel Order
+                </a></li>
+            </ul>
+        </div>
+        <button class="btn btn-success" onclick="processOrder({{ order.id }})">
+            <i class="fas fa-check me-2"></i>Process Order
+        </button>
+    </div>
+</div>
+
+<!-- Order Status Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Order Status</div>
+                        <div class="h6 mb-0">
+                            <span class="badge bg-{{ 'success' if order.status.value == 'PAID' else 'warning' if order.status.value == 'PENDING' else 'info' }}">
+                                {{ order.status.value.title() }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Payment Status</div>
+                        <div class="h6 mb-0">
+                            <span class="badge bg-{{ 'success' if order.payment_status.value == 'PAID' else 'warning' if order.payment_status.value == 'PENDING' else 'danger' }}">
+                                {{ order.payment_status.value.title() }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Order Total</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ format_currency(order.grand_total_inr) }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Items</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ order.items|length }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-boxes fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Order Items -->
+    <div class="col-xl-8 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Order Items</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Qty</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if item.product.cover_image %}
+                                        <img src="{{ url_for('static', filename='uploads/' + item.product.cover_image) }}" 
+                                             alt="{{ item.title_snapshot }}" 
+                                             class="me-3 rounded" 
+                                             style="width: 60px; height: 75px; object-fit: cover;">
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-1">{{ item.title_snapshot }}</h6>
+                                            <small class="text-muted">{{ item.sku_snapshot or '' }}</small>
+                                            {% if item.product %}
+                                            <div class="mt-1">
+                                                <a href="{{ url_for('web.product_detail', slug=item.product.slug) }}" 
+                                                   target="_blank" 
+                                                   class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ format_currency(item.unit_price_inr) }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ format_currency(item.total_price_inr) }}</td>
+                                <td>
+                                    <span class="badge bg-success">Available</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td colspan="3" class="text-end fw-bold">Subtotal:</td>
+                                <td colspan="2">{{ format_currency(order.subtotal_inr) }}</td>
+                            </tr>
+                            {% if order.discount_inr > 0 %}
+                            <tr class="table-light">
+                                <td colspan="3" class="text-end fw-bold text-success">Discount:</td>
+                                <td colspan="2" class="text-success">-{{ format_currency(order.discount_inr) }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr class="table-light">
+                                <td colspan="3" class="text-end fw-bold">Shipping:</td>
+                                <td colspan="2">
+                                    {% if order.shipping_inr == 0 %}
+                                    <span class="text-success">Free</span>
+                                    {% else %}
+                                    {{ format_currency(order.shipping_inr) }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if order.tax_inr > 0 %}
+                            <tr class="table-light">
+                                <td colspan="3" class="text-end fw-bold">Tax:</td>
+                                <td colspan="2">{{ format_currency(order.tax_inr) }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr class="table-primary">
+                                <td colspan="3" class="text-end fw-bold">Grand Total:</td>
+                                <td colspan="2" class="fw-bold">{{ format_currency(order.grand_total_inr) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Order Details -->
+    <div class="col-xl-4 mb-4">
+        <!-- Customer Information -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Customer Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    {% if order.user %}
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-3">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" 
+                                 style="width: 50px; height: 50px;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">{{ order.user.name }}</h6>
+                            <small class="text-muted">Registered Customer</small>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="d-flex align-items-center mb-2">
+                        <div class="me-3">
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" 
+                                 style="width: 50px; height: 50px;">
+                                <i class="fas fa-user-slash"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Guest Customer</h6>
+                            <small class="text-muted">{{ order.email }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="border-top pt-3">
+                    <div class="row">
+                        <div class="col-6 text-center">
+                            <div class="mb-1">
+                                <strong>{{ order.user.orders|length if order.user else '1' }}</strong>
+                            </div>
+                            <small class="text-muted">Orders</small>
+                        </div>
+                        <div class="col-6 text-center">
+                            <div class="mb-1">
+                                <strong>{{ order.created_at.strftime('%Y') }}</strong>
+                            </div>
+                            <small class="text-muted">Customer Since</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <div class="mb-2">
+                        <i class="fas fa-envelope me-2 text-muted"></i>
+                        <span>{{ order.email }}</span>
+                    </div>
+                    {% if order.phone %}
+                    <div class="mb-2">
+                        <i class="fas fa-phone me-2 text-muted"></i>
+                        <span>{{ order.phone }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shipping Address -->
+        {% if order.shipping_address %}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Shipping Address</h6>
+            </div>
+            <div class="card-body">
+                <address class="mb-0">
+                    <strong>{{ order.shipping_address.name }}</strong><br>
+                    {{ order.shipping_address.line1 }}<br>
+                    {% if order.shipping_address.line2 %}
+                    {{ order.shipping_address.line2 }}<br>
+                    {% endif %}
+                    {{ order.shipping_address.city }}, {{ order.shipping_address.district }}<br>
+                    {{ order.shipping_address.state }} - {{ order.shipping_address.pincode }}<br>
+                    {{ order.shipping_address.country }}
+                </address>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Payment Information -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Payment Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <strong>Payment Method:</strong>
+                    <span class="ms-2">{{ order.payment_method.value if order.payment_method else 'N/A' }}</span>
+                </div>
+                {% if order.payment_id %}
+                <div class="mb-2">
+                    <strong>Payment ID:</strong>
+                    <span class="ms-2 font-monospace">{{ order.payment_id }}</span>
+                </div>
+                {% endif %}
+                <div class="mb-2">
+                    <strong>Payment Status:</strong>
+                    <span class="ms-2 badge bg-{{ 'success' if order.payment_status.value == 'PAID' else 'warning' if order.payment_status.value == 'PENDING' else 'danger' }}">
+                        {{ order.payment_status.value.title() }}
+                    </span>
+                </div>
+                {% if order.payment_date %}
+                <div class="mb-2">
+                    <strong>Paid On:</strong>
+                    <span class="ms-2">{{ order.payment_date.strftime('%b %d, %Y at %I:%M %p') }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Order Notes -->
+        {% if order.notes %}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Order Notes</h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ order.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Order Timeline -->
+<div class="card shadow">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Order Timeline</h6>
+    </div>
+    <div class="card-body">
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-marker bg-success"></div>
+                <div class="timeline-content">
+                    <h6 class="timeline-title">Order Placed</h6>
+                    <p class="timeline-text">Order #{{ order.id }} was successfully placed</p>
+                    <small class="text-muted">{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                </div>
+            </div>
+            
+            {% if order.payment_date %}
+            <div class="timeline-item">
+                <div class="timeline-marker bg-primary"></div>
+                <div class="timeline-content">
+                    <h6 class="timeline-title">Payment Confirmed</h6>
+                    <p class="timeline-text">Payment of {{ format_currency(order.grand_total_inr) }} was confirmed</p>
+                    <small class="text-muted">{{ order.payment_date.strftime('%B %d, %Y at %I:%M %p') }}</small>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Add more timeline items based on order status -->
+            <div class="timeline-item">
+                <div class="timeline-marker bg-warning"></div>
+                <div class="timeline-content">
+                    <h6 class="timeline-title">Processing</h6>
+                    <p class="timeline-text">Order is being processed</p>
+                    <small class="text-muted">Current status</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateOrderStatus() {
+    // Implementation would show status update modal
+    alert('Update order status functionality to be implemented');
+}
+
+function generateInvoice(orderId) {
+    // Implementation would generate and download invoice
+    alert('Generate invoice functionality to be implemented');
+}
+
+function sendOrderUpdate(orderId) {
+    // Implementation would send email update to customer
+    alert('Send order update functionality to be implemented');
+}
+
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+        // Implementation would cancel the order
+        alert('Cancel order functionality to be implemented');
+    }
+}
+
+function processOrder(orderId) {
+    if (confirm('Mark this order as processed and ready for fulfillment?')) {
+        // Implementation would update order status
+        alert('Process order functionality to be implemented');
+    }
+}
+</script>
+
+<style>
+.border-left-primary { border-left: 0.25rem solid #4e73df !important; }
+.border-left-success { border-left: 0.25rem solid #1cc88a !important; }
+.border-left-info { border-left: 0.25rem solid #36b9cc !important; }
+.border-left-warning { border-left: 0.25rem solid #f6c23e !important; }
+.text-xs { font-size: 0.75rem; }
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -37px;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 3px #dee2e6;
+}
+
+.timeline-title {
+    margin-bottom: 5px;
+    font-size: 1rem;
+}
+
+.timeline-text {
+    margin-bottom: 5px;
+    color: #6c757d;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,226 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Content Blocks - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Content Blocks</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Content Blocks Management</h4>
+    <a href="{{ url_for('admin.content_block_new') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New Block
+    </a>
+</div>
+
+<!-- Info Alert -->
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    Content blocks are reusable pieces of content that can be embedded throughout your website.
+</div>
+
+<!-- Content Blocks -->
+<div class="card">
+    <div class="card-body">
+        {% if content_blocks %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Identifier</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for block in content_blocks %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    {% if block.type == 'html' %}
+                                    <i class="fas fa-code text-primary fa-lg"></i>
+                                    {% elif block.type == 'text' %}
+                                    <i class="fas fa-file-alt text-success fa-lg"></i>
+                                    {% elif block.type == 'image' %}
+                                    <i class="fas fa-image text-warning fa-lg"></i>
+                                    {% else %}
+                                    <i class="fas fa-cube text-info fa-lg"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">{{ block.title }}</h6>
+                                    {% if block.description %}
+                                    <small class="text-muted">{{ block.description[:80] }}{% if block.description|length > 80 %}...{% endif %}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <code class="small bg-light p-1 rounded">{{ block.identifier }}</code>
+                            <button class="btn btn-sm btn-outline-secondary ms-1" onclick="copyToClipboard('{{ block.identifier }}')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'primary' if block.type == 'html' else 'success' if block.type == 'text' else 'warning' if block.type == 'image' else 'info' }}">
+                                {{ block.type.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if block.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="small">
+                                {{ block.updated_at.strftime('%b %d, %Y') }}<br>
+                                <span class="text-muted">{{ block.updated_at.strftime('%I:%M %p') }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('admin.content_block_edit', block_id=block.id) }}" 
+                                   class="btn btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="btn btn-outline-info" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#previewModal"
+                                        onclick="previewBlock({{ block.id }}, '{{ block.title }}', '{{ block.type }}', `{{ block.content|safe }}`)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-secondary" 
+                                        onclick="duplicateBlock({{ block.id }}, '{{ block.title }}')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" 
+                                        onclick="deleteBlock({{ block.id }}, '{{ block.title }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-cube fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Content Blocks Found</h5>
+            <p class="text-muted">Create your first reusable content block.</p>
+            <a href="{{ url_for('admin.content_block_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create Content Block
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Usage Examples -->
+{% if content_blocks %}
+<div class="card mt-4">
+    <div class="card-header">
+        <h6 class="mb-0">How to Use Content Blocks</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6>In Templates:</h6>
+                <pre class="bg-light p-3 rounded small"><code>{% raw %}{{ render_content_block('block_identifier') }}{% endraw %}</code></pre>
+            </div>
+            <div class="col-md-6">
+                <h6>In Admin Interface:</h6>
+                <pre class="bg-light p-3 rounded small"><code>[BLOCK:block_identifier]</code></pre>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <h6>Available Block Types:</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-1"><i class="fas fa-code text-primary me-2"></i><strong>HTML:</strong> Rich content with full HTML support</li>
+                    <li class="mb-1"><i class="fas fa-file-alt text-success me-2"></i><strong>Text:</strong> Plain text content</li>
+                    <li class="mb-1"><i class="fas fa-image text-warning me-2"></i><strong>Image:</strong> Image with optional caption</li>
+                    <li class="mb-1"><i class="fas fa-cube text-info me-2"></i><strong>Custom:</strong> Custom block type with special rendering</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Content Block Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6 id="previewTitle"></h6>
+                <hr>
+                <div id="previewContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show temporary success message
+        const btn = event.target.closest('button');
+        const originalIcon = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check text-success"></i>';
+        setTimeout(() => {
+            btn.innerHTML = originalIcon;
+        }, 2000);
+    });
+}
+
+function previewBlock(id, title, type, content) {
+    document.getElementById('previewTitle').textContent = title;
+    const previewContent = document.getElementById('previewContent');
+    
+    if (type === 'html') {
+        previewContent.innerHTML = content;
+    } else if (type === 'text') {
+        previewContent.innerHTML = '<pre class="text-wrap">' + content + '</pre>';
+    } else if (type === 'image') {
+        previewContent.innerHTML = content; // Assuming content contains img tag
+    } else {
+        previewContent.innerHTML = '<div class="alert alert-info">Custom block type - preview not available</div>';
+    }
+}
+
+function duplicateBlock(id, title) {
+    if (confirm('Create a duplicate of "' + title + '"?')) {
+        // Implementation would be added for duplication
+        alert('Duplicate block functionality to be implemented');
+    }
+}
+
+function deleteBlock(id, title) {
+    if (confirm('Are you sure you want to delete "' + title + '"? This action cannot be undone.')) {
+        // Implementation would be added for deletion
+        alert('Delete block functionality to be implemented');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,371 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}System Logs - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">System Logs</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">System Logs</h4>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" onclick="refreshLogs()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh
+        </button>
+        <button class="btn btn-outline-success" onclick="downloadLogs()">
+            <i class="fas fa-download me-2"></i>Download
+        </button>
+        <button class="btn btn-outline-danger" onclick="clearLogs()">
+            <i class="fas fa-trash me-2"></i>Clear Old Logs
+        </button>
+    </div>
+</div>
+
+<!-- Log Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Log Level</label>
+                <select class="form-select" name="level">
+                    <option value="">All Levels</option>
+                    <option value="DEBUG" {% if level == 'DEBUG' %}selected{% endif %}>Debug</option>
+                    <option value="INFO" {% if level == 'INFO' %}selected{% endif %}>Info</option>
+                    <option value="WARNING" {% if level == 'WARNING' %}selected{% endif %}>Warning</option>
+                    <option value="ERROR" {% if level == 'ERROR' %}selected{% endif %}>Error</option>
+                    <option value="CRITICAL" {% if level == 'CRITICAL' %}selected{% endif %}>Critical</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Date From</label>
+                <input type="date" class="form-control" name="date_from" value="{{ date_from or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Date To</label>
+                <input type="date" class="form-control" name="date_to" value="{{ date_to or '' }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Search</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" placeholder="Search in logs..." value="{{ search or '' }}">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Log Statistics -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Logs Today</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_logs_today or 0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Warnings</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ warning_count or 0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-danger shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Errors</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ error_count or 0 }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">System Uptime</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ system_uptime or '0h' }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-server fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Log Entries -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Recent Log Entries</h6>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="autoRefresh">
+            <label class="form-check-label" for="autoRefresh">Auto Refresh</label>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if log_entries %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 140px;">Timestamp</th>
+                        <th style="width: 80px;">Level</th>
+                        <th style="width: 120px;">Source</th>
+                        <th>Message</th>
+                        <th style="width: 80px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="logTableBody">
+                    {% for log in log_entries %}
+                    <tr class="log-row log-{{ log.level.lower() }}">
+                        <td class="text-nowrap small">
+                            <div>{{ log.timestamp.strftime('%Y-%m-%d') }}</div>
+                            <div class="text-muted">{{ log.timestamp.strftime('%H:%M:%S') }}</div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'danger' if log.level == 'ERROR' or log.level == 'CRITICAL' else 'warning' if log.level == 'WARNING' else 'info' if log.level == 'INFO' else 'secondary' }}">
+                                {{ log.level }}
+                            </span>
+                        </td>
+                        <td class="small">
+                            <div class="fw-bold">{{ log.source or 'System' }}</div>
+                            {% if log.user_id %}
+                            <div class="text-muted">User: {{ log.user_id }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="log-message">
+                                {{ log.message[:200] }}{% if log.message|length > 200 %}...{% endif %}
+                            </div>
+                            {% if log.details %}
+                            <button class="btn btn-sm btn-link p-0 text-decoration-none" 
+                                    onclick="toggleDetails(this)" 
+                                    data-details="{{ log.details }}">
+                                Show details
+                            </button>
+                            <div class="log-details collapse">
+                                <pre class="bg-light p-2 rounded small mt-2">{{ log.details }}</pre>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                {% if log.level in ['ERROR', 'CRITICAL'] %}
+                                <button class="btn btn-outline-warning" onclick="reportIssue({{ log.id }})" title="Report Issue">
+                                    <i class="fas fa-flag"></i>
+                                </button>
+                                {% endif %}
+                                <button class="btn btn-outline-info" onclick="copyLogEntry({{ log.id }})" title="Copy">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Load More Button -->
+        {% if has_more_logs %}
+        <div class="text-center p-3">
+            <button class="btn btn-outline-primary" onclick="loadMoreLogs()">
+                <i class="fas fa-plus me-2"></i>Load More Logs
+            </button>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Log Entries Found</h5>
+            <p class="text-muted">{% if search %}No logs match your search criteria.{% else %}No logs available for the selected period.{% endif %}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Quick Access Log Types -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold text-primary">Quick Access</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="?level=ERROR" class="btn btn-outline-danger w-100">
+                            <i class="fas fa-exclamation-circle me-2"></i>Error Logs
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="?level=WARNING" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Warning Logs
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="?search=authentication" class="btn btn-outline-info w-100">
+                            <i class="fas fa-user-lock me-2"></i>Auth Logs
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="?search=payment" class="btn btn-outline-success w-100">
+                            <i class="fas fa-credit-card me-2"></i>Payment Logs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let autoRefreshInterval;
+
+// Auto refresh functionality
+document.getElementById('autoRefresh').addEventListener('change', function() {
+    if (this.checked) {
+        autoRefreshInterval = setInterval(refreshLogs, 30000); // Refresh every 30 seconds
+    } else {
+        clearInterval(autoRefreshInterval);
+    }
+});
+
+function refreshLogs() {
+    // Implementation would reload the page with current filters
+    window.location.reload();
+}
+
+function downloadLogs() {
+    // Implementation would trigger log file download
+    alert('Download logs functionality to be implemented');
+}
+
+function clearLogs() {
+    if (confirm('Are you sure you want to clear old log entries? This will remove logs older than 30 days.')) {
+        // Implementation would clear old logs
+        alert('Clear logs functionality to be implemented');
+    }
+}
+
+function toggleDetails(button) {
+    const details = button.nextElementSibling;
+    if (details.classList.contains('collapse')) {
+        details.classList.remove('collapse');
+        button.textContent = 'Hide details';
+    } else {
+        details.classList.add('collapse');
+        button.textContent = 'Show details';
+    }
+}
+
+function copyLogEntry(logId) {
+    // Implementation would copy log entry to clipboard
+    alert('Copy log entry functionality to be implemented');
+}
+
+function reportIssue(logId) {
+    // Implementation would create an issue report
+    alert('Report issue functionality to be implemented');
+}
+
+function loadMoreLogs() {
+    // Implementation would load additional log entries
+    alert('Load more logs functionality to be implemented');
+}
+
+// Set default date to today if no filters are set
+document.addEventListener('DOMContentLoaded', function() {
+    const dateFrom = document.querySelector('input[name="date_from"]');
+    const dateTo = document.querySelector('input[name="date_to"]');
+    
+    if (!dateFrom.value && !dateTo.value && !window.location.search) {
+        const today = new Date().toISOString().split('T')[0];
+        dateTo.value = today;
+        
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        dateFrom.value = weekAgo.toISOString().split('T')[0];
+    }
+});
+</script>
+
+<style>
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.text-xs {
+    font-size: 0.75rem;
+}
+.log-row {
+    border-left: 3px solid transparent;
+}
+.log-error, .log-critical {
+    border-left-color: #e74a3b;
+}
+.log-warning {
+    border-left-color: #f6c23e;
+}
+.log-info {
+    border-left-color: #36b9cc;
+}
+.log-debug {
+    border-left-color: #6c757d;
+}
+.log-message {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+}
+.log-details pre {
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+</style>
+{% endblock %}

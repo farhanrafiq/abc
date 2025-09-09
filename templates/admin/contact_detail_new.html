@@ -1,0 +1,479 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Contact #{{ contact.id }} - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.contacts') }}">Contacts</a></li>
+        <li class="breadcrumb-item active">Contact #{{ contact.id }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-1">Contact Inquiry #{{ contact.id }}</h4>
+        <p class="text-muted mb-0">{{ contact.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-cog me-2"></i>Actions
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="replyToContact({{ contact.id }})">
+                    <i class="fas fa-reply me-2"></i>Reply via Email
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="markAsResolved({{ contact.id }})">
+                    <i class="fas fa-check me-2"></i>Mark as Resolved
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="assignToTeam({{ contact.id }})">
+                    <i class="fas fa-user-plus me-2"></i>Assign to Team
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="#" onclick="deleteContact({{ contact.id }})">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </a></li>
+            </ul>
+        </div>
+        {% if contact.status == 'unread' %}
+        <button class="btn btn-success" onclick="markAsRead({{ contact.id }})">
+            <i class="fas fa-envelope-open me-2"></i>Mark as Read
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Contact Status Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Status</div>
+                        <div class="h6 mb-0">
+                            <span class="badge bg-{{ 'success' if contact.status == 'resolved' else 'warning' if contact.status == 'in_progress' else 'info' if contact.status == 'read' else 'secondary' }}">
+                                {{ contact.status.title() }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-envelope fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-info shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Priority</div>
+                        <div class="h6 mb-0">
+                            <span class="badge bg-{{ 'danger' if contact.priority == 'high' else 'warning' if contact.priority == 'medium' else 'success' }}">
+                                {{ contact.priority.title() if contact.priority else 'Normal' }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Type</div>
+                        <div class="h6 mb-0">{{ contact.subject or 'General Inquiry' }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-tag fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-warning shadow">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Response Time</div>
+                        <div class="h6 mb-0 font-weight-bold text-gray-800">
+                            {% set time_diff = (moment.utcnow() - contact.created_at).total_seconds() / 3600 %}
+                            {% if time_diff < 24 %}
+                            {{ "%.1f"|format(time_diff) }}h
+                            {% else %}
+                            {{ (time_diff / 24)|round(1) }}d
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clock fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Contact Message -->
+    <div class="col-xl-8 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Contact Message</h6>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-info" onclick="printMessage()">
+                        <i class="fas fa-print me-1"></i>Print
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="exportMessage()">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                </div>
+            </div>
+            <div class="card-body" id="messageContent">
+                <div class="message-header mb-4 p-3 bg-light rounded">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-1">{{ contact.subject or 'General Inquiry' }}</h5>
+                            <p class="text-muted mb-0">Subject line</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <div class="mb-1">
+                                <strong>Received:</strong> {{ contact.created_at.strftime('%B %d, %Y') }}
+                            </div>
+                            <div class="text-muted">
+                                {{ contact.created_at.strftime('%I:%M %p') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="message-body">
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Message Content</h6>
+                        <div class="p-3" style="background-color: #f8f9fa; border-left: 4px solid #007bff; line-height: 1.6;">
+                            {{ contact.message|nl2br|safe }}
+                        </div>
+                    </div>
+                    
+                    {% if contact.attachment %}
+                    <div class="mb-4">
+                        <h6 class="border-bottom pb-2">Attachment</h6>
+                        <div class="d-flex align-items-center p-3 bg-light rounded">
+                            <i class="fas fa-paperclip text-primary me-3 fa-lg"></i>
+                            <div>
+                                <a href="{{ contact.attachment }}" target="_blank" class="text-decoration-none">
+                                    {{ contact.attachment.split('/')[-1] }}
+                                </a>
+                                <div class="small text-muted">Click to download</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Response/Reply Section -->
+        <div class="card shadow mt-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Reply to Contact</h6>
+            </div>
+            <div class="card-body">
+                <form id="replyForm">
+                    <input type="hidden" name="contact_id" value="{{ contact.id }}">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Reply Subject</label>
+                        <input type="text" class="form-control" name="reply_subject" 
+                               value="Re: {{ contact.subject or 'Your inquiry' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-control" name="reply_message" rows="8" 
+                                  placeholder="Type your reply here..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Update Status</label>
+                                <select class="form-select" name="new_status">
+                                    <option value="read" {% if contact.status == 'read' %}selected{% endif %}>Read</option>
+                                    <option value="in_progress" {% if contact.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="resolved" {% if contact.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" name="priority">
+                                    <option value="low" {% if contact.priority == 'low' %}selected{% endif %}>Low</option>
+                                    <option value="normal" {% if not contact.priority or contact.priority == 'normal' %}selected{% endif %}>Normal</option>
+                                    <option value="high" {% if contact.priority == 'high' %}selected{% endif %}>High</option>
+                                    <option value="urgent" {% if contact.priority == 'urgent' %}selected{% endif %}>Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="send_copy" id="sendCopy" checked>
+                                <label class="form-check-label" for="sendCopy">
+                                    Send copy to admin email
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-outline-secondary me-2" onclick="saveDraft()">
+                                <i class="fas fa-save me-2"></i>Save Draft
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Send Reply
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact Details -->
+    <div class="col-xl-4 mb-4">
+        <!-- Customer Information -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Contact Information</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" 
+                                 style="width: 60px; height: 60px;">
+                                <i class="fas fa-user fa-lg"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h5 class="mb-0">{{ contact.name }}</h5>
+                            <small class="text-muted">{{ 'Registered Customer' if contact.user else 'Guest' }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-details">
+                    <div class="mb-3">
+                        <i class="fas fa-envelope me-2 text-primary"></i>
+                        <strong>Email:</strong>
+                        <div class="ms-4">
+                            <a href="mailto:{{ contact.email }}" class="text-decoration-none">{{ contact.email }}</a>
+                        </div>
+                    </div>
+                    
+                    {% if contact.phone %}
+                    <div class="mb-3">
+                        <i class="fas fa-phone me-2 text-primary"></i>
+                        <strong>Phone:</strong>
+                        <div class="ms-4">
+                            <a href="tel:{{ contact.phone }}" class="text-decoration-none">{{ contact.phone }}</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if contact.user %}
+                    <div class="mb-3">
+                        <i class="fas fa-calendar me-2 text-primary"></i>
+                        <strong>Customer Since:</strong>
+                        <div class="ms-4">{{ contact.user.created_at.strftime('%B %Y') }}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <i class="fas fa-shopping-cart me-2 text-primary"></i>
+                        <strong>Orders:</strong>
+                        <div class="ms-4">{{ contact.user.orders|length }} orders</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact History -->
+        {% if contact.user and contact.user.contact_forms %}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Contact History</h6>
+            </div>
+            <div class="card-body">
+                <div class="timeline-small">
+                    {% for prev_contact in contact.user.contact_forms[:5] %}
+                    <div class="timeline-item-small mb-3">
+                        <div class="timeline-marker-small bg-{{ 'success' if prev_contact.status == 'resolved' else 'warning' if prev_contact.status == 'in_progress' else 'info' }}"></div>
+                        <div class="timeline-content-small">
+                            <h6 class="mb-1 small">{{ prev_contact.subject or 'General Inquiry' }}</h6>
+                            <p class="mb-1 small text-muted">{{ prev_contact.message[:100] }}...</p>
+                            <small class="text-muted">{{ prev_contact.created_at.strftime('%b %d, %Y') }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if contact.user.contact_forms|length > 5 %}
+                <div class="text-center">
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewAllContacts({{ contact.user.id }})">
+                        View All ({{ contact.user.contact_forms|length }})
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Internal Notes -->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Internal Notes</h6>
+            </div>
+            <div class="card-body">
+                <form id="notesForm">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="internal_notes" rows="4" 
+                                  placeholder="Add internal notes here...">{{ contact.internal_notes or '' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fas fa-save me-1"></i>Save Notes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form submission handlers
+document.getElementById('replyForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Implementation would handle email reply
+    alert('Reply functionality to be implemented');
+});
+
+document.getElementById('notesForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Implementation would save internal notes
+    alert('Save notes functionality to be implemented');
+});
+
+function markAsRead(contactId) {
+    // Implementation would mark contact as read
+    alert('Mark as read functionality to be implemented');
+}
+
+function markAsResolved(contactId) {
+    if (confirm('Mark this contact inquiry as resolved?')) {
+        // Implementation would update status
+        alert('Mark as resolved functionality to be implemented');
+    }
+}
+
+function replyToContact(contactId) {
+    // Scroll to reply form
+    document.querySelector('#replyForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+function assignToTeam(contactId) {
+    // Implementation would show assignment modal
+    alert('Assign to team functionality to be implemented');
+}
+
+function deleteContact(contactId) {
+    if (confirm('Are you sure you want to delete this contact? This action cannot be undone.')) {
+        // Implementation would delete contact
+        alert('Delete contact functionality to be implemented');
+    }
+}
+
+function printMessage() {
+    // Implementation would open print dialog
+    window.print();
+}
+
+function exportMessage() {
+    // Implementation would export message
+    alert('Export message functionality to be implemented');
+}
+
+function saveDraft() {
+    // Implementation would save reply as draft
+    alert('Save draft functionality to be implemented');
+}
+
+function viewAllContacts(userId) {
+    // Implementation would show all contacts for user
+    alert('View all contacts functionality to be implemented');
+}
+</script>
+
+<style>
+.border-left-primary { border-left: 0.25rem solid #4e73df !important; }
+.border-left-success { border-left: 0.25rem solid #1cc88a !important; }
+.border-left-info { border-left: 0.25rem solid #36b9cc !important; }
+.border-left-warning { border-left: 0.25rem solid #f6c23e !important; }
+.text-xs { font-size: 0.75rem; }
+
+.timeline-small {
+    position: relative;
+    padding-left: 20px;
+}
+
+.timeline-small::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item-small {
+    position: relative;
+}
+
+.timeline-marker-small {
+    position: absolute;
+    left: -24px;
+    top: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.timeline-content-small {
+    padding-bottom: 15px;
+}
+
+@media print {
+    .card-header, .btn, .dropdown, nav {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}
