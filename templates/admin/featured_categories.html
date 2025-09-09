@@ -1,0 +1,331 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Featured Categories - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Featured Categories</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Featured Categories Management</h4>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFeaturedModal">
+        <i class="fas fa-star me-2"></i>Add Featured Category
+    </button>
+</div>
+
+<!-- Info Alert -->
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    Featured categories are highlighted on the homepage and category showcase sections. Drag to reorder them.
+</div>
+
+<!-- Featured Categories -->
+<div class="card">
+    <div class="card-header">
+        <h6 class="mb-0">Currently Featured Categories</h6>
+    </div>
+    <div class="card-body">
+        {% if featured_categories %}
+        <div id="featuredCategoriesList">
+            {% for featured in featured_categories %}
+            <div class="featured-category-item border rounded p-3 mb-3" data-id="{{ featured.id }}">
+                <div class="row align-items-center">
+                    <div class="col-md-1">
+                        <div class="drag-handle text-center text-muted" style="cursor: move;">
+                            <i class="fas fa-grip-vertical"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            {% if featured.category.image %}
+                            <img src="{{ url_for('static', filename='uploads/' + featured.category.image) }}" 
+                                 alt="{{ featured.category.name }}" 
+                                 class="me-3 rounded" 
+                                 style="width: 60px; height: 60px; object-fit: cover;">
+                            {% else %}
+                            <div class="me-3 rounded bg-light d-flex align-items-center justify-content-center" 
+                                 style="width: 60px; height: 60px;">
+                                <i class="fas fa-folder text-muted fa-lg"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h6 class="mb-1">{{ featured.category.name }}</h6>
+                                <small class="text-muted">{{ featured.category.products|length }} books</small>
+                                <div class="mt-1">
+                                    <span class="badge bg-primary">Position {{ featured.display_order }}</span>
+                                    {% if featured.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        {% if featured.featured_text %}
+                        <div class="small">
+                            <strong>Featured Text:</strong><br>
+                            {{ featured.featured_text }}
+                        </div>
+                        {% endif %}
+                        {% if featured.featured_image %}
+                        <div class="mt-2">
+                            <img src="{{ url_for('static', filename='uploads/' + featured.featured_image) }}" 
+                                 alt="Featured image" 
+                                 class="img-thumbnail" 
+                                 style="max-width: 80px;">
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-2 text-end">
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editFeaturedModal"
+                                    onclick="editFeatured({{ featured.id }}, {{ featured.category.id }}, '{{ featured.featured_text or '' }}', {{ featured.display_order }}, {{ featured.is_active|lower }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <a href="{{ url_for('web.catalog', category=featured.category.id) }}" 
+                               class="btn btn-outline-info" 
+                               target="_blank">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button class="btn btn-outline-danger" 
+                                    onclick="removeFeatured({{ featured.id }}, '{{ featured.category.name }}')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-star fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Featured Categories</h5>
+            <p class="text-muted">Add categories to showcase them prominently on your website.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Available Categories -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h6 class="mb-0">Available Categories</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% if available_categories %}
+            {% for category in available_categories %}
+            <div class="col-lg-4 col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        {% if category.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + category.image) }}" 
+                             alt="{{ category.name }}" 
+                             class="rounded mb-3" 
+                             style="width: 80px; height: 80px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded bg-light d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <i class="fas fa-folder text-muted fa-2x"></i>
+                        </div>
+                        {% endif %}
+                        <h6 class="card-title">{{ category.name }}</h6>
+                        <p class="card-text small text-muted">{{ category.products|length }} books</p>
+                        <button class="btn btn-sm btn-outline-primary" 
+                                onclick="quickAddFeatured({{ category.id }}, '{{ category.name }}')">
+                            <i class="fas fa-plus me-1"></i>Feature This
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="col-12 text-center py-3">
+                <p class="text-muted">All categories are already featured.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Featured Category Modal -->
+<div class="modal fade" id="addFeaturedModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Featured Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addFeaturedForm">
+                    <div class="mb-3">
+                        <label class="form-label">Category *</label>
+                        <select class="form-select" name="category_id" required>
+                            <option value="">Select a category</option>
+                            {% for category in available_categories %}
+                            <option value="{{ category.id }}">{{ category.name }} ({{ category.products|length }} books)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Featured Text</label>
+                        <textarea class="form-control" name="featured_text" rows="3" 
+                                  placeholder="Optional promotional text for this category..."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Featured Image</label>
+                        <input type="file" class="form-control" name="featured_image" accept="image/*">
+                        <div class="form-text">Optional promotional image (different from category image)</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Display Order</label>
+                                <input type="number" class="form-control" name="display_order" value="1" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="addIsActive" checked>
+                                    <label class="form-check-label" for="addIsActive">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddFeatured()">Add Featured</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Featured Category Modal -->
+<div class="modal fade" id="editFeaturedModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Featured Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editFeaturedForm">
+                    <input type="hidden" name="featured_id" id="editFeaturedId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Category *</label>
+                        <select class="form-select" name="category_id" id="editCategoryId" required>
+                            {% for category in all_categories %}
+                            <option value="{{ category.id }}">{{ category.name }} ({{ category.products|length }} books)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Featured Text</label>
+                        <textarea class="form-control" name="featured_text" id="editFeaturedText" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Featured Image</label>
+                        <input type="file" class="form-control" name="featured_image" accept="image/*">
+                        <div class="form-text">Upload a new image to replace the existing one</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Display Order</label>
+                                <input type="number" class="form-control" name="display_order" id="editDisplayOrder" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="editIsActive">
+                                    <label class="form-check-label" for="editIsActive">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditFeatured()">Update Featured</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editFeatured(id, categoryId, featuredText, displayOrder, isActive) {
+    document.getElementById('editFeaturedId').value = id;
+    document.getElementById('editCategoryId').value = categoryId;
+    document.getElementById('editFeaturedText').value = featuredText;
+    document.getElementById('editDisplayOrder').value = displayOrder;
+    document.getElementById('editIsActive').checked = isActive;
+}
+
+function quickAddFeatured(categoryId, categoryName) {
+    if (confirm('Add "' + categoryName + '" as a featured category?')) {
+        // Implementation would be added for AJAX quick add
+        alert('Quick add featured category functionality to be implemented');
+    }
+}
+
+function submitAddFeatured() {
+    // Implementation would be added for AJAX form submission
+    alert('Add featured category functionality to be implemented');
+}
+
+function submitEditFeatured() {
+    // Implementation would be added for AJAX form submission
+    alert('Edit featured category functionality to be implemented');
+}
+
+function removeFeatured(id, categoryName) {
+    if (confirm('Remove "' + categoryName + '" from featured categories?')) {
+        // Implementation would be added for AJAX removal
+        alert('Remove featured category functionality to be implemented');
+    }
+}
+
+// Drag and drop functionality for reordering (placeholder)
+// In a real implementation, this would use a library like Sortable.js
+console.log('Drag and drop functionality for reordering to be implemented');
+</script>
+
+<style>
+.featured-category-item {
+    transition: all 0.3s ease;
+}
+
+.featured-category-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.drag-handle:hover {
+    color: #007bff !important;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,300 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Categories Management - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Categories</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Categories Management</h4>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+        <i class="fas fa-plus me-2"></i>Add New Category
+    </button>
+</div>
+
+<!-- Categories Table -->
+<div class="card">
+    <div class="card-body">
+        {% if categories %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">Order</th>
+                        <th>Category</th>
+                        <th>Books</th>
+                        <th>Parent</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th style="width: 120px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="categoriesTable">
+                    {% for category in categories %}
+                    <tr data-category-id="{{ category.id }}">
+                        <td>
+                            <span class="badge bg-secondary">{{ category.display_order or 0 }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if category.image %}
+                                <img src="{{ url_for('static', filename='uploads/' + category.image) }}" 
+                                     alt="{{ category.name }}" 
+                                     class="me-3 rounded" 
+                                     style="width: 40px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                <div class="me-3 rounded bg-light d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="fas fa-folder text-muted"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-0">{{ category.name }}</h6>
+                                    <small class="text-muted">{{ category.slug }}</small>
+                                    {% if category.description %}
+                                    <div class="small text-muted mt-1">{{ category.description[:80] }}{% if category.description|length > 80 %}...{% endif %}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-primary">{{ category.products|length }} books</span>
+                        </td>
+                        <td>
+                            {% if category.parent %}
+                            <span class="badge bg-info">{{ category.parent.name }}</span>
+                            {% else %}
+                            <span class="text-muted">Root</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if category.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ category.created_at.strftime('%b %d, %Y') }}</small>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editCategoryModal"
+                                        onclick="editCategory({{ category.id }}, '{{ category.name }}', '{{ category.slug }}', '{{ category.description or '' }}', {{ category.display_order or 0 }}, {{ category.parent_id or 'null' }}, {{ category.is_active|lower }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a href="{{ url_for('web.catalog', category=category.id) }}" 
+                                   class="btn btn-outline-info" 
+                                   target="_blank"
+                                   title="View Category">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button class="btn btn-outline-danger" 
+                                        onclick="deleteCategory({{ category.id }}, '{{ category.name }}')"
+                                        title="Delete Category">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Categories Found</h5>
+            <p class="text-muted">Start by adding your first product category.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCategoryForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Category Name *</label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <input type="text" class="form-control" name="slug" placeholder="auto-generated">
+                                <div class="form-text">URL-friendly version (leave empty for auto-generation)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Parent Category</label>
+                                <select class="form-select" name="parent_id">
+                                    <option value="">Root Category</option>
+                                    {% for cat in categories %}
+                                    {% if not cat.parent_id %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Display Order</label>
+                                <input type="number" class="form-control" name="display_order" value="0" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="addIsActive" checked>
+                            <label class="form-check-label" for="addIsActive">Active</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddCategory()">Add Category</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCategoryForm">
+                    <input type="hidden" name="category_id" id="editCategoryId">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Category Name *</label>
+                                <input type="text" class="form-control" name="name" id="editName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <input type="text" class="form-control" name="slug" id="editSlug">
+                                <div class="form-text">URL-friendly version</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" id="editDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Parent Category</label>
+                                <select class="form-select" name="parent_id" id="editParentId">
+                                    <option value="">Root Category</option>
+                                    {% for cat in categories %}
+                                    {% if not cat.parent_id %}
+                                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Display Order</label>
+                                <input type="number" class="form-control" name="display_order" id="editDisplayOrder" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="editIsActive">
+                            <label class="form-check-label" for="editIsActive">Active</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditCategory()">Update Category</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editCategory(id, name, slug, description, displayOrder, parentId, isActive) {
+    document.getElementById('editCategoryId').value = id;
+    document.getElementById('editName').value = name;
+    document.getElementById('editSlug').value = slug;
+    document.getElementById('editDescription').value = description;
+    document.getElementById('editDisplayOrder').value = displayOrder;
+    document.getElementById('editParentId').value = parentId || '';
+    document.getElementById('editIsActive').checked = isActive;
+}
+
+function submitAddCategory() {
+    // Implementation would be added for AJAX form submission
+    alert('Add category functionality to be implemented');
+}
+
+function submitEditCategory() {
+    // Implementation would be added for AJAX form submission
+    alert('Edit category functionality to be implemented');
+}
+
+function deleteCategory(id, name) {
+    if (confirm('Are you sure you want to delete category "' + name + '"? This action cannot be undone.')) {
+        // Implementation would be added for AJAX deletion
+        alert('Delete category functionality to be implemented');
+    }
+}
+
+// Auto-generate slug from name for add form
+document.querySelector('#addCategoryModal input[name="name"]').addEventListener('input', function() {
+    const slug = this.value.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim('-');
+    document.querySelector('#addCategoryModal input[name="slug"]').value = slug;
+});
+</script>
+{% endblock %}

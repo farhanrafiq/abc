@@ -1,0 +1,143 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ 'Edit Author' if author else 'Add New Author' }} - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.authors') }}">Authors</a></li>
+        <li class="breadcrumb-item active">{{ 'Edit' if author else 'Add New' }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{{ 'Edit Author' if author else 'Add New Author' }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.name.label(class="form-label") }}
+                                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                                {% for error in form.name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.slug.label(class="form-label") }}
+                                {{ form.slug(class="form-control" + (" is-invalid" if form.slug.errors else "")) }}
+                                {% for error in form.slug.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">URL-friendly version (auto-generated from name)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.bio.label(class="form-label") }}
+                        {{ form.bio(class="form-control" + (" is-invalid" if form.bio.errors else ""), rows="4") }}
+                        {% for error in form.bio.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.photo.label(class="form-label") }}
+                                {{ form.photo(class="form-control" + (" is-invalid" if form.photo.errors else "")) }}
+                                {% for error in form.photo.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                                {% if author and author.photo %}
+                                <div class="mt-2">
+                                    <img src="{{ url_for('static', filename='uploads/' + author.photo) }}" 
+                                         alt="{{ author.name }}" 
+                                         class="img-thumbnail" 
+                                         style="max-width: 150px; max-height: 150px;">
+                                    <div class="form-text">Current photo</div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <div class="form-check form-switch">
+                                    {{ form.is_active(class="form-check-input") }}
+                                    <label class="form-check-label" for="{{ form.is_active.id }}">
+                                        Active (visible to customers)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.authors') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {{ 'Update Author' if author else 'Create Author' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Author Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use clear, professional author names</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Bio should be 100-500 characters</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Photo should be at least 300x300px</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Slug will be auto-generated from name</li>
+                    <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Inactive authors won't be visible to customers</li>
+                </ul>
+            </div>
+        </div>
+        
+        {% if author %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Author Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="mb-2">
+                            <h4 class="text-primary mb-0">{{ author.products|length }}</h4>
+                            <small class="text-muted">Books</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-2">
+                            <h4 class="text-success mb-0">{{ author.created_at.strftime('%Y') }}</h4>
+                            <small class="text-muted">Added</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

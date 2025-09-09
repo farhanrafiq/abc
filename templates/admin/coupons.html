@@ -1,0 +1,399 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Coupons Management - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Coupons</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Coupons Management</h4>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+        <i class="fas fa-plus me-2"></i>Create New Coupon
+    </button>
+</div>
+
+<!-- Coupons Table -->
+<div class="card">
+    <div class="card-body">
+        {% if coupons %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Type</th>
+                        <th>Discount</th>
+                        <th>Usage</th>
+                        <th>Validity</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coupon in coupons %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="fas fa-ticket-alt text-primary fa-lg"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 font-monospace">{{ coupon.code }}</h6>
+                                    {% if coupon.description %}
+                                    <small class="text-muted">{{ coupon.description }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if coupon.type.value == 'PERCENT' else 'info' }}">
+                                {{ coupon.type.value.title() }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>
+                                {% if coupon.type.value == 'PERCENT' %}
+                                {{ coupon.value }}%
+                                {% else %}
+                                {{ format_currency(coupon.value * 100) }}
+                                {% endif %}
+                            </strong>
+                            {% if coupon.min_order_amount %}
+                            <div class="small text-muted">Min order: {{ format_currency(coupon.min_order_amount) }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="text-center">
+                                <div class="fw-bold">{{ coupon.used_count or 0 }}</div>
+                                {% if coupon.max_uses %}
+                                <div class="small text-muted">of {{ coupon.max_uses }}</div>
+                                <div class="progress mt-1" style="height: 4px;">
+                                    <div class="progress-bar" 
+                                         style="width: {{ ((coupon.used_count or 0) / coupon.max_uses * 100)|round }}%">
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="small text-muted">unlimited</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small">
+                                <div><i class="fas fa-calendar-alt me-1"></i>{{ coupon.valid_from.strftime('%b %d, %Y') }}</div>
+                                {% if coupon.valid_to %}
+                                <div><i class="fas fa-calendar-times me-1"></i>{{ coupon.valid_to.strftime('%b %d, %Y') }}</div>
+                                {% else %}
+                                <div class="text-muted">No expiry</div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% set now = moment.utcnow() %}
+                            {% if coupon.is_active and (not coupon.valid_to or coupon.valid_to >= now) and (not coupon.max_uses or coupon.used_count < coupon.max_uses) %}
+                            <span class="badge bg-success">Active</span>
+                            {% elif not coupon.is_active %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% elif coupon.valid_to and coupon.valid_to < now %}
+                            <span class="badge bg-danger">Expired</span>
+                            {% elif coupon.max_uses and coupon.used_count >= coupon.max_uses %}
+                            <span class="badge bg-warning">Used Up</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editCouponModal"
+                                        onclick="editCoupon({{ coupon.id }}, '{{ coupon.code }}', '{{ coupon.type.value }}', {{ coupon.value }}, '{{ coupon.description or '' }}', '{{ coupon.valid_from.isoformat() }}', '{{ coupon.valid_to.isoformat() if coupon.valid_to else '' }}', {{ coupon.max_uses or 'null' }}, {{ coupon.min_order_amount or 'null' }}, {{ coupon.is_active|lower }})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-outline-info" onclick="copyCouponCode('{{ coupon.code }}')">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="btn btn-outline-danger" 
+                                        onclick="deleteCoupon({{ coupon.id }}, '{{ coupon.code }}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-percentage fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No Coupons Found</h5>
+            <p class="text-muted">Create your first discount coupon to boost sales.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Coupon Modal -->
+<div class="modal fade" id="addCouponModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New Coupon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCouponForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Coupon Code *</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control text-uppercase font-monospace" name="code" required maxlength="20">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="generateCouponCode()">
+                                        <i class="fas fa-random"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Must be unique, 3-20 characters</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Discount Type *</label>
+                                <select class="form-select" name="type" required onchange="toggleDiscountInput(this)">
+                                    <option value="">Select Type</option>
+                                    <option value="PERCENT">Percentage (%)</option>
+                                    <option value="AMOUNT">Fixed Amount (₹)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Discount Value *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="discount-symbol">%</span>
+                                    <input type="number" class="form-control" name="value" required min="1" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Minimum Order Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" name="min_order_amount" min="0" step="0.01">
+                                </div>
+                                <div class="form-text">Leave empty for no minimum</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="2" placeholder="Brief description of the coupon"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Valid From *</label>
+                                <input type="date" class="form-control" name="valid_from" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Valid To</label>
+                                <input type="date" class="form-control" name="valid_to">
+                                <div class="form-text">Leave empty for no expiry</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Maximum Uses</label>
+                                <input type="number" class="form-control" name="max_uses" min="1">
+                                <div class="form-text">Leave empty for unlimited uses</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="addIsActive" checked>
+                                    <label class="form-check-label" for="addIsActive">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitAddCoupon()">Create Coupon</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Coupon Modal -->
+<div class="modal fade" id="editCouponModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Coupon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCouponForm">
+                    <input type="hidden" name="coupon_id" id="editCouponId">
+                    <!-- Similar form fields as add modal but with id attributes for editing -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Coupon Code *</label>
+                                <input type="text" class="form-control text-uppercase font-monospace" name="code" id="editCode" required maxlength="20">
+                                <div class="form-text">Must be unique, 3-20 characters</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Discount Type *</label>
+                                <select class="form-select" name="type" id="editType" required>
+                                    <option value="PERCENT">Percentage (%)</option>
+                                    <option value="AMOUNT">Fixed Amount (₹)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Discount Value *</label>
+                                <input type="number" class="form-control" name="value" id="editValue" required min="1" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Minimum Order Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" name="min_order_amount" id="editMinOrder" min="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" id="editDescription" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Valid From *</label>
+                                <input type="date" class="form-control" name="valid_from" id="editValidFrom" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Valid To</label>
+                                <input type="date" class="form-control" name="valid_to" id="editValidTo">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Maximum Uses</label>
+                                <input type="number" class="form-control" name="max_uses" id="editMaxUses" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="editIsActive">
+                                    <label class="form-check-label" for="editIsActive">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditCoupon()">Update Coupon</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function generateCouponCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    document.querySelector('#addCouponModal input[name="code"]').value = code;
+}
+
+function toggleDiscountInput(select) {
+    const symbol = document.getElementById('discount-symbol');
+    symbol.textContent = select.value === 'PERCENT' ? '%' : '₹';
+}
+
+function editCoupon(id, code, type, value, description, validFrom, validTo, maxUses, minOrder, isActive) {
+    document.getElementById('editCouponId').value = id;
+    document.getElementById('editCode').value = code;
+    document.getElementById('editType').value = type;
+    document.getElementById('editValue').value = value;
+    document.getElementById('editDescription').value = description;
+    document.getElementById('editValidFrom').value = validFrom.split('T')[0];
+    document.getElementById('editValidTo').value = validTo ? validTo.split('T')[0] : '';
+    document.getElementById('editMaxUses').value = maxUses || '';
+    document.getElementById('editMinOrder').value = minOrder || '';
+    document.getElementById('editIsActive').checked = isActive;
+}
+
+function copyCouponCode(code) {
+    navigator.clipboard.writeText(code).then(() => {
+        alert('Coupon code copied to clipboard!');
+    });
+}
+
+function submitAddCoupon() {
+    alert('Add coupon functionality to be implemented');
+}
+
+function submitEditCoupon() {
+    alert('Edit coupon functionality to be implemented');
+}
+
+function deleteCoupon(id, code) {
+    if (confirm('Are you sure you want to delete coupon "' + code + '"? This action cannot be undone.')) {
+        alert('Delete coupon functionality to be implemented');
+    }
+}
+
+// Set default date to today
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelector('#addCouponModal input[name="valid_from"]').value = today;
+});
+</script>
+{% endblock %}

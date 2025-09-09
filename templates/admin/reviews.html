@@ -1,0 +1,291 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Reviews Management - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Reviews</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Reviews Management</h4>
+    <div class="d-flex gap-2">
+        <div class="btn-group" role="group">
+            <input type="radio" class="btn-check" name="reviewFilter" id="all" value="all" {% if not status or status == 'all' %}checked{% endif %}>
+            <label class="btn btn-outline-primary" for="all">All Reviews</label>
+            
+            <input type="radio" class="btn-check" name="reviewFilter" id="pending" value="pending" {% if status == 'pending' %}checked{% endif %}>
+            <label class="btn btn-outline-warning" for="pending">Pending</label>
+            
+            <input type="radio" class="btn-check" name="reviewFilter" id="approved" value="approved" {% if status == 'approved' %}checked{% endif %}>
+            <label class="btn btn-outline-success" for="approved">Approved</label>
+            
+            <input type="radio" class="btn-check" name="reviewFilter" id="rejected" value="rejected" {% if status == 'rejected' %}checked{% endif %}>
+            <label class="btn btn-outline-danger" for="rejected">Rejected</label>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" name="search" placeholder="Search reviews, products, or users..." value="{{ search or '' }}">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" name="rating">
+                    <option value="">All Ratings</option>
+                    {% for i in range(5, 0, -1) %}
+                    <option value="{{ i }}" {% if rating == i|string %}selected{% endif %}>{{ i }} Star{% if i > 1 %}s{% endif %}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-search me-2"></i>Search
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{{ url_for('admin.reviews') }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-times me-2"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Reviews List -->
+<div class="row">
+    {% if reviews %}
+    {% for review in reviews %}
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <!-- Review Header -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    {% if review.user and review.user.profile_image %}
+                                    <img src="{{ review.user.profile_image }}" 
+                                         alt="{{ review.user.name }}" 
+                                         class="rounded-circle" 
+                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" 
+                                         style="width: 50px; height: 50px;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">{{ review.user.name if review.user else 'Anonymous User' }}</h6>
+                                    <div class="text-muted small">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ review.created_at.strftime('%b %d, %Y at %I:%M %p') }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Badge -->
+                            <div>
+                                {% if review.is_approved %}
+                                <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Product Info -->
+                        <div class="mb-3 p-3 bg-light rounded">
+                            <div class="d-flex align-items-center">
+                                {% if review.product.cover_image %}
+                                <img src="{{ url_for('static', filename='uploads/' + review.product.cover_image) }}" 
+                                     alt="{{ review.product.title }}" 
+                                     class="me-3 rounded" 
+                                     style="width: 60px; height: 75px; object-fit: cover;">
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-1">
+                                        <a href="{{ url_for('web.product_detail', slug=review.product.slug) }}" 
+                                           target="_blank" 
+                                           class="text-decoration-none">
+                                            {{ review.product.title }}
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">{{ review.product.isbn or '' }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Review Content -->
+                        <div class="mb-3">
+                            <!-- Rating -->
+                            <div class="mb-2">
+                                {% for i in range(1, 6) %}
+                                {% if i <= review.rating %}
+                                <i class="fas fa-star text-warning"></i>
+                                {% else %}
+                                <i class="far fa-star text-muted"></i>
+                                {% endif %}
+                                {% endfor %}
+                                <span class="ms-2 text-muted">({{ review.rating }}/5)</span>
+                            </div>
+                            
+                            <!-- Review Title -->
+                            {% if review.title %}
+                            <h6 class="fw-bold">{{ review.title }}</h6>
+                            {% endif %}
+                            
+                            <!-- Review Body -->
+                            <p class="mb-0">{{ review.body }}</p>
+                        </div>
+                        
+                        <!-- Admin Notes (if any) -->
+                        {% if review.admin_notes %}
+                        <div class="alert alert-info small">
+                            <strong>Admin Notes:</strong> {{ review.admin_notes }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="col-lg-4">
+                        <div class="d-grid gap-2">
+                            {% if not review.is_approved %}
+                            <button class="btn btn-success" onclick="moderateReview({{ review.id }}, 'approve')">
+                                <i class="fas fa-check me-2"></i>Approve Review
+                            </button>
+                            <button class="btn btn-danger" onclick="moderateReview({{ review.id }}, 'reject')">
+                                <i class="fas fa-times me-2"></i>Reject Review
+                            </button>
+                            {% else %}
+                            <button class="btn btn-warning" onclick="moderateReview({{ review.id }}, 'unapprove')">
+                                <i class="fas fa-eye-slash me-2"></i>Unapprove
+                            </button>
+                            {% endif %}
+                            
+                            <button class="btn btn-outline-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#addNoteModal"
+                                    onclick="setReviewForNote({{ review.id }}, '{{ review.admin_notes or '' }}')">
+                                <i class="fas fa-sticky-note me-2"></i>Add Note
+                            </button>
+                            
+                            <a href="{{ url_for('web.product_detail', slug=review.product.slug) }}" 
+                               target="_blank"
+                               class="btn btn-outline-info">
+                                <i class="fas fa-external-link-alt me-2"></i>View Product
+                            </a>
+                            
+                            <button class="btn btn-outline-danger" onclick="deleteReview({{ review.id }})">
+                                <i class="fas fa-trash me-2"></i>Delete Review
+                            </button>
+                        </div>
+                        
+                        <!-- Review Stats -->
+                        <div class="mt-3 p-3 bg-light rounded">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="small text-muted">Helpful votes</div>
+                                    <div class="fw-bold">{{ review.helpful_count or 0 }}</div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="small text-muted">Reports</div>
+                                    <div class="fw-bold text-danger">{{ review.report_count or 0 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No Reviews Found</h5>
+                <p class="text-muted">{% if search %}No reviews match your search criteria.{% else %}No reviews have been submitted yet.{% endif %}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Add Note Modal -->
+<div class="modal fade" id="addNoteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Admin Note</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addNoteForm">
+                    <input type="hidden" id="noteReviewId">
+                    <div class="mb-3">
+                        <label class="form-label">Admin Notes</label>
+                        <textarea class="form-control" id="adminNotes" rows="4" placeholder="Add internal notes about this review..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveAdminNote()">Save Note</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Filter reviews by status
+document.querySelectorAll('input[name="reviewFilter"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const url = new URL(window.location);
+        url.searchParams.set('status', this.value);
+        window.location = url;
+    });
+});
+
+function moderateReview(reviewId, action) {
+    const actions = {
+        'approve': 'approve this review',
+        'reject': 'reject this review',
+        'unapprove': 'unapprove this review'
+    };
+    
+    if (confirm('Are you sure you want to ' + actions[action] + '?')) {
+        // Implementation would be added for AJAX moderation
+        alert('Review moderation functionality to be implemented');
+    }
+}
+
+function deleteReview(reviewId) {
+    if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+        // Implementation would be added for AJAX deletion
+        alert('Delete review functionality to be implemented');
+    }
+}
+
+function setReviewForNote(reviewId, currentNote) {
+    document.getElementById('noteReviewId').value = reviewId;
+    document.getElementById('adminNotes').value = currentNote;
+}
+
+function saveAdminNote() {
+    // Implementation would be added for AJAX note saving
+    alert('Save admin note functionality to be implemented');
+}
+</script>
+{% endblock %}
