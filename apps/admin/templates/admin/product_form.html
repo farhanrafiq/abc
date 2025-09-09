@@ -1,0 +1,277 @@
+{% extends "admin/base.html" %}
+{% set active_page = 'products' %}
+
+{% block title %}{{ 'Edit Product' if product else 'New Product' }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="page-title">
+        <i class="fas fa-book me-2"></i>
+        {{ 'Edit Product' if product else 'New Product' }}
+    </h1>
+    <div class="quick-actions">
+        <a href="{{ url_for('admin.products') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back to Products
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="table-card">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Product Information
+                </h5>
+            </div>
+            <div class="p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="{{ form.title.id }}" class="form-label">Title *</label>
+                            {{ form.title(class="form-control") }}
+                            {% for error in form.title.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="{{ form.isbn.id }}" class="form-label">ISBN</label>
+                            {{ form.isbn(class="form-control") }}
+                            {% for error in form.isbn.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id }}" class="form-label">Description</label>
+                        {{ form.description(class="form-control", rows="4") }}
+                        {% for error in form.description.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="author_ids" class="form-label">Authors *</label>
+                            <select name="author_ids" class="form-select" multiple required>
+                                {% for author in authors %}
+                                <option value="{{ author.id }}" 
+                                        {% if product and author in product.authors %}selected{% endif %}>
+                                    {{ author.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Hold Ctrl to select multiple authors</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="publisher_id" class="form-label">Publisher</label>
+                            <select name="publisher_id" class="form-select">
+                                <option value="">Select Publisher</option>
+                                {% for publisher in publishers %}
+                                <option value="{{ publisher.id }}" 
+                                        {% if product and product.publisher_id == publisher.id %}selected{% endif %}>
+                                    {{ publisher.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="language_id" class="form-label">Language</label>
+                            <select name="language_id" class="form-select">
+                                <option value="">Select Language</option>
+                                {% for language in languages %}
+                                <option value="{{ language.id }}" 
+                                        {% if product and product.language_id == language.id %}selected{% endif %}>
+                                    {{ language.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="format_id" class="form-label">Format</label>
+                            <select name="format_id" class="form-select">
+                                <option value="">Select Format</option>
+                                {% for format in formats %}
+                                <option value="{{ format.id }}" 
+                                        {% if product and product.format_id == format.id %}selected{% endif %}>
+                                    {{ format.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="category_ids" class="form-label">Categories *</label>
+                        <select name="category_ids" class="form-select" multiple required>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" 
+                                    {% if product and category in product.categories %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Hold Ctrl to select multiple categories</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="pages" class="form-label">Pages</label>
+                            <input type="number" name="pages" class="form-control" 
+                                   value="{{ product.pages if product else '' }}" min="1">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="publication_year" class="form-label">Publication Year</label>
+                            <input type="number" name="publication_year" class="form-control" 
+                                   value="{{ product.publication_year if product else '' }}" 
+                                   min="1900" max="2030">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="active" {% if not product or product.status.value == 'active' %}selected{% endif %}>Active</option>
+                                <option value="draft" {% if product and product.status.value == 'draft' %}selected{% endif %}>Draft</option>
+                                <option value="archived" {% if product and product.status.value == 'archived' %}selected{% endif %}>Archived</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>
+                            {{ 'Update Product' if product else 'Create Product' }}
+                        </button>
+                        <a href="{{ url_for('admin.products') }}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Pricing -->
+        <div class="table-card mb-4">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-rupee-sign me-2"></i>
+                    Pricing
+                </h5>
+            </div>
+            <div class="p-4">
+                <div class="mb-3">
+                    <label for="mrp_inr" class="form-label">MRP (₹) *</label>
+                    <input type="number" name="mrp_inr" class="form-control" 
+                           value="{{ (product.price.mrp_inr // 100) if product and product.price else '' }}" 
+                           step="0.01" min="0" required>
+                    <div class="form-text">Enter amount in rupees</div>
+                </div>
+                <div class="mb-3">
+                    <label for="sale_inr" class="form-label">Sale Price (₹)</label>
+                    <input type="number" name="sale_inr" class="form-control" 
+                           value="{{ (product.price.sale_inr // 100) if product and product.price and product.price.sale_inr else '' }}" 
+                           step="0.01" min="0">
+                    <div class="form-text">Leave empty if same as MRP</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Inventory -->
+        <div class="table-card mb-4">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-box me-2"></i>
+                    Inventory
+                </h5>
+            </div>
+            <div class="p-4">
+                <div class="mb-3">
+                    <label for="stock_on_hand" class="form-label">Stock Quantity *</label>
+                    <input type="number" name="stock_on_hand" class="form-control" 
+                           value="{{ product.inventory.stock_on_hand if product and product.inventory else '0' }}" 
+                           min="0" required>
+                </div>
+                <div class="mb-3">
+                    <label for="low_stock_threshold" class="form-label">Low Stock Alert</label>
+                    <input type="number" name="low_stock_threshold" class="form-control" 
+                           value="{{ product.inventory.low_stock_threshold if product and product.inventory else '5' }}" 
+                           min="0">
+                    <div class="form-text">Alert when stock falls below this number</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cover Image -->
+        <div class="table-card">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-image me-2"></i>
+                    Cover Image
+                </h5>
+            </div>
+            <div class="p-4">
+                {% if product and product.cover_image_url %}
+                <div class="current-image mb-3">
+                    <img src="{{ product.cover_image_url }}" alt="Current cover" 
+                         class="img-fluid rounded" style="max-height: 200px;">
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <input type="file" name="cover_image" class="form-control" 
+                           accept="image/jpeg,image/jpg,image/png,image/gif">
+                    <div class="form-text">JPG, PNG or GIF. Max 16MB.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-generate slug from title
+document.querySelector('input[name="title"]')?.addEventListener('input', function(e) {
+    // Simple slug generation
+    const slug = e.target.value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+    
+    // Update hidden slug field if it exists
+    const slugField = document.querySelector('input[name="slug"]');
+    if (slugField && !slugField.value) {
+        slugField.value = slug;
+    }
+});
+
+// Preview image on file selection
+document.querySelector('input[name="cover_image"]')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.querySelector('.current-image img');
+            if (preview) {
+                preview.src = e.target.result;
+            } else {
+                const previewDiv = document.querySelector('.current-image') || document.createElement('div');
+                previewDiv.className = 'current-image mb-3';
+                previewDiv.innerHTML = `<img src="${e.target.result}" alt="Preview" class="img-fluid rounded" style="max-height: 200px;">`;
+                e.target.parentNode.insertBefore(previewDiv, e.target);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

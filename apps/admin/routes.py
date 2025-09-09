@@ -6,6 +6,9 @@ from models import (Product, Category, Author, Publisher, Price, Inventory, Orde
                    User, Review, Coupon, Setting, UserRole, OrderStatus, PaymentStatus, ProductStatus,
                    Banner, FeaturedCategory, BannerType, ContactForm, AdminLog, ContentBlock, NewsletterSubscriber,
                    Language, Format)
+from datetime import datetime, timedelta
+import io
+import csv
 from forms import (ProductForm, AuthorForm, PublisherForm, CategoryForm, CouponForm, UserForm)
 from utils.helpers import format_currency, save_uploaded_file, generate_slug, paginate_query
 from utils.pdf import generate_invoice_pdf
@@ -954,3 +957,12 @@ def admin_logs():
                          admins=admins,
                          selected_admin=admin_id,
                          selected_action=action)
+
+@admin_bp.context_processor
+def inject_admin_vars():
+    """Inject admin template variables"""
+    return {
+        'format_currency': format_currency,
+        'datetime': datetime,
+        'moment': lambda x: x  # Simple moment replacement for now
+    }
