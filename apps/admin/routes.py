@@ -5,7 +5,7 @@ from sqlalchemy import func, desc, and_, or_
 from models import (Product, Category, Author, Publisher, Price, Inventory, Order, OrderItem, 
                    User, Review, Coupon, Setting, UserRole, OrderStatus, PaymentStatus, ProductStatus,
                    Banner, FeaturedCategory, BannerType, ContactForm, AdminLog, ContentBlock, NewsletterSubscriber,
-                   Language, Format, product_categories, product_authors)
+                   Language, Format, CouponType, product_categories, product_authors)
 from datetime import datetime, timedelta
 import io
 import csv
@@ -394,6 +394,40 @@ def author_new():
     
     return render_template('admin/author_form.html', form=form, author=None)
 
+@admin_bp.route('/authors/<int:author_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def author_edit(author_id):
+    """Edit existing author"""
+    author = Author.query.get_or_404(author_id)
+    form = AuthorForm(obj=author)
+    
+    if form.validate_on_submit():
+        author.name = form.name.data
+        author.slug = form.slug.data
+        author.bio = form.bio.data
+        db.session.commit()
+        flash('Author updated successfully!', 'success')
+        return redirect(url_for('admin.authors'))
+    
+    return render_template('admin/author_form.html', form=form, author=author)
+
+@admin_bp.route('/authors/<int:author_id>/delete', methods=['POST'])
+@admin_required
+def author_delete(author_id):
+    """Delete author"""
+    author = Author.query.get_or_404(author_id)
+    
+    # Check if author has products
+    if author.products:
+        flash('Cannot delete author with existing products!', 'error')
+    else:
+        author_name = author.name
+        db.session.delete(author)
+        db.session.commit()
+        flash(f'Author "{author_name}" deleted successfully!', 'success')
+    
+    return redirect(url_for('admin.authors'))
+
 @admin_bp.route('/publishers')
 @admin_required
 def publishers():
@@ -410,12 +444,125 @@ def publishers():
     
     return render_template('admin/publishers.html', publishers=publishers, search=search)
 
+@admin_bp.route('/publishers/new', methods=['GET', 'POST'])
+@admin_required
+def publisher_new():
+    """Create new publisher"""
+    form = PublisherForm()
+    
+    if form.validate_on_submit():
+        publisher = Publisher(
+            name=form.name.data,
+            slug=form.slug.data or generate_slug(form.name.data),
+            description=form.description.data
+        )
+        db.session.add(publisher)
+        db.session.commit()
+        flash('Publisher created successfully!', 'success')
+        return redirect(url_for('admin.publishers'))
+    
+    return render_template('admin/publisher_form.html', form=form, publisher=None)
+
+@admin_bp.route('/publishers/<int:publisher_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def publisher_edit(publisher_id):
+    """Edit existing publisher"""
+    publisher = Publisher.query.get_or_404(publisher_id)
+    form = PublisherForm(obj=publisher)
+    
+    if form.validate_on_submit():
+        publisher.name = form.name.data
+        publisher.slug = form.slug.data
+        publisher.description = form.description.data
+        db.session.commit()
+        flash('Publisher updated successfully!', 'success')
+        return redirect(url_for('admin.publishers'))
+    
+    return render_template('admin/publisher_form.html', form=form, publisher=publisher)
+
+@admin_bp.route('/publishers/<int:publisher_id>/delete', methods=['POST'])
+@admin_required
+def publisher_delete(publisher_id):
+    """Delete publisher"""
+    publisher = Publisher.query.get_or_404(publisher_id)
+    
+    # Check if publisher has products
+    if publisher.products:
+        flash('Cannot delete publisher with existing products!', 'error')
+    else:
+        publisher_name = publisher.name
+        db.session.delete(publisher)
+        db.session.commit()
+        flash(f'Publisher "{publisher_name}" deleted successfully!', 'success')
+    
+    return redirect(url_for('admin.publishers'))
+
 @admin_bp.route('/categories')
 @admin_required
 def categories():
     """Category management"""
     categories = Category.query.order_by(Category.name).all()
     return render_template('admin/categories.html', categories=categories)
+
+@admin_bp.route('/categories/new', methods=['GET', 'POST'])
+@admin_required
+def category_new():
+    """Create new category"""
+    form = CategoryForm()
+    
+    # Populate parent category choices
+    form.parent_id.choices = [('', 'No Parent')] + [(str(c.id), c.name) for c in Category.query.filter_by(parent_id=None).all()]
+    
+    if form.validate_on_submit():
+        category = Category(
+            name=form.name.data,
+            slug=form.slug.data or generate_slug(form.name.data),
+            parent_id=form.parent_id.data if form.parent_id.data else None
+        )
+        db.session.add(category)
+        db.session.commit()
+        flash('Category created successfully!', 'success')
+        return redirect(url_for('admin.categories'))
+    
+    return render_template('admin/category_form.html', form=form, category=None)
+
+@admin_bp.route('/categories/<int:category_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def category_edit(category_id):
+    """Edit existing category"""
+    category = Category.query.get_or_404(category_id)
+    form = CategoryForm(obj=category)
+    
+    # Populate parent category choices (exclude self and children)
+    valid_parents = Category.query.filter(Category.id != category_id).filter_by(parent_id=None).all()
+    form.parent_id.choices = [('', 'No Parent')] + [(str(c.id), c.name) for c in valid_parents]
+    
+    if form.validate_on_submit():
+        category.name = form.name.data
+        category.slug = form.slug.data
+        category.parent_id = form.parent_id.data if form.parent_id.data else None
+        db.session.commit()
+        flash('Category updated successfully!', 'success')
+        return redirect(url_for('admin.categories'))
+    
+    return render_template('admin/category_form.html', form=form, category=category)
+
+@admin_bp.route('/categories/<int:category_id>/delete', methods=['POST'])
+@admin_required
+def category_delete(category_id):
+    """Delete category"""
+    category = Category.query.get_or_404(category_id)
+    
+    # Check if category has products or subcategories
+    if category.products or category.children:
+        flash('Cannot delete category with existing products or subcategories!', 'error')
+    else:
+        category_name = category.name
+        db.session.delete(category)
+        db.session.commit()
+        flash(f'Category "{category_name}" deleted successfully!', 'success')
+    
+    return redirect(url_for('admin.categories'))
 
 @admin_bp.route('/reviews')
 @admin_required
@@ -463,6 +610,87 @@ def coupons():
     page = request.args.get('page', 1, type=int)
     coupons = paginate_query(Coupon.query.order_by(desc(Coupon.created_at)), page, 20)
     return render_template('admin/coupons.html', coupons=coupons)
+
+@admin_bp.route('/coupons/new', methods=['GET', 'POST'])
+@admin_required
+def coupon_new():
+    """Create new coupon"""
+    form = CouponForm()
+    
+    if form.validate_on_submit():
+        coupon = Coupon(
+            code=form.code.data.upper(),
+            type=CouponType(form.type.data),
+            value=form.value.data,
+            min_subtotal=int(form.min_subtotal.data * 100) if form.min_subtotal.data else None,
+            max_redemptions=form.max_redemptions.data,
+            per_user_limit=form.per_user_limit.data,
+            is_active=True
+        )
+        
+        try:
+            db.session.add(coupon)
+            db.session.commit()
+            flash('Coupon created successfully!', 'success')
+            return redirect(url_for('admin.coupons'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Error creating coupon. Code may already exist.', 'error')
+    
+    return render_template('admin/coupon_form.html', form=form, coupon=None)
+
+@admin_bp.route('/coupons/<int:coupon_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def coupon_edit(coupon_id):
+    """Edit existing coupon"""
+    coupon = Coupon.query.get_or_404(coupon_id)
+    form = CouponForm(obj=coupon)
+    
+    # Populate form with existing data
+    if request.method == 'GET':
+        form.min_subtotal.data = coupon.min_subtotal / 100 if coupon.min_subtotal else None
+    
+    if form.validate_on_submit():
+        coupon.code = form.code.data.upper()
+        coupon.type = CouponType(form.type.data)
+        coupon.value = form.value.data
+        coupon.min_subtotal = int(form.min_subtotal.data * 100) if form.min_subtotal.data else None
+        coupon.max_redemptions = form.max_redemptions.data
+        coupon.per_user_limit = form.per_user_limit.data
+        
+        try:
+            db.session.commit()
+            flash('Coupon updated successfully!', 'success')
+            return redirect(url_for('admin.coupons'))
+        except Exception as e:
+            db.session.rollback()
+            flash('Error updating coupon.', 'error')
+    
+    return render_template('admin/coupon_form.html', form=form, coupon=coupon)
+
+@admin_bp.route('/coupons/<int:coupon_id>/toggle', methods=['POST'])
+@admin_required
+def coupon_toggle(coupon_id):
+    """Toggle coupon status"""
+    coupon = Coupon.query.get_or_404(coupon_id)
+    coupon.is_active = not coupon.is_active
+    db.session.commit()
+    
+    status = 'activated' if coupon.is_active else 'deactivated'
+    flash(f'Coupon {status} successfully!', 'success')
+    return redirect(url_for('admin.coupons'))
+
+@admin_bp.route('/coupons/<int:coupon_id>/delete', methods=['POST'])
+@admin_required
+def coupon_delete(coupon_id):
+    """Delete coupon"""
+    coupon = Coupon.query.get_or_404(coupon_id)
+    coupon_code = coupon.code
+    
+    db.session.delete(coupon)
+    db.session.commit()
+    flash(f'Coupon "{coupon_code}" deleted successfully!', 'success')
+    return redirect(url_for('admin.coupons'))
 
 @admin_bp.route('/settings')
 @admin_required

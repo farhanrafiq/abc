@@ -1,0 +1,109 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}{{ 'Edit Publisher' if publisher else 'Add New Publisher' }} - Admin{% endblock %}
+
+{% block breadcrumb %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('admin.publishers') }}">Publishers</a></li>
+        <li class="breadcrumb-item active">{{ 'Edit' if publisher else 'Add New' }}</li>
+    </ol>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{{ 'Edit Publisher' if publisher else 'Add New Publisher' }}</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.name.label(class="form-label") }}
+                                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                                {% for error in form.name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                {{ form.slug.label(class="form-label") }}
+                                {{ form.slug(class="form-control" + (" is-invalid" if form.slug.errors else "")) }}
+                                {% for error in form.slug.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                                <div class="form-text">URL-friendly version (auto-generated from name)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows="4") }}
+                        {% for error in form.description.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('admin.publishers') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {{ 'Update Publisher' if publisher else 'Create Publisher' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Publisher Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Use the official publisher name</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Description should be 100-500 characters</li>
+                    <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Slug will be auto-generated from name</li>
+                    <li class="mb-0"><i class="fas fa-check text-success me-2"></i>Check for duplicates before adding</li>
+                </ul>
+            </div>
+        </div>
+        
+        {% if publisher %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">Publisher Statistics</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="mb-2">
+                            <h4 class="text-primary mb-0">{{ publisher.products|length }}</h4>
+                            <small class="text-muted">Books</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="mb-2">
+                            <h4 class="text-success mb-0">{{ publisher.created_at.strftime('%Y') }}</h4>
+                            <small class="text-muted">Added</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
