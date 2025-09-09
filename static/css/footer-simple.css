@@ -60,14 +60,18 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
     flex-wrap: wrap !important;
     gap: 15px !important;
     margin-bottom: 20px !important;
+    background: #3B2A22 !important;
+    padding: 10px !important;
+    border-radius: 8px !important;
 }
 
 .trust-badge {
-    background: rgba(255,255,255,0.1) !important;
+    background: rgba(59, 42, 34, 0.3) !important;
     padding: 8px 15px !important;
     border-radius: 20px !important;
     font-size: 0.9rem !important;
     color: white !important;
+    border: none !important;
 }
 
 .social-links {
@@ -96,9 +100,16 @@ footer, .footer, footer.modern-footer, .footer.modern-footer {
 .modern-footer .payment-icon,
 .modern-footer .security-badge,
 .modern-footer .trust-badge {
-    background: rgba(59, 42, 34, 0.2) !important;
+    background: rgba(59, 42, 34, 0.4) !important;
     color: white !important;
-    border: 1px solid rgba(59, 42, 34, 0.3) !important;
+    border: none !important;
+}
+
+/* Absolute override for trust badges */
+.trust-badges, .trust-badge, .modern-footer .trust-badges, .modern-footer .trust-badge {
+    background: rgba(59, 42, 34, 0.4) !important;
+    color: white !important;
+    border: none !important;
 }
 
 .modern-footer .fas,
