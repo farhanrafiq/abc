@@ -6,6 +6,15 @@
     font-family: 'Inter', sans-serif;
 }
 
+/* Footer logo styling */
+.footer-logo img {
+    height: 60px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+    background: transparent !important;
+}
+
 /* Ensure all footer elements stay brown */
 .new-footer * {
     background: #3B2A22 !important;
