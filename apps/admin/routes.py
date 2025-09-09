@@ -5,7 +5,7 @@ from sqlalchemy import func, desc, and_, or_
 from models import (Product, Category, Author, Publisher, Price, Inventory, Order, OrderItem, 
                    User, Review, Coupon, Setting, UserRole, OrderStatus, PaymentStatus, ProductStatus,
                    Banner, FeaturedCategory, BannerType, ContactForm, AdminLog, ContentBlock, NewsletterSubscriber,
-                   Language, Format)
+                   Language, Format, product_categories, product_authors)
 from datetime import datetime, timedelta
 import io
 import csv
@@ -69,7 +69,7 @@ def dashboard():
         func.count(Product.id).label('product_count')
     ).join(product_categories).join(Product)\
     .group_by(Category.id, Category.name)\
-    .order_by(desc('product_count')).limit(5).all()
+    .order_by(desc('product_count')).limit(5).all() or []
     
     # Recent orders
     recent_orders = Order.query.order_by(desc(Order.created_at)).limit(10).all()
