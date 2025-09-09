@@ -1,0 +1,304 @@
+{% extends "admin/base.html" %}
+{% set active_page = 'dashboard' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="page-title">
+        <i class="fas fa-tachometer-alt me-2"></i>
+        Dashboard Overview
+    </h1>
+    <div class="quick-actions">
+        <a href="{{ url_for('admin.product_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Add Product
+        </a>
+        <a href="{{ url_for('admin.orders') }}" class="btn btn-outline-primary">
+            <i class="fas fa-shopping-cart me-1"></i> View Orders
+        </a>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ today_orders }}</div>
+                    <div class="stat-label">Today's Orders</div>
+                </div>
+                <div class="stat-icon text-primary">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+            <small class="text-muted">
+                <i class="fas fa-calendar me-1"></i>
+                Total this month: {{ mtd_orders }}
+            </small>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(today_sales) }}</div>
+                    <div class="stat-label">Today's Revenue</div>
+                </div>
+                <div class="stat-icon text-success">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+            </div>
+            <small class="text-muted">
+                <i class="fas fa-calendar me-1"></i>
+                MTD: {{ format_currency(mtd_sales) }}
+            </small>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ format_currency(aov) }}</div>
+                    <div class="stat-label">Avg Order Value</div>
+                </div>
+                <div class="stat-icon text-info">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+            <small class="text-muted">
+                <i class="fas fa-arrow-up text-success me-1"></i>
+                +5.2% from last month
+            </small>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-number">{{ low_stock_products|length }}</div>
+                    <div class="stat-label">Low Stock Items</div>
+                </div>
+                <div class="stat-icon text-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+            <small class="text-muted">
+                <i class="fas fa-box me-1"></i>
+                Requires attention
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-lg-8 mb-4">
+        <div class="table-card">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Top Selling Categories
+                </h5>
+            </div>
+            <div class="p-3">
+                <canvas id="categoryChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 mb-4">
+        <div class="table-card">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2"></i>
+                    Quick Stats
+                </h5>
+            </div>
+            <div class="p-3">
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Pending Reviews</span>
+                    <span class="badge bg-warning">{{ pending_reviews }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Active Products</span>
+                    <span class="badge bg-success">{{ active_products or 0 }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Total Orders</span>
+                    <span class="badge bg-primary">{{ mtd_orders }}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Conversion Rate</span>
+                    <span class="badge bg-info">3.2%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Tables -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="table-card">
+            <div class="table-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-shopping-cart me-2"></i>
+                    Recent Orders
+                </h5>
+                <a href="{{ url_for('admin.orders') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('admin.order_detail', order_id=order.id) }}" 
+                                   class="text-decoration-none">#{{ order.id }}</a>
+                            </td>
+                            <td>{{ order.name or order.email }}</td>
+                            <td>{{ format_currency(order.grand_total_inr) }}</td>
+                            <td>
+                                <span class="badge status-{{ order.status.value.lower() }}">
+                                    {{ order.status.value }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No recent orders</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="table-card">
+            <div class="table-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Low Stock Products
+                </h5>
+                <a href="{{ url_for('admin.products') }}?status=low_stock" class="btn btn-sm btn-outline-warning">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th>Stock</th>
+                            <th>Threshold</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in low_stock_products %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('admin.product_edit', product_id=product.id) }}" 
+                                   class="text-decoration-none">{{ product.title[:30] }}...</a>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning">{{ product.inventory.stock_on_hand if product.inventory else 0 }}</span>
+                            </td>
+                            <td>{{ product.inventory.low_stock_threshold if product.inventory else 'N/A' }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="updateStock({{ product.id }})">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">All products in stock</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Category sales chart
+const categoryData = {
+    labels: [{% for category, sales in top_categories %}'{{ category }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+    datasets: [{
+        label: 'Sales (₹)',
+        data: [{% for category, sales in top_categories %}{{ sales // 100 }}{% if not loop.last %}, {% endif %}{% endfor %}],
+        backgroundColor: [
+            '#3B2A22',
+            '#E86A17',
+            '#198754',
+            '#0dcaf0',
+            '#ffc107'
+        ].slice(0, {{ top_categories|length }}),
+        borderRadius: 5,
+    }]
+};
+
+const categoryChart = new Chart(document.getElementById('categoryChart'), {
+    type: 'bar',
+    data: categoryData,
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '₹' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Update stock function
+function updateStock(productId) {
+    const newStock = prompt('Enter new stock quantity:');
+    if (newStock && !isNaN(newStock)) {
+        fetch(`/admin/api/inventory/${productId}/update`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({stock: parseInt(newStock)})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error updating stock: ' + data.error);
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, current_app, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import or_, func, desc, asc
-from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format, Banner, FeaturedCategory, BannerType, HomeSection, SectionType, MediaAsset, NewsletterSubscriber, product_categories, product_authors
+from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format, Banner, FeaturedCategory, BannerType, HomeSection, SectionType, MediaAsset, NewsletterSubscriber, ContactForm, product_categories, product_authors
 from forms import SearchForm, ReviewForm
 from utils.helpers import format_currency, get_cart_count, paginate_query
 from app import db
@@ -322,6 +322,86 @@ def account():
     return render_template('web/account.html',
                          recent_orders=recent_orders,
                          addresses=addresses)
+
+@web_bp.route('/contact', methods=['GET', 'POST'])
+def contact():
+    """Contact form submission"""
+    if request.method == 'POST':
+        # Get form data
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip()
+        phone = request.form.get('phone', '').strip()
+        subject = request.form.get('subject', '').strip()
+        message = request.form.get('message', '').strip()
+        
+        # Validate required fields
+        if not all([name, email, subject, message]):
+            flash('Please fill in all required fields.', 'error')
+            return redirect(url_for('web.content_page', slug='contact'))
+        
+        # Create contact form record
+        contact_form = ContactForm(
+            name=name,
+            email=email,
+            phone=phone if phone else None,
+            subject=subject,
+            message=message,
+            status='unread'
+        )
+        
+        try:
+            db.session.add(contact_form)
+            db.session.commit()
+            flash('Thank you for your message! We will get back to you soon.', 'success')
+            
+            # Optional: Send notification email to admin
+            # send_admin_notification_email(contact_form)
+            
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f'Error saving contact form: {str(e)}')
+            flash('There was an error sending your message. Please try again.', 'error')
+    
+    return redirect(url_for('web.content_page', slug='contact'))
+
+@web_bp.route('/newsletter/subscribe', methods=['POST'])
+def newsletter_subscribe():
+    """Newsletter subscription"""
+    email = request.form.get('email', '').strip().lower()
+    
+    if not email:
+        if request.is_json:
+            return jsonify({'success': False, 'message': 'Email is required'})
+        flash('Please enter your email address.', 'error')
+        return redirect(request.referrer or url_for('web.index'))
+    
+    # Check if already subscribed
+    existing = NewsletterSubscriber.query.filter_by(email=email).first()
+    if existing:
+        if existing.is_active:
+            message = 'You are already subscribed to our newsletter.'
+        else:
+            # Reactivate subscription
+            existing.is_active = True
+            db.session.commit()
+            message = 'Welcome back! Your newsletter subscription has been reactivated.'
+    else:
+        # Create new subscription
+        subscriber = NewsletterSubscriber(email=email, is_active=True)
+        try:
+            db.session.add(subscriber)
+            db.session.commit()
+            message = 'Thank you for subscribing to our newsletter!'
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f'Error subscribing to newsletter: {str(e)}')
+            message = 'There was an error subscribing. Please try again.'
+    
+    if request.is_json:
+        return jsonify({'success': True, 'message': message})
+    
+    flash(message, 'success' if 'thank you' in message.lower() else 'info')
+    return redirect(request.referrer or url_for('web.index'))
 
 @web_bp.context_processor
 def inject_global_vars():

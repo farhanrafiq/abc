@@ -1,0 +1,330 @@
+{% extends "admin/base.html" %}
+{% set active_page = 'contacts' %}
+
+{% block title %}Contact Details{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="page-title">
+        <i class="fas fa-envelope me-2"></i>
+        Contact Form Details
+    </h1>
+    <div class="quick-actions">
+        <a href="{{ url_for('admin.contacts') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-1"></i> Back to List
+        </a>
+        <form method="POST" action="{{ url_for('admin.delete_contact', contact_id=contact.id) }}" 
+              class="d-inline ms-2" onsubmit="return confirm('Delete this contact? This action cannot be undone.')">
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="fas fa-trash me-1"></i> Delete
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <!-- Contact Message -->
+        <div class="table-card">
+            <div class="table-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comment me-2"></i>
+                        <span class="contact-subject">{{ contact.subject }}</span>
+                    </h5>
+                    <span class="badge status-{{ contact.status }} fs-6">
+                        {% if contact.status == 'unread' %}
+                            <i class="fas fa-envelope me-1"></i>
+                        {% elif contact.status == 'read' %}
+                            <i class="fas fa-envelope-open me-1"></i>
+                        {% else %}
+                            <i class="fas fa-check-circle me-1"></i>
+                        {% endif %}
+                        {{ contact.status.title() }}
+                    </span>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="contact-message">
+                    {{ contact.message|nl2br|safe }}
+                </div>
+                
+                <div class="mt-4 pt-3 border-top">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Received on {{ contact.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Response -->
+        {% if contact.admin_response %}
+        <div class="table-card mt-4">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-reply me-2"></i>
+                    Admin Response
+                </h5>
+            </div>
+            <div class="p-4">
+                <div class="bg-light rounded p-3 mb-3">
+                    {{ contact.admin_response|nl2br|safe }}
+                </div>
+                <small class="text-muted">
+                    <i class="fas fa-user me-1"></i>
+                    Responded by {{ contact.responder.name if contact.responder else 'System' }} 
+                    on {{ contact.responded_at.strftime('%B %d, %Y at %I:%M %p') if contact.responded_at else 'Unknown' }}
+                </small>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Response Form -->
+        {% if contact.status != 'resolved' %}
+        <div class="table-card mt-4">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Send Response
+                </h5>
+            </div>
+            <div class="p-4">
+                <form method="POST" action="{{ url_for('admin.respond_to_contact', contact_id=contact.id) }}">
+                    <div class="mb-3">
+                        <label for="response" class="form-label">Your Response *</label>
+                        <textarea class="form-control" name="response" id="response" rows="6" 
+                                  placeholder="Type your response to {{ contact.name }}..." required>{{ contact.admin_response or '' }}</textarea>
+                        <div class="form-text">
+                            This response will be marked as resolved after sending. You can edit it before sending.
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Send Response & Mark Resolved
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+                            <i class="fas fa-save me-1"></i>
+                            Save Draft
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Contact Information -->
+        <div class="table-card mb-4">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user me-2"></i>
+                    Contact Information
+                </h5>
+            </div>
+            <div class="p-4">
+                <div class="mb-3">
+                    <strong>Name:</strong><br>
+                    {{ contact.name }}
+                </div>
+                <div class="mb-3">
+                    <strong>Email:</strong><br>
+                    <a href="mailto:{{ contact.email }}" class="text-decoration-none">
+                        {{ contact.email }}
+                    </a>
+                </div>
+                {% if contact.phone %}
+                <div class="mb-3">
+                    <strong>Phone:</strong><br>
+                    <a href="tel:{{ contact.phone }}" class="text-decoration-none">
+                        {{ contact.phone }}
+                    </a>
+                </div>
+                {% endif %}
+                <div class="mb-3">
+                    <strong>Status:</strong><br>
+                    <span class="badge status-{{ contact.status }} mt-1">
+                        {{ contact.status.title() }}
+                    </span>
+                </div>
+                <div>
+                    <strong>Received:</strong><br>
+                    <span data-bs-toggle="tooltip" title="{{ contact.created_at.strftime('%Y-%m-%d %H:%M:%S') }}">
+                        {{ moment(contact.created_at).fromNow() }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="table-card">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-bolt me-2"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="p-4">
+                <div class="d-grid gap-2">
+                    <a href="mailto:{{ contact.email }}?subject=Re: {{ contact.subject }}" 
+                       class="btn btn-outline-primary">
+                        <i class="fas fa-envelope me-2"></i>
+                        Reply via Email
+                    </a>
+                    {% if contact.phone %}
+                    <a href="tel:{{ contact.phone }}" class="btn btn-outline-success">
+                        <i class="fas fa-phone me-2"></i>
+                        Call Customer
+                    </a>
+                    {% endif %}
+                    <button class="btn btn-outline-info" onclick="copyContactInfo()">
+                        <i class="fas fa-copy me-2"></i>
+                        Copy Contact Info
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="markAsUnread()">
+                        <i class="fas fa-envelope me-2"></i>
+                        Mark as Unread
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Related Information -->
+        {% if contact.admin_response %}
+        <div class="table-card mt-4">
+            <div class="table-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Response History
+                </h5>
+            </div>
+            <div class="p-4">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-success rounded-circle me-3" style="width: 10px; height: 10px;"></div>
+                    <div>
+                        <div class="fw-bold">Response Sent</div>
+                        <small class="text-muted">{{ contact.responded_at.strftime('%b %d, %Y %I:%M %p') if contact.responded_at else 'Unknown' }}</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mb-2">
+                    <div class="bg-info rounded-circle me-3" style="width: 10px; height: 10px;"></div>
+                    <div>
+                        <div class="fw-bold">Message Read</div>
+                        <small class="text-muted">{{ contact.created_at.strftime('%b %d, %Y %I:%M %p') }}</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary rounded-circle me-3" style="width: 10px; height: 10px;"></div>
+                    <div>
+                        <div class="fw-bold">Message Received</div>
+                        <small class="text-muted">{{ contact.created_at.strftime('%b %d, %Y %I:%M %p') }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Initialize tooltips
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+
+// Save draft functionality
+function saveDraft() {
+    const response = document.getElementById('response').value;
+    if (response.trim() === '') {
+        alert('Please enter a response to save as draft.');
+        return;
+    }
+    
+    // Save to localStorage as a simple draft system
+    localStorage.setItem(`contact_draft_{{ contact.id }}`, response);
+    
+    // Show feedback
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check me-1"></i> Draft Saved!';
+    btn.classList.remove('btn-outline-secondary');
+    btn.classList.add('btn-success');
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.classList.remove('btn-success');
+        btn.classList.add('btn-outline-secondary');
+    }, 2000);
+}
+
+// Load draft on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const draft = localStorage.getItem(`contact_draft_{{ contact.id }}`);
+    if (draft && document.getElementById('response').value.trim() === '') {
+        document.getElementById('response').value = draft;
+    }
+});
+
+// Copy contact info
+function copyContactInfo() {
+    const contactInfo = `Name: {{ contact.name }}
+Email: {{ contact.email }}
+{% if contact.phone %}Phone: {{ contact.phone }}{% endif %}
+Subject: {{ contact.subject }}
+
+Message:
+{{ contact.message }}`;
+    
+    navigator.clipboard.writeText(contactInfo).then(function() {
+        // Show feedback
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check me-2"></i> Copied!';
+        btn.classList.remove('btn-outline-info');
+        btn.classList.add('btn-success');
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-info');
+        }, 2000);
+    }).catch(function(err) {
+        alert('Failed to copy to clipboard');
+    });
+}
+
+// Mark as unread
+function markAsUnread() {
+    if (confirm('Mark this contact as unread?')) {
+        // This would need a backend endpoint
+        fetch(`/admin/contacts/{{ contact.id }}/mark-unread`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error marking as unread');
+            }
+        });
+    }
+}
+
+// Auto-save draft every 30 seconds if there's content
+setInterval(function() {
+    const response = document.getElementById('response');
+    if (response && response.value.trim() !== '') {
+        localStorage.setItem(`contact_draft_{{ contact.id }}`, response.value);
+    }
+}, 30000);
+</script>
+{% endblock %}
