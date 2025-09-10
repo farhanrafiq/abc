@@ -7,7 +7,51 @@
 {% endblock %}
 
 {% block og_image %}
-{% if product.cover_image %}{{ url_for('static', filename=product.cover_image, _external=True) }}{% else %}{{ super() }}{% endif %}
+{% if product.cover_image %}{{ url_for('static', filename='uploads/products/' ~ product.cover_image, _external=True) }}{% else %}{{ super() }}{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Book",
+    "name": "{{ product.title }}",
+    "description": "{{ product.description|replace('"', '\\"') if product.description else '' }}",
+    "isbn": "{{ product.isbn if product.isbn else '' }}",
+    "bookFormat": "{{ product.format.value if product.format else 'Hardcover' }}",
+    "inLanguage": "{{ product.language.value if product.language else 'en' }}",
+    "numberOfPages": {{ product.pages if product.pages else 0 }},
+    {% if product.authors %}
+    "author": [
+        {% for author in product.authors %}
+        {
+            "@type": "Person",
+            "name": "{{ author.name }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ],
+    {% endif %}
+    {% if product.publisher %}
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ product.publisher.name }}"
+    },
+    {% endif %}
+    {% if product.price %}
+    "offers": {
+        "@type": "Offer",
+        "price": "{{ (product.price.sale_inr / 100)|round(2) }}",
+        "priceCurrency": "INR",
+        "availability": "{{ 'https://schema.org/InStock' if product.inventory and product.inventory.stock_on_hand > 0 else 'https://schema.org/OutOfStock' }}",
+        "seller": {
+            "@type": "Organization",
+            "name": "ABC Publishing Kashmir"
+        }
+    },
+    {% endif %}
+    "image": "{{ url_for('static', filename='uploads/products/' ~ product.cover_image, _external=True) if product.cover_image else '' }}"
+}
+</script>
 {% endblock %}
 
 {% block content %}

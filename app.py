@@ -84,6 +84,7 @@ def create_app():
     from apps.cart.routes import cart_bp
     from blueprints.admin.home_sections import admin_home_bp
     from blueprints.api.routes import api_bp
+    from sitemap import sitemap_bp
     
     app.register_blueprint(web_bp)
     app.register_blueprint(admin_bp, url_prefix='/admin')
@@ -91,6 +92,7 @@ def create_app():
     app.register_blueprint(cart_bp, url_prefix='/cart')
     app.register_blueprint(admin_home_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(sitemap_bp)
     
     # Create tables
     with app.app_context():
