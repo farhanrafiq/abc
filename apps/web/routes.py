@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, current_app, jsonify
 from flask_login import login_required, current_user
 from sqlalchemy import or_, func, desc, asc
-from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format, Banner, FeaturedCategory, BannerType, HomeSection, SectionType, MediaAsset, NewsletterSubscriber, ContactForm, product_categories, product_authors
+from models import Product, Category, Author, Publisher, Price, Inventory, Review, ContentPage, ProductStatus, Language, Format, Banner, FeaturedCategory, BannerType, HomeSection, SectionType, MediaAsset, NewsletterSubscriber, ContactForm, Order, OrderItem, product_categories, product_authors
 from forms import SearchForm, ReviewForm
 from utils.helpers import format_currency, get_cart_count, paginate_query
 from app import db
