@@ -230,12 +230,37 @@ def search():
         flash('Please enter a search term.', 'warning')
         return redirect(url_for('web.catalog'))
     
-    # Perform search
-    search_term = f"%{form.q.data}%"
+    # Enhanced PostgreSQL full-text search
+    search_query = form.q.data.strip()
+    
+    # Clean search query for full-text search
+    import re
+    clean_query = re.sub(r'[^\w\s]', ' ', search_query)
+    search_vector = ' & '.join(clean_query.split())
+    
+    # Full-text search with ranking
+    from sqlalchemy import text
     query = db.session.query(Product).join(Price).join(Inventory)\
         .outerjoin(product_authors).outerjoin(Author)\
-        .filter(Product.status == ProductStatus.ACTIVE)\
-        .filter(or_(
+        .filter(Product.status == ProductStatus.ACTIVE)
+    
+    if len(search_query) >= 3:
+        # Use PostgreSQL full-text search for better performance
+        fts_query = text("""
+            to_tsvector('english', 
+                COALESCE(product.title, '') || ' ' || 
+                COALESCE(product.description, '') || ' ' ||
+                COALESCE(product.isbn, '') || ' ' ||
+                COALESCE(string_agg(author.name, ' '), '')
+            ) @@ plainto_tsquery('english', :search_term)
+        """)
+        
+        query = query.group_by(Product.id, Price.id, Inventory.id)\
+            .having(fts_query).params(search_term=search_query)
+    else:
+        # Fallback to ILIKE for short queries
+        search_term = f"%{search_query}%"
+        query = query.filter(or_(
             Product.title.ilike(search_term),
             Product.isbn.ilike(search_term),
             Product.description.ilike(search_term),

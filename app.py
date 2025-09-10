@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 from sqlalchemy.orm import DeclarativeBase
 
@@ -19,6 +20,7 @@ db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
 mail = Mail()
 migrate = Migrate()
+csrf = CSRFProtect()
 
 def create_app():
     app = Flask(__name__)
@@ -43,9 +45,16 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@abcpublishingkashmir.com')
     
-    # Payment configuration
-    app.config['RAZORPAY_KEY_ID'] = os.environ.get('RAZORPAY_KEY_ID', 'test_key')
-    app.config['RAZORPAY_KEY_SECRET'] = os.environ.get('RAZORPAY_KEY_SECRET', 'test_secret')
+    # Payment configuration - CRITICAL: Use environment variables in production
+    app.config['RAZORPAY_KEY_ID'] = os.environ.get('RAZORPAY_KEY_ID')
+    app.config['RAZORPAY_KEY_SECRET'] = os.environ.get('RAZORPAY_KEY_SECRET')
+    app.config['RAZORPAY_WEBHOOK_SECRET'] = os.environ.get('RAZORPAY_WEBHOOK_SECRET')
+    
+    # Security: Ensure payment keys are configured in production
+    if app.config['RAZORPAY_KEY_ID'] in [None, 'test_key']:
+        logging.warning('Using test Razorpay keys - configure RAZORPAY_KEY_ID for production')
+    if app.config['RAZORPAY_KEY_SECRET'] in [None, 'test_secret']:
+        logging.warning('Using test Razorpay keys - configure RAZORPAY_KEY_SECRET for production')
     
     # Upload configuration
     app.config['UPLOAD_FOLDER'] = 'static/uploads'
@@ -56,6 +65,7 @@ def create_app():
     migrate.init_app(app, db)
     login_manager.init_app(app)
     mail.init_app(app)
+    csrf.init_app(app)
     
     # Login manager settings
     login_manager.login_view = 'auth.login'

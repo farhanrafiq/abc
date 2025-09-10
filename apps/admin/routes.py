@@ -261,6 +261,125 @@ def update_order_status(order_id):
     
     return redirect(url_for('admin.order_detail', order_id=order_id))
 
+# Bulk Order Operations
+@admin_bp.route('/orders/bulk-update', methods=['POST'])
+@admin_required
+def bulk_update_orders():
+    """Bulk update order status"""
+    order_ids = request.form.getlist('order_ids')
+    new_status = request.form.get('bulk_status')
+    
+    if not order_ids or not new_status:
+        flash('Please select orders and a status to update.', 'error')
+        return redirect(url_for('admin.orders'))
+    
+    try:
+        orders = Order.query.filter(Order.id.in_(order_ids)).all()
+        updated_count = 0
+        
+        for order in orders:
+            order.status = OrderStatus(new_status)
+            updated_count += 1
+        
+        db.session.commit()
+        flash(f'Successfully updated {updated_count} orders to {new_status.title()}.', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Bulk order update error: {str(e)}")
+        flash('Error updating orders. Please try again.', 'error')
+    
+    return redirect(url_for('admin.orders'))
+
+# Invoice Download
+@admin_bp.route('/orders/<int:order_id>/invoice')
+@admin_required  
+def download_invoice(order_id):
+    """Download order invoice PDF"""
+    order = Order.query.get_or_404(order_id)
+    
+    try:
+        from utils.pdf import generate_invoice_pdf
+        import os
+        
+        # Ensure invoice directory exists
+        invoice_dir = "static/invoices"
+        if not os.path.exists(invoice_dir):
+            os.makedirs(invoice_dir)
+        
+        invoice_path = f"{invoice_dir}/invoice_{order.id}.pdf"
+        
+        # Generate PDF if it doesn't exist
+        if not os.path.exists(invoice_path):
+            generate_invoice_pdf(order, invoice_path)
+        
+        from flask import send_file
+        return send_file(invoice_path, as_attachment=True, 
+                        download_name=f'Invoice-{order.id}.pdf')
+    
+    except Exception as e:
+        logging.error(f"Invoice download error: {str(e)}")
+        flash('Error generating invoice. Please try again.', 'error')
+        return redirect(url_for('admin.order_detail', order_id=order_id))
+
+# Order Analytics
+@admin_bp.route('/orders/analytics')
+@admin_required
+def order_analytics():
+    """Advanced order analytics dashboard"""
+    from datetime import datetime, timedelta
+    from sqlalchemy import extract
+    
+    try:
+        # Date range (last 30 days by default)
+        end_date = datetime.utcnow().date()
+        start_date = end_date - timedelta(days=30)
+        
+        # Daily order trends
+        daily_orders = db.session.query(
+            func.date(Order.created_at).label('date'),
+            func.count(Order.id).label('count'),
+            func.sum(Order.grand_total_inr).label('revenue')
+        ).filter(
+            Order.created_at >= start_date
+        ).group_by(func.date(Order.created_at)).all()
+        
+        # Order status distribution
+        status_distribution = db.session.query(
+            Order.status,
+            func.count(Order.id).label('count')
+        ).group_by(Order.status).all()
+        
+        # Payment method distribution
+        payment_distribution = db.session.query(
+            Order.payment_method,
+            func.count(Order.id).label('count'),
+            func.sum(Order.grand_total_inr).label('revenue')
+        ).group_by(Order.payment_method).all()
+        
+        # Top customers
+        top_customers = db.session.query(
+            Order.email,
+            func.count(Order.id).label('order_count'),
+            func.sum(Order.grand_total_inr).label('total_spent')
+        ).group_by(Order.email).order_by(
+            func.sum(Order.grand_total_inr).desc()
+        ).limit(10).all()
+        
+        return render_template('admin/order_analytics.html',
+            daily_orders=daily_orders,
+            status_distribution=status_distribution,
+            payment_distribution=payment_distribution,
+            top_customers=top_customers,
+            start_date=start_date,
+            end_date=end_date
+        )
+        
+    except Exception as e:
+        logging.error(f"Order analytics error: {str(e)}")
+        flash('Error loading analytics. Please try again.', 'error')
+        return redirect(url_for('admin.dashboard'))
+
 # Contact Forms Management
 @admin_bp.route('/contacts')
 @admin_required
