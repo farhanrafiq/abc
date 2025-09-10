@@ -171,6 +171,17 @@
                     <a href="{{ url_for('cart.checkout') }}" class="btn btn-brand-primary btn-lg w-100">
                         <i class="fas fa-lock me-2"></i>Proceed to Checkout
                     </a>
+                    {% set cart_message = "Hello! I want to buy the following items from my cart:\n\n" %}
+                    {% for item in cart_items %}
+                        {% set cart_message = cart_message ~ item.quantity ~ "x " ~ item.product.title ~ " - ₹" ~ ((item.product.price.sale_inr or item.product.price.mrp_inr) * item.quantity / 100)|round|int ~ "\n" %}
+                    {% endfor %}
+                    {% set shipping_cost = 5000 if subtotal < 150000 else 0 %}
+                    {% set cart_message = cart_message ~ "\nTotal: ₹" ~ ((subtotal + shipping_cost) / 100)|round|int ~ "\n\nPlease help me complete this order." %}
+                    <a href="https://wa.me/+919419012345?text={{ cart_message|urlencode }}" 
+                       target="_blank"
+                       class="btn btn-success btn-lg w-100 mt-2">
+                        <i class="fab fa-whatsapp me-2"></i>Buy on WhatsApp
+                    </a>
                 </div>
 
                 <!-- Continue Shopping -->

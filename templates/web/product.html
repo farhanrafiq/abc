@@ -164,10 +164,18 @@
                                 </div>
                             </div>
                             <div class="col">
-                                <button type="submit" class="btn btn-brand-primary btn-lg add-to-cart-btn" 
-                                        data-product-id="{{ product.id }}">
-                                    <i class="fas fa-cart-plus me-2"></i>Add to Cart
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-brand-primary btn-lg add-to-cart-btn" 
+                                            data-product-id="{{ product.id }}">
+                                        <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                                    </button>
+                                    {% set whatsapp_message = "Hello! I want to buy: " ~ product.title ~ " - Price: ₹" ~ (product.price.sale_inr / 100)|round|int ~ " - " ~ request.url %}
+                                    <a href="https://wa.me/+919419012345?text={{ whatsapp_message|urlencode }}" 
+                                       target="_blank"
+                                       class="btn btn-success btn-lg">
+                                        <i class="fab fa-whatsapp me-2"></i>Buy on WhatsApp
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </form>

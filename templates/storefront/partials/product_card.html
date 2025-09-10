@@ -102,13 +102,22 @@
                     </div>
                 {% endif %}
                 
-                <button class="add-to-cart-btn-professional" 
-                        data-product-id="{{ product.id }}"
-                        onclick="addToCart({{ product.id }});"
-                        aria-label="Add {{ product.title }} to cart">
-                    <i class="fas fa-cart-plus"></i>
-                    Add to Cart
-                </button>
+                <div class="d-flex gap-2 flex-column">
+                    <button class="add-to-cart-btn-professional" 
+                            data-product-id="{{ product.id }}"
+                            onclick="addToCart({{ product.id }});"
+                            aria-label="Add {{ product.title }} to cart">
+                        <i class="fas fa-cart-plus"></i>
+                        Add to Cart
+                    </button>
+                    {% set whatsapp_message = "Hello! I want to buy: " ~ product.title ~ " - Price: ₹" ~ (product.price.sale_inr / 100)|round|int ~ " - " ~ request.url_root ~ "product/" ~ product.slug %}
+                    <a href="https://wa.me/+919419012345?text={{ whatsapp_message|urlencode }}" 
+                       target="_blank"
+                       class="btn btn-success btn-sm w-100"
+                       style="background-color: #25D366; border-color: #25D366;">
+                        <i class="fab fa-whatsapp"></i> Buy on WhatsApp
+                    </a>
+                </div>
             </div>
             
             <!-- Stock Alert -->
