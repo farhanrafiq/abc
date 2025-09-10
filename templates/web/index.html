@@ -98,6 +98,7 @@
         <div class="row g-4">
             {% for product in featured_products %}
             <div class="col-lg-3 col-md-4 col-sm-6">
+                {% set show_price_badges = true %}
                 {% include 'storefront/partials/product_card.html' %}
             </div>
             {% endfor %}
@@ -124,6 +125,7 @@
         <div class="row g-4">
             {% for product in bestsellers %}
             <div class="col-lg-3 col-md-4 col-sm-6">
+                {% set show_price_badges = true %}
                 {% include 'storefront/partials/product_card.html' %}
             </div>
             {% endfor %}
