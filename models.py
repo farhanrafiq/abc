@@ -113,6 +113,8 @@ class Author(db.Model):
     name = db.Column(db.String(100), nullable=False)
     slug = db.Column(db.String(120), unique=True, nullable=False)
     bio = db.Column(db.Text)
+    website = db.Column(db.String(200))
+    image = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -126,6 +128,8 @@ class Publisher(db.Model):
     name = db.Column(db.String(100), nullable=False)
     slug = db.Column(db.String(120), unique=True, nullable=False)
     description = db.Column(db.Text)
+    website = db.Column(db.String(200))
+    logo = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -140,7 +144,9 @@ class Category(db.Model):
     slug = db.Column(db.String(120), unique=True, nullable=False)
     description = db.Column(db.Text)
     parent_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    sort_order = db.Column(db.Integer, default=0)
     is_active = db.Column(db.Boolean, default=True)
+    image = db.Column(db.String(255))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Self-referential relationship

@@ -214,25 +214,37 @@ def orders():
     query = Order.query
     
     if search:
+        from sqlalchemy import cast, String
         query = query.filter(
             or_(
                 Order.email.ilike(f'%{search}%'),
-                Order.id.like(f'%{search}%')
+                cast(Order.id, String).like(f'%{search}%')
             )
         )
     
     if status:
-        query = query.filter(Order.status == OrderStatus(status))
+        try:
+            query = query.filter(Order.status == OrderStatus(status))
+        except ValueError:
+            # Invalid status value, ignore filter
+            pass
     
     orders = query.order_by(desc(Order.created_at)).paginate(
         page=page, per_page=20, error_out=False
     )
     
+    # Calculate total revenue for template
+    total_revenue = db.session.query(func.sum(Order.grand_total_inr)).filter(
+        Order.payment_status == PaymentStatus.PAID
+    ).scalar() or 0
+    
     return render_template('admin/orders_new.html',
         orders=orders,
         search=search,
         selected_status=status,
-        order_statuses=OrderStatus
+        order_statuses=OrderStatus,
+        total_revenue=total_revenue,
+        format_currency=format_currency
     )
 
 # Order Detail
