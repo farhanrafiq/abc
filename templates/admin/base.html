@@ -333,12 +333,14 @@
                 </a>
             </li>
             
+            {# Activity Logs - Coming Soon
             <li class="nav-item">
-                <a href="{{ url_for('admin.admin_logs') }}" class="nav-link {{ 'active' if 'log' in request.endpoint else '' }}">
+                <a href="#" class="nav-link disabled">
                     <i class="fas fa-list-alt"></i>
                     Activity Logs
                 </a>
             </li>
+            #}
             
             <li class="nav-item mt-3 pt-3" style="border-top: 1px solid rgba(255,255,255,0.1);">
                 <a href="{{ url_for('web.index') }}" class="nav-link">
