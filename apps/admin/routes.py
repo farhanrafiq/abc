@@ -7,7 +7,8 @@ from app import db
 from models import (
     Product, Category, Author, Publisher, Price, Inventory, Order, OrderItem,
     User, Review, UserRole, OrderStatus, PaymentStatus, ProductStatus,
-    ContactForm, NewsletterSubscriber, product_categories
+    ContactForm, NewsletterSubscriber, product_categories, product_authors,
+    Banner, ContentPage, Coupon
 )
 import logging
 
@@ -558,23 +559,10 @@ def admin_not_found(error):
 @admin_bp.errorhandler(500)
 def admin_internal_error(error):
     db.session.rollback()
-    return f"Admin internal error: {str(error)}", 500"""Additional admin routes for complete functionality"""
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
-from flask_login import login_required, current_user
-from app import db
-from models import (
-    Product, Category, Author, Publisher, Price, Inventory,
-    Review, Banner, ContentPage, Coupon, ProductStatus,
-    product_categories, product_authors
-)
-from forms import ProductForm, CategoryForm, AuthorForm, PublisherForm
-import os
-from werkzeug.utils import secure_filename
-from datetime import datetime
-import logging
+    return f"Admin internal error: {str(error)}", 500
 
-# Import the admin decorator
-from apps.admin.routes import admin_required, admin_bp
+# Additional admin routes for complete functionality
+# Imports already at the top of the file
 
 # Helper function for file uploads
 def save_uploaded_file(file, folder='products'):

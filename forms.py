@@ -91,16 +91,24 @@ class AuthorForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     slug = StringField('Slug', validators=[DataRequired(), Length(max=120)])
     bio = TextAreaField('Biography')
+    website = StringField('Website', validators=[Optional(), Length(max=200)])
+    image = FileField('Author Image', validators=[Optional(), FileAllowed(['jpg', 'jpeg', 'png', 'gif'])])
 
 class PublisherForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     slug = StringField('Slug', validators=[DataRequired(), Length(max=120)])
     description = TextAreaField('Description')
+    website = StringField('Website', validators=[Optional(), Length(max=200)])
+    logo = FileField('Publisher Logo', validators=[Optional(), FileAllowed(['jpg', 'jpeg', 'png', 'gif'])])
 
 class CategoryForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     slug = StringField('Slug', validators=[DataRequired(), Length(max=120)])
+    description = TextAreaField('Description', validators=[Optional()])
     parent_id = SelectField('Parent Category', coerce=int, validators=[Optional()])
+    sort_order = IntegerField('Sort Order', validators=[Optional(), NumberRange(min=0)])
+    is_active = BooleanField('Active', default=True)
+    image = FileField('Category Image', validators=[Optional(), FileAllowed(['jpg', 'jpeg', 'png', 'gif'])])
 
 class CouponForm(FlaskForm):
     code = StringField('Coupon Code', validators=[DataRequired(), Length(min=3, max=50)])
