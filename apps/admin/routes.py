@@ -558,4 +558,581 @@ def admin_not_found(error):
 @admin_bp.errorhandler(500)
 def admin_internal_error(error):
     db.session.rollback()
-    return f"Admin internal error: {str(error)}", 500
+    return f"Admin internal error: {str(error)}", 500"""Additional admin routes for complete functionality"""
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
+from flask_login import login_required, current_user
+from app import db
+from models import (
+    Product, Category, Author, Publisher, Price, Inventory,
+    Review, Banner, ContentPage, Coupon, ProductStatus,
+    product_categories, product_authors
+)
+from forms import ProductForm, CategoryForm, AuthorForm, PublisherForm
+import os
+from werkzeug.utils import secure_filename
+from datetime import datetime
+import logging
+
+# Import the admin decorator
+from apps.admin.routes import admin_required, admin_bp
+
+# Helper function for file uploads
+def save_uploaded_file(file, folder='products'):
+    """Save uploaded file and return filename"""
+    if file and file.filename:
+        filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{timestamp}_{filename}"
+        
+        upload_path = os.path.join('static', 'uploads', folder)
+        os.makedirs(upload_path, exist_ok=True)
+        
+        file_path = os.path.join(upload_path, filename)
+        file.save(file_path)
+        return filename
+    return None
+
+# PRODUCT MANAGEMENT ROUTES
+@admin_bp.route('/products/add', methods=['GET', 'POST'])
+@admin_required
+def product_add():
+    """Add new product"""
+    form = ProductForm()
+    
+    # Populate select fields
+    form.publisher_id.choices = [(0, 'Select Publisher')] + [(p.id, p.name) for p in Publisher.query.all()]
+    
+    if form.validate_on_submit():
+        try:
+            # Create product
+            product = Product(
+                title=form.title.data,
+                slug=form.slug.data,
+                isbn=form.isbn.data,
+                language=form.language.data,
+                format=form.format.data,
+                description=form.description.data,
+                publisher_id=form.publisher_id.data if form.publisher_id.data != 0 else None,
+                published_at=form.published_at.data,
+                pages=form.data.get('pages'),
+                weight_grams=form.weight_grams.data,
+                dimensions_l=form.dimensions_l.data,
+                dimensions_w=form.dimensions_w.data,
+                dimensions_h=form.dimensions_h.data,
+                status=form.status.data
+            )
+            
+            # Handle cover image upload
+            if form.cover_image.data:
+                filename = save_uploaded_file(form.cover_image.data, 'products')
+                if filename:
+                    product.cover_image = filename
+            
+            db.session.add(product)
+            db.session.flush()
+            
+            # Create price
+            price = Price(
+                product_id=product.id,
+                mrp_inr=int(form.mrp_inr.data * 100),  # Convert to paisa
+                sale_inr=int(form.sale_inr.data * 100) if form.sale_inr.data else None,
+                tax_rate_pct=form.tax_rate_pct.data
+            )
+            db.session.add(price)
+            
+            # Create inventory
+            inventory = Inventory(
+                product_id=product.id,
+                sku=form.sku.data,
+                stock_on_hand=form.stock_on_hand.data,
+                low_stock_threshold=form.low_stock_threshold.data
+            )
+            db.session.add(inventory)
+            
+            db.session.commit()
+            flash('Product added successfully!', 'success')
+            return redirect(url_for('admin.products'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding product: {str(e)}', 'error')
+            logging.error(f"Product add error: {str(e)}")
+    
+    return render_template('admin/product_form.html', form=form, title='Add Product')
+
+@admin_bp.route('/products/edit/<int:product_id>', methods=['GET', 'POST'])
+@admin_required
+def product_edit(product_id):
+    """Edit existing product"""
+    product = Product.query.get_or_404(product_id)
+    form = ProductForm(obj=product)
+    
+    # Populate select fields
+    form.publisher_id.choices = [(0, 'Select Publisher')] + [(p.id, p.name) for p in Publisher.query.all()]
+    
+    if request.method == 'GET':
+        # Populate form with existing data
+        if product.price:
+            form.mrp_inr.data = product.price.mrp_inr / 100
+            form.sale_inr.data = product.price.sale_inr / 100 if product.price.sale_inr else None
+            form.tax_rate_pct.data = product.price.tax_rate_pct
+        
+        if product.inventory:
+            form.sku.data = product.inventory.sku
+            form.stock_on_hand.data = product.inventory.stock_on_hand
+            form.low_stock_threshold.data = product.inventory.low_stock_threshold
+    
+    if form.validate_on_submit():
+        try:
+            # Update product
+            product.title = form.title.data
+            product.slug = form.slug.data
+            product.isbn = form.isbn.data
+            product.language = form.language.data
+            product.format = form.format.data
+            product.description = form.description.data
+            product.publisher_id = form.publisher_id.data if form.publisher_id.data != 0 else None
+            product.published_at = form.published_at.data
+            product.pages = form.data.get('pages')
+            product.weight_grams = form.weight_grams.data
+            product.dimensions_l = form.dimensions_l.data
+            product.dimensions_w = form.dimensions_w.data
+            product.dimensions_h = form.dimensions_h.data
+            product.status = form.status.data
+            
+            # Handle cover image upload
+            if form.cover_image.data:
+                filename = save_uploaded_file(form.cover_image.data, 'products')
+                if filename:
+                    product.cover_image = filename
+            
+            # Update or create price
+            if product.price:
+                product.price.mrp_inr = int(form.mrp_inr.data * 100)
+                product.price.sale_inr = int(form.sale_inr.data * 100) if form.sale_inr.data else None
+                product.price.tax_rate_pct = form.tax_rate_pct.data
+            else:
+                price = Price(
+                    product_id=product.id,
+                    mrp_inr=int(form.mrp_inr.data * 100),
+                    sale_inr=int(form.sale_inr.data * 100) if form.sale_inr.data else None,
+                    tax_rate_pct=form.tax_rate_pct.data
+                )
+                db.session.add(price)
+            
+            # Update or create inventory
+            if product.inventory:
+                product.inventory.sku = form.sku.data
+                product.inventory.stock_on_hand = form.stock_on_hand.data
+                product.inventory.low_stock_threshold = form.low_stock_threshold.data
+            else:
+                inventory = Inventory(
+                    product_id=product.id,
+                    sku=form.sku.data,
+                    stock_on_hand=form.stock_on_hand.data,
+                    low_stock_threshold=form.low_stock_threshold.data
+                )
+                db.session.add(inventory)
+            
+            db.session.commit()
+            flash('Product updated successfully!', 'success')
+            return redirect(url_for('admin.products'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating product: {str(e)}', 'error')
+            logging.error(f"Product update error: {str(e)}")
+    
+    return render_template('admin/product_form.html', form=form, product=product, title='Edit Product')
+
+@admin_bp.route('/products/delete/<int:product_id>', methods=['POST'])
+@admin_required
+def product_delete(product_id):
+    """Delete product"""
+    try:
+        product = Product.query.get_or_404(product_id)
+        db.session.delete(product)
+        db.session.commit()
+        flash('Product deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting product: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.products'))
+
+# CATEGORY MANAGEMENT ROUTES
+@admin_bp.route('/categories')
+@admin_required
+def categories():
+    """List all categories"""
+    categories = Category.query.order_by(Category.sort_order, Category.name).all()
+    return render_template('admin/categories.html', categories=categories)
+
+@admin_bp.route('/categories/add', methods=['GET', 'POST'])
+@admin_required
+def category_add():
+    """Add new category"""
+    form = CategoryForm()
+    
+    # Set parent choices
+    form.parent_id.choices = [(0, 'No Parent')] + [(c.id, c.name) for c in Category.query.all()]
+    
+    if form.validate_on_submit():
+        try:
+            category = Category(
+                name=form.name.data,
+                slug=form.slug.data,
+                description=form.description.data,
+                parent_id=form.parent_id.data if form.parent_id.data != 0 else None,
+                sort_order=form.sort_order.data,
+                is_active=form.is_active.data
+            )
+            
+            # Handle image upload
+            if form.image.data:
+                filename = save_uploaded_file(form.image.data, 'categories')
+                if filename:
+                    category.image = filename
+            
+            db.session.add(category)
+            db.session.commit()
+            flash('Category added successfully!', 'success')
+            return redirect(url_for('admin.categories'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding category: {str(e)}', 'error')
+    
+    return render_template('admin/category_form.html', form=form, title='Add Category')
+
+@admin_bp.route('/categories/edit/<int:category_id>', methods=['GET', 'POST'])
+@admin_required
+def category_edit(category_id):
+    """Edit category"""
+    category = Category.query.get_or_404(category_id)
+    form = CategoryForm(obj=category)
+    
+    # Set parent choices (exclude self and children)
+    form.parent_id.choices = [(0, 'No Parent')]
+    for c in Category.query.all():
+        if c.id != category_id:  # Simple check, should be more complex for children
+            form.parent_id.choices.append((c.id, c.name))
+    
+    if form.validate_on_submit():
+        try:
+            category.name = form.name.data
+            category.slug = form.slug.data
+            category.description = form.description.data
+            category.parent_id = form.parent_id.data if form.parent_id.data != 0 else None
+            category.sort_order = form.sort_order.data
+            category.is_active = form.is_active.data
+            
+            # Handle image upload
+            if form.image.data:
+                filename = save_uploaded_file(form.image.data, 'categories')
+                if filename:
+                    category.image = filename
+            
+            db.session.commit()
+            flash('Category updated successfully!', 'success')
+            return redirect(url_for('admin.categories'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating category: {str(e)}', 'error')
+    
+    return render_template('admin/category_form.html', form=form, category=category, title='Edit Category')
+
+@admin_bp.route('/categories/delete/<int:category_id>', methods=['POST'])
+@admin_required
+def category_delete(category_id):
+    """Delete category"""
+    try:
+        category = Category.query.get_or_404(category_id)
+        db.session.delete(category)
+        db.session.commit()
+        flash('Category deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting category: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.categories'))
+
+# AUTHOR MANAGEMENT ROUTES
+@admin_bp.route('/authors')
+@admin_required
+def authors():
+    """List all authors"""
+    page = request.args.get('page', 1, type=int)
+    authors = Author.query.order_by(Author.name).paginate(page=page, per_page=20)
+    return render_template('admin/authors.html', authors=authors)
+
+@admin_bp.route('/authors/add', methods=['GET', 'POST'])
+@admin_required
+def author_add():
+    """Add new author"""
+    form = AuthorForm()
+    
+    if form.validate_on_submit():
+        try:
+            author = Author(
+                name=form.name.data,
+                slug=form.slug.data,
+                bio=form.bio.data,
+                website=form.website.data
+            )
+            
+            # Handle image upload
+            if form.image.data:
+                filename = save_uploaded_file(form.image.data, 'authors')
+                if filename:
+                    author.image = filename
+            
+            db.session.add(author)
+            db.session.commit()
+            flash('Author added successfully!', 'success')
+            return redirect(url_for('admin.authors'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding author: {str(e)}', 'error')
+    
+    return render_template('admin/author_form.html', form=form, title='Add Author')
+
+@admin_bp.route('/authors/edit/<int:author_id>', methods=['GET', 'POST'])
+@admin_required
+def author_edit(author_id):
+    """Edit author"""
+    author = Author.query.get_or_404(author_id)
+    form = AuthorForm(obj=author)
+    
+    if form.validate_on_submit():
+        try:
+            author.name = form.name.data
+            author.slug = form.slug.data
+            author.bio = form.bio.data
+            author.website = form.website.data
+            
+            # Handle image upload
+            if form.image.data:
+                filename = save_uploaded_file(form.image.data, 'authors')
+                if filename:
+                    author.image = filename
+            
+            db.session.commit()
+            flash('Author updated successfully!', 'success')
+            return redirect(url_for('admin.authors'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating author: {str(e)}', 'error')
+    
+    return render_template('admin/author_form.html', form=form, author=author, title='Edit Author')
+
+@admin_bp.route('/authors/delete/<int:author_id>', methods=['POST'])
+@admin_required
+def author_delete(author_id):
+    """Delete author"""
+    try:
+        author = Author.query.get_or_404(author_id)
+        db.session.delete(author)
+        db.session.commit()
+        flash('Author deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting author: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.authors'))
+
+# PUBLISHER MANAGEMENT ROUTES
+@admin_bp.route('/publishers')
+@admin_required
+def publishers():
+    """List all publishers"""
+    page = request.args.get('page', 1, type=int)
+    publishers = Publisher.query.order_by(Publisher.name).paginate(page=page, per_page=20)
+    return render_template('admin/publishers.html', publishers=publishers)
+
+@admin_bp.route('/publishers/add', methods=['GET', 'POST'])
+@admin_required
+def publisher_add():
+    """Add new publisher"""
+    form = PublisherForm()
+    
+    if form.validate_on_submit():
+        try:
+            publisher = Publisher(
+                name=form.name.data,
+                slug=form.slug.data,
+                description=form.description.data,
+                website=form.website.data
+            )
+            
+            # Handle image upload
+            if form.logo.data:
+                filename = save_uploaded_file(form.logo.data, 'publishers')
+                if filename:
+                    publisher.logo = filename
+            
+            db.session.add(publisher)
+            db.session.commit()
+            flash('Publisher added successfully!', 'success')
+            return redirect(url_for('admin.publishers'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error adding publisher: {str(e)}', 'error')
+    
+    return render_template('admin/publisher_form.html', form=form, title='Add Publisher')
+
+@admin_bp.route('/publishers/edit/<int:publisher_id>', methods=['GET', 'POST'])
+@admin_required
+def publisher_edit(publisher_id):
+    """Edit publisher"""
+    publisher = Publisher.query.get_or_404(publisher_id)
+    form = PublisherForm(obj=publisher)
+    
+    if form.validate_on_submit():
+        try:
+            publisher.name = form.name.data
+            publisher.slug = form.slug.data
+            publisher.description = form.description.data
+            publisher.website = form.website.data
+            
+            # Handle image upload
+            if form.logo.data:
+                filename = save_uploaded_file(form.logo.data, 'publishers')
+                if filename:
+                    publisher.logo = filename
+            
+            db.session.commit()
+            flash('Publisher updated successfully!', 'success')
+            return redirect(url_for('admin.publishers'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating publisher: {str(e)}', 'error')
+    
+    return render_template('admin/publisher_form.html', form=form, publisher=publisher, title='Edit Publisher')
+
+@admin_bp.route('/publishers/delete/<int:publisher_id>', methods=['POST'])
+@admin_required
+def publisher_delete(publisher_id):
+    """Delete publisher"""
+    try:
+        publisher = Publisher.query.get_or_404(publisher_id)
+        db.session.delete(publisher)
+        db.session.commit()
+        flash('Publisher deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting publisher: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.publishers'))
+
+# REVIEW MANAGEMENT ROUTES
+@admin_bp.route('/reviews')
+@admin_required
+def reviews():
+    """List all reviews"""
+    page = request.args.get('page', 1, type=int)
+    status = request.args.get('status', 'pending')
+    
+    query = Review.query
+    if status == 'pending':
+        query = query.filter_by(is_approved=False)
+    elif status == 'approved':
+        query = query.filter_by(is_approved=True)
+    
+    reviews = query.order_by(Review.created_at.desc()).paginate(page=page, per_page=20)
+    return render_template('admin/reviews.html', reviews=reviews, status=status)
+
+@admin_bp.route('/reviews/approve/<int:review_id>', methods=['POST'])
+@admin_required
+def review_approve(review_id):
+    """Approve review"""
+    try:
+        review = Review.query.get_or_404(review_id)
+        review.is_approved = True
+        db.session.commit()
+        flash('Review approved successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error approving review: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.reviews'))
+
+@admin_bp.route('/reviews/delete/<int:review_id>', methods=['POST'])
+@admin_required
+def review_delete(review_id):
+    """Delete review"""
+    try:
+        review = Review.query.get_or_404(review_id)
+        db.session.delete(review)
+        db.session.commit()
+        flash('Review deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting review: {str(e)}', 'error')
+    
+    return redirect(url_for('admin.reviews'))
+
+# COUPON MANAGEMENT ROUTES
+@admin_bp.route('/coupons')
+@admin_required
+def coupons():
+    """List all coupons"""
+    coupons = Coupon.query.order_by(Coupon.created_at.desc()).all()
+    return render_template('admin/coupons.html', coupons=coupons)
+
+# BANNER MANAGEMENT ROUTES
+@admin_bp.route('/banners')
+@admin_required
+def banners():
+    """List all banners"""
+    banners = Banner.query.order_by(Banner.sort_order).all()
+    return render_template('admin/banners.html', banners=banners)
+
+# CONTENT BLOCKS ROUTES
+@admin_bp.route('/content_blocks')
+@admin_required
+def content_blocks():
+    """List all content blocks"""
+    content_pages = ContentPage.query.order_by(ContentPage.created_at.desc()).all()
+    return render_template('admin/content_blocks.html', content_pages=content_pages)
+
+# ANALYTICS ROUTES
+@admin_bp.route('/analytics')
+@admin_required
+def analytics():
+    """Analytics dashboard"""
+    # Analytics data
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+    
+    # Date range
+    end_date = datetime.utcnow()
+    start_date = end_date - timedelta(days=30)
+    
+    # Sales data
+    from models import Order, PaymentStatus
+    sales_data = db.session.query(
+        func.date(Order.created_at).label('date'),
+        func.sum(Order.grand_total_inr).label('total')
+    ).filter(
+        Order.created_at >= start_date,
+        Order.payment_status == PaymentStatus.PAID
+    ).group_by(func.date(Order.created_at)).all()
+    
+    # Top products
+    from models import OrderItem
+    top_products = db.session.query(
+        Product.title,
+        func.sum(OrderItem.quantity).label('total_sold')
+    ).join(OrderItem).group_by(Product.id).order_by(
+        func.sum(OrderItem.quantity).desc()
+    ).limit(10).all()
+    
+    return render_template('admin/analytics.html', 
+                         sales_data=sales_data, 
+                         top_products=top_products)
